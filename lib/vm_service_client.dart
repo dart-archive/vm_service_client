@@ -14,9 +14,12 @@ import 'src/flag.dart';
 import 'src/service_version.dart';
 import 'src/vm.dart';
 
+export 'src/exceptions.dart';
 export 'src/flag.dart' hide newVMFlagList;
-export 'src/vm.dart' hide newVM;
+export 'src/isolate.dart' hide newVMIsolateRef;
+export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
+export 'src/vm.dart' hide newVM;
 
 /// A client for the [Dart VM service protocol][service api].
 ///

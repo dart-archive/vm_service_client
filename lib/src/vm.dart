@@ -4,8 +4,13 @@
 
 library vm_service_client.vm;
 
+import 'dart:async';
+import 'dart:collection';
+
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:pub_semver/pub_semver.dart';
+
+import 'isolate.dart';
 
 VM newVM(rpc.Peer peer, Map json) {
   if (json == null) return null;
@@ -44,6 +49,9 @@ class VM {
   /// The time at which the VM started running.
   final DateTime startTime;
 
+  /// The currently-running isolates.
+  final List<VMIsolateRef> isolates;
+
   VM._(rpc.Peer peer, Map json)
       : _peer = peer,
         architectureBits = json["architectureBits"],
@@ -54,5 +62,12 @@ class VM {
         pid = int.parse(json["pid"]),
         startTime = new DateTime.fromMillisecondsSinceEpoch(
             // TODO(nweiz): Don't round when sdk#24245 is fixed
-            json["startTime"].round());
+            json["startTime"].round()),
+        isolates = new UnmodifiableListView(json["isolates"]
+            .map((isolate) => newVMIsolateRef(peer, isolate))
+            .toList());
+
+  /// Reloads the current state of the VM.
+  Future<VM> load() async =>
+      new VM._(_peer, await _peer.sendRequest("getVM", {}));
 }
