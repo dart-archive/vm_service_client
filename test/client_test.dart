@@ -33,4 +33,21 @@ void main() {
         flag.name == "optimization_counter_scale");
     expect(flag.value, equals("2000"));
   });
+
+  test("onIsolateStart emits an event when an isolate starts", () async {
+    client = await runAndConnect(topLevel: r"""
+      void inIsolate(_) {
+        new ReceivePort();
+      }
+    """, main: r"""
+      Isolate.spawn(inIsolate, null);
+    """, flags: ["--pause-isolates-on-start"]);
+
+    scheduleMicrotask(() async {
+      (await client.getVM()).isolates.last.resume();
+    });
+
+    var isolate = await (await client.onIsolateStart.first).load();
+    expect(isolate.livePorts, equals(0));
+  });
 }

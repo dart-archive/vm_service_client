@@ -6,16 +6,20 @@ library vm_service_client.isolate;
 
 import 'dart:async';
 
+import 'package:async/async.dart';
+import 'package:crypto/crypto.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'exceptions.dart';
 import 'scope.dart';
 import 'sentinel.dart';
+import 'stream_manager.dart';
+import 'utils.dart';
 
-VMIsolateRef newVMIsolateRef(rpc.Peer peer, Map json) {
+VMIsolateRef newVMIsolateRef(rpc.Peer peer, StreamManager streams, Map json) {
   if (json == null) return null;
   assert(json["type"] == "@Isolate" || json["type"] == "Isolate");
-  var scope = new Scope(peer, json["id"]);
+  var scope = new Scope(peer, streams, json["id"]);
   return new VMIsolateRef._(scope, json);
 }
 
@@ -40,10 +44,94 @@ class VMIsolateRef {
   /// This isn't guaranteed to be unique. It can be set using [setName].
   final String name;
 
+  /// A broadcast stream that emits a `null` value every time a garbage
+  /// collection occurs in this isolate.
+  Stream get onGC => _onGC;
+  Stream _onGC;
+
+  /// A broadcast stream that emits a new reference to this isolate every time
+  /// its metadata changes.
+  Stream<VMIsolateRef> get onUpdate => _onUpdate;
+  Stream<VMIsolateRef> _onUpdate;
+
+  /// A broadcast stream that emits this isolate's standard output.
+  ///
+  /// This is only usable for embedders that provide access to `dart:io`.
+  ///
+  /// Note that as of the VM service version 3.0, this stream doesn't emit
+  /// strings passed to the `print()` function unless the host process's
+  /// standard output is actively being drained (see [sdk#24351][]).
+  ///
+  /// [sdk#24351]: https://github.com/dart-lang/sdk/issues/24351
+  Stream<List<int>> get stdout => _stdout;
+  Stream<List<int>> _stdout;
+
+  /// A broadcast stream that emits this isolate's standard error.
+  ///
+  /// This is only usable for embedders that provide access to `dart:io`.
+  Stream<List<int>> get stderr => _stderr;
+  Stream<List<int>> _stderr;
+
+  /// A future that fires when the isolate exits.
+  ///
+  /// If the isolate has already exited, this will complete immediately.
+  Future get onExit => _onExitMemo.runOnce(() async {
+    try {
+      await _scope.getInState(_scope.streams.isolate, () async {
+        try {
+          await load();
+          return null;
+        } on VMSentinelException catch (_) {
+          // Return a non-null value to indicate that the breakpoint is in the
+          // expected state—that is, it no longer exists.
+          return true;
+        }
+      }, (json) {
+        if (json["isolate"]["id"] != _scope.isolateId) return null;
+        if (json["kind"] != "IsolateExit") return null;
+        return true;
+      });
+    } on StateError catch (_) {
+      // Ignore state errors. They indicate that the underlying stream closed
+      // before an exit event was fired, which means that the process and thus
+      // this isolate is dead.
+    }
+  });
+  final _onExitMemo = new AsyncMemoizer();
+
   VMIsolateRef._(this._scope, Map json)
       : number = int.parse(json["number"]),
         numberAsString = json["number"],
-        name = json["name"];
+        name = json["name"] {
+    _onGC = _transform(_scope.streams.gc, (json, sink) {
+      if (json["kind"] == "GC") sink.add(null);
+    });
+
+    _onUpdate = _transform(_scope.streams.isolate, (json, sink) {
+      if (json["kind"] != "IsolateUpdate") return;
+      sink.add(new VMIsolateRef._(_scope, json["isolate"]));
+    });
+
+    _stdout = _transform(_scope.streams.stdout, (json, sink) {
+      if (json["kind"] != "WriteEvent") return;
+      var bytes = CryptoUtils.base64StringToBytes(json["bytes"]);
+      sink.add(bytes);
+    });
+
+    _stderr = _transform(_scope.streams.stderr, (json, sink) {
+      if (json["kind"] != "WriteEvent") return;
+      sink.add(CryptoUtils.base64StringToBytes(json["bytes"]));
+    });
+  }
+
+  /// Like [transform], but only calls [handleData] for events related to this
+  /// isolate.
+  Stream _transform(Stream<Map> stream, handleData(Map json, StreamSink sink)) {
+    return transform(stream, (json, sink) {
+      if (json["isolate"]["id"] != _scope.isolateId) return;
+      handleData(json, sink);
+    });
+  }
 
   /// Loads the full representation of this isolate.
   ///

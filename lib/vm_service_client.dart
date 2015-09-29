@@ -11,7 +11,10 @@ import 'dart:io';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'src/flag.dart';
+import 'src/isolate.dart';
 import 'src/service_version.dart';
+import 'src/stream_manager.dart';
+import 'src/utils.dart';
 import 'src/vm.dart';
 
 export 'src/exceptions.dart';
@@ -36,6 +39,13 @@ export 'src/vm.dart' hide newVM;
 class VMServiceClient {
   /// The underlying JSON-RPC peer used to communicate with the VM service.
   final rpc.Peer _peer;
+
+  /// The streams shared among the entire service protocol client.
+  final StreamManager _streams;
+
+  /// A broadcast stream that emits every isolate as it starts.
+  Stream<VMIsolateRef> get onIsolateStart => _onIsolateStart;
+  Stream<VMIsolateRef> _onIsolateStart;
 
   /// A future that fires when the underlying connection has been closed.
   ///
@@ -68,7 +78,13 @@ class VMServiceClient {
 
   VMServiceClient._(rpc.Peer peer)
       : _peer = peer,
-        done = peer.listen();
+        _streams = new StreamManager(peer),
+        done = peer.listen() {
+    _onIsolateStart = transform(_streams.isolate, (json, sink) {
+      if (json["kind"] != "IsolateStart") return;
+      sink.add(newVMIsolateRef(_peer, _streams, json["isolate"]));
+    });
+  }
 
   // TODO(nweiz): Add a method to validate the version number.
 
@@ -93,5 +109,5 @@ class VMServiceClient {
 
   /// Returns information about the Dart VM.
   Future<VM> getVM() async =>
-      newVM(_peer, await _peer.sendRequest("getVM", {}));
+      newVM(_peer, _streams, await _peer.sendRequest("getVM", {}));
 }

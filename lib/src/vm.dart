@@ -11,17 +11,21 @@ import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:pub_semver/pub_semver.dart';
 
 import 'isolate.dart';
+import 'stream_manager.dart';
 
-VM newVM(rpc.Peer peer, Map json) {
+VM newVM(rpc.Peer peer, StreamManager streams, Map json) {
   if (json == null) return null;
   assert(json["type"] == "VM");
-  return new VM._(peer, json);
+  return new VM._(peer, streams, json);
 }
 
 /// Data about the Dart VM as a whole.
 class VM {
   /// The underlying JSON-RPC peer used to communicate with the VM service.
   final rpc.Peer _peer;
+
+  /// The streams shared among the entire service protocol client.
+  final StreamManager _streams;
 
   /// The word length of the target architecture, in bits.
   final int architectureBits;
@@ -52,8 +56,9 @@ class VM {
   /// The currently-running isolates.
   final List<VMIsolateRef> isolates;
 
-  VM._(rpc.Peer peer, Map json)
+  VM._(rpc.Peer peer, StreamManager streams, Map json)
       : _peer = peer,
+        _streams = streams,
         architectureBits = json["architectureBits"],
         targetCpu = json["targetCPU"],
         hostCpu = json["hostCPU"],
@@ -64,10 +69,10 @@ class VM {
             // TODO(nweiz): Don't round when sdk#24245 is fixed
             json["startTime"].round()),
         isolates = new UnmodifiableListView(json["isolates"]
-            .map((isolate) => newVMIsolateRef(peer, isolate))
+            .map((isolate) => newVMIsolateRef(peer, streams, isolate))
             .toList());
 
   /// Reloads the current state of the VM.
   Future<VM> load() async =>
-      new VM._(_peer, await _peer.sendRequest("getVM", {}));
+      new VM._(_peer, _streams, await _peer.sendRequest("getVM", {}));
 }
