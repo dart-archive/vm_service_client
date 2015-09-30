@@ -8,6 +8,8 @@ import 'dart:async';
 
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
+import 'exceptions.dart';
+import 'sentinel.dart';
 import 'stream_manager.dart';
 
 /// A class representing the state inherent in the scope of a single isolate and
@@ -25,6 +27,21 @@ class Scope {
   final String isolateId;
 
   Scope(this.peer, this.streams, this.isolateId);
+
+  /// Given the ID for a [VMObjectRef], loads the JSON for its corresponding
+  /// [VMObject].
+  ///
+  /// If the `getObject` RPC returns a sentinel, this throws a
+  /// [VMSentinelException].
+  Future<Map> loadObject(String id) async {
+    var result = await sendRequest("getObject", {"objectId": id});
+
+    if (result["type"] == "Sentinel") {
+      throw new VMSentinelException(newVMSentinel(result));
+    }
+
+    return result;
+  }
 
   /// Calls an isolate-scoped RPC named [method] with [params].
   ///

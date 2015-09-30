@@ -10,6 +10,7 @@ import 'package:async/async.dart';
 import 'package:crypto/crypto.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
+import 'error.dart';
 import 'exceptions.dart';
 import 'scope.dart';
 import 'sentinel.dart';
@@ -192,12 +193,16 @@ class VMIsolate extends VMIsolateRef {
   /// Whether this isolate will pause before it exits.
   final bool pauseOnExit;
 
+  /// The error that's causing the isolate to exit or `null`.
+  final VMError error;
+
   VMIsolate._(Scope scope, Map json)
       : startTime = new DateTime.fromMillisecondsSinceEpoch(
             // TODO(nweiz): Don't round when sdk#24245 is fixed
             json["startTime"].round()),
         livePorts = json["livePorts"],
         pauseOnExit = json["pauseOnExit"],
+        error = newVMError(scope, json["error"]),
         super._(scope, json);
 }
 

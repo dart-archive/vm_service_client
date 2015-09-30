@@ -17,6 +17,7 @@ import 'src/stream_manager.dart';
 import 'src/utils.dart';
 import 'src/vm.dart';
 
+export 'src/error.dart' hide newVMError, newVMErrorRef;
 export 'src/exceptions.dart';
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/isolate.dart' hide newVMIsolateRef;

@@ -57,8 +57,3 @@ main() ${sync ? '' : 'async'} {
 
   return client;
 }
-
-Future<int> sourceLine(VMBreakpointLocation location) async {
-  var script = await location.script.load();
-  return script.sourceLocation(location.start).line;
-}
