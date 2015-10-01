@@ -64,7 +64,9 @@ class VM {
         hostCpu = json["hostCPU"],
         version = new Version.parse(json["version"].split(" ").first),
         versionString = json["version"],
-        pid = int.parse(json["pid"]),
+        // Prior to the service protocol v3.0, the pid was sent as a string.
+        // Afterwards, it was sent as an int.
+        pid = json["pid"] is String ? int.parse(json["pid"]) : json["pid"],
         startTime = new DateTime.fromMillisecondsSinceEpoch(
             // Prior to v3.0, this was emitted as a double rather than an int.
             json["startTime"].round()),
