@@ -14,6 +14,7 @@ import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'error.dart';
 import 'exceptions.dart';
 import 'library.dart';
+import 'pause_event.dart';
 import 'scope.dart';
 import 'sentinel.dart';
 import 'stream_manager.dart';
@@ -56,6 +57,11 @@ class VMIsolateRef {
   /// its metadata changes.
   Stream<VMIsolateRef> get onUpdate => _onUpdate;
   Stream<VMIsolateRef> _onUpdate;
+
+  /// A broadcast stream that emits a [VMPauseEvent] whenever this isolate is
+  /// paused or resumed.
+  Stream<VMPauseEvent> get onPauseOrResume => _onPauseOrResume;
+  Stream<VMPauseEvent> _onPauseOrResume;
 
   /// A broadcast stream that emits this isolate's standard output.
   ///
@@ -115,6 +121,11 @@ class VMIsolateRef {
       sink.add(new VMIsolateRef._(_scope, json["isolate"]));
     });
 
+    _onPauseOrResume = _transform(_scope.streams.debug, (json, sink) {
+      var event = newVMPauseEvent(_scope, json);
+      if (event != null) sink.add(event);
+    });
+
     _stdout = _transform(_scope.streams.stdout, (json, sink) {
       if (json["kind"] != "WriteEvent") return;
       var bytes = CryptoUtils.base64StringToBytes(json["bytes"]);
@@ -149,6 +160,26 @@ class VMIsolateRef {
     }, (json) {
       if (json["kind"] != "IsolateRunnable") return null;
       return load();
+    });
+  }
+
+  // Note that if anyone else is using the VM service, the VM may be unpaused by
+  // the time this fires.
+
+  /// Returns a future that completes once this isolate is paused.
+  ///
+  /// This works whether the isolate is already paused or has yet to be paused.
+  /// Note that if any other code (other VM service clients or other isolates)
+  /// unpauses the isolate, it may be unpaused by the time the returned future
+  /// fires.
+  Future waitUntilPaused() {
+    return _scope.getInState(_scope.streams.debug, () async {
+      var isolate = await load();
+      return isolate.pauseEvent is! VMResumeEvent;
+    }, (json) {
+      return json["kind"] == "PauseStart" || json["kind"] == "PauseException" ||
+          json["kind"] == "PauseExit" || json["kind"] == "PauseInterrupted" ||
+          json["kind"] == "PauseBreakpoint";
     });
   }
 
@@ -215,6 +246,14 @@ class VMIsolate extends VMIsolateRef {
   /// Whether this isolate will pause before it exits.
   final bool pauseOnExit;
 
+  /// The last pause event delivered to this isolate.
+  ///
+  /// If the isolate is running, this will be a [VMResumeEvent].
+  final VMPauseEvent pauseEvent;
+
+  /// Whether this isolate is paused.
+  bool get isPaused => pauseEvent is! VMResumeEvent;
+
   /// The error that's causing the isolate to exit or `null`.
   final VMError error;
 
@@ -224,6 +263,7 @@ class VMIsolate extends VMIsolateRef {
             json["startTime"].round()),
         livePorts = json["livePorts"],
         pauseOnExit = json["pauseOnExit"],
+        pauseEvent = newVMPauseEvent(scope, json["pauseEvent"]),
         error = newVMError(scope, json["error"]),
         super._(scope, json);
 }
