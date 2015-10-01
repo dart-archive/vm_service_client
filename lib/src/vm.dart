@@ -66,7 +66,7 @@ class VM {
         versionString = json["version"],
         pid = int.parse(json["pid"]),
         startTime = new DateTime.fromMillisecondsSinceEpoch(
-            // TODO(nweiz): Don't round when sdk#24245 is fixed
+            // Prior to v3.0, this was emitted as a double rather than an int.
             json["startTime"].round()),
         isolates = new UnmodifiableListView(json["isolates"]
             .map((isolate) => newVMIsolateRef(peer, streams, isolate))

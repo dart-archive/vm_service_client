@@ -220,7 +220,7 @@ class VMIsolate extends VMIsolateRef {
 
   VMIsolate._(Scope scope, Map json)
       : startTime = new DateTime.fromMillisecondsSinceEpoch(
-            // TODO(nweiz): Don't round when sdk#24245 is fixed
+            // Prior to v3.0, this was emitted as a double rather than an int.
             json["startTime"].round()),
         livePorts = json["livePorts"],
         pauseOnExit = json["pauseOnExit"],
