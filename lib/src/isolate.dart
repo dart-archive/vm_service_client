@@ -5,6 +5,7 @@
 library vm_service_client.isolate;
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:crypto/crypto.dart';
@@ -12,6 +13,7 @@ import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'error.dart';
 import 'exceptions.dart';
+import 'library.dart';
 import 'scope.dart';
 import 'sentinel.dart';
 import 'stream_manager.dart';
@@ -134,6 +136,22 @@ class VMIsolateRef {
     });
   }
 
+  /// Loads the full representation of this isolate once it becomes runnable.
+  ///
+  /// This will work whether this isolate is already runnable or has yet to
+  /// become runnable.
+  ///
+  /// This is only supported on the VM service protocol version 3.0 and greater.
+  Future<VMRunnableIsolate> loadRunnable() {
+    return _scope.getInState(_scope.streams.isolate, () async {
+      var isolate = await load();
+      return isolate is VMRunnableIsolate ? isolate : null;
+    }, (json) {
+      if (json["kind"] != "IsolateRunnable") return null;
+      return load();
+    });
+  }
+
   /// Loads the full representation of this isolate.
   ///
   /// Throws a [VMSentinelException] if this isolate is no longer available.
@@ -146,7 +164,11 @@ class VMIsolateRef {
     } else if (response["type"] == "Sentinel") {
       throw new VMSentinelException(newVMSentinel(response));
     } else {
-      return new VMIsolate._(_scope, response);
+      return response["rootLib"] == null ||
+             // Work around sdk#24140
+             response["rootLib"]["type"] == "@Instance"
+          ? new VMIsolate._(_scope, response)
+          : new VMRunnableIsolate._(_scope, response);
     }
   }
 
@@ -204,6 +226,39 @@ class VMIsolate extends VMIsolateRef {
         pauseOnExit = json["pauseOnExit"],
         error = newVMError(scope, json["error"]),
         super._(scope, json);
+}
+
+/// A full isolate on the remote VM that's ready to run code.
+///
+/// The VM service exposes isolates very early, before their contents are
+/// fully-loaded. These in-progress isolates, represented by plain [VMIsolate]
+/// instances, have limited amounts of metadata available. Only once they're
+/// runnable is the full suite of metadata available.
+///
+/// A [VMRunnableIsolate] can always be retrieved using
+/// [VMIsolateRef.loadRunnable]. In addition, one will be returned by
+/// [VMIsolate.load] if the remote isolate is runnable.
+class VMRunnableIsolate extends VMIsolate {
+  /// The root library for this isolate.
+  final VMLibraryRef rootLibrary;
+
+  /// All the libraries (transitively) loaded in this isolate, indexed by their
+  /// canonical URIs.
+  final Map<Uri, VMLibraryRef> libraries;
+
+  VMRunnableIsolate._(Scope scope, Map json)
+      : rootLibrary = newVMLibraryRef(scope, json["rootLib"]),
+        libraries = new UnmodifiableMapView(
+            new Map.fromIterable(json["libraries"],
+                key: (library) => Uri.parse(library["uri"]),
+                value: (library) => newVMLibraryRef(scope, library))),
+        super._(scope, json);
+
+  Future<VMRunnableIsolate> loadRunnable() => load();
+
+  Future<VMRunnableIsolate> load() => super.load();
+
+  String toString() => "Isolate running $rootLibrary";
 }
 
 /// An enum of ways to resume an isolate's execution using

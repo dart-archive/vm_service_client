@@ -21,6 +21,7 @@ export 'src/error.dart' hide newVMError, newVMErrorRef;
 export 'src/exceptions.dart';
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/isolate.dart' hide newVMIsolateRef;
+export 'src/library.dart' hide newVMLibraryRef;
 export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
 export 'src/vm.dart' hide newVM;
@@ -47,6 +48,15 @@ class VMServiceClient {
   /// A broadcast stream that emits every isolate as it starts.
   Stream<VMIsolateRef> get onIsolateStart => _onIsolateStart;
   Stream<VMIsolateRef> _onIsolateStart;
+
+  /// A broadcast stream that emits every isolate as it becomes runnable.
+  ///
+  /// These isolates are guaranteed to return a [VMRunnableIsolate] from
+  /// [VMIsolateRef.load].
+  ///
+  /// This is only supported on the VM service protocol version 3.0 and greater.
+  Stream<VMIsolateRef> get onIsolateRunnable => _onIsolateRunnable;
+  Stream<VMIsolateRef> _onIsolateRunnable;
 
   /// A future that fires when the underlying connection has been closed.
   ///
@@ -83,6 +93,11 @@ class VMServiceClient {
         done = peer.listen() {
     _onIsolateStart = transform(_streams.isolate, (json, sink) {
       if (json["kind"] != "IsolateStart") return;
+      sink.add(newVMIsolateRef(_peer, _streams, json["isolate"]));
+    });
+
+    _onIsolateRunnable = transform(_streams.isolate, (json, sink) {
+      if (json["kind"] != "IsolateRunnable") return;
       sink.add(newVMIsolateRef(_peer, _streams, json["isolate"]));
     });
   }
