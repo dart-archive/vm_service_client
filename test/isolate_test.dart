@@ -30,6 +30,7 @@ void main() {
     expect(isolate.livePorts, equals(1));
     expect(isolate.pauseEvent, new isInstanceOf<VMPauseStartEvent>());
     expect(isolate.error, isNull);
+    expect(isolate.breakpoints, isEmpty);
     expect(isolate.rootLibrary.uri.scheme, equals('data'));
     expect(isolate.libraries, isNotEmpty);
   });
@@ -158,6 +159,19 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
     await isolate.setName('fblthp');
     expect((await isolate.load()).name, equals('fblthp'));
+  });
+
+  group("addBreakpoint", () {
+    test("works before the isolate is runnable", () async {
+      client = await runAndConnect(flags: ['--pause-isolates-on-start']);
+
+      // We should be able to set a breakpoint before the relevant library is
+      // loaded, although it may fail to resolve if (as in this case) the line
+      // number is bogus.
+      var isolate = (await client.getVM()).isolates.first;
+      var breakpoint = await isolate.addBreakpoint('dart:async', 0);
+      expect(breakpoint.number, equals(1));
+    });
   });
 }
 

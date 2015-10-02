@@ -11,6 +11,7 @@ import 'package:async/async.dart';
 import 'package:crypto/crypto.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
+import 'breakpoint.dart';
 import 'error.dart';
 import 'exceptions.dart';
 import 'library.dart';
@@ -62,6 +63,11 @@ class VMIsolateRef {
   /// paused or resumed.
   Stream<VMPauseEvent> get onPauseOrResume => _onPauseOrResume;
   Stream<VMPauseEvent> _onPauseOrResume;
+
+  /// A broadcast stream that emits a [VMBreakpoint] whenever a breakpoint is
+  /// added.
+  Stream<VMBreakpoint> get onBreakpointAdded => _onBreakpointAdded;
+  Stream<VMBreakpoint> _onBreakpointAdded;
 
   /// A broadcast stream that emits this isolate's standard output.
   ///
@@ -124,6 +130,11 @@ class VMIsolateRef {
     _onPauseOrResume = _transform(_scope.streams.debug, (json, sink) {
       var event = newVMPauseEvent(_scope, json);
       if (event != null) sink.add(event);
+    });
+
+    _onBreakpointAdded = _transform(_scope.streams.debug, (json, sink) {
+      if (json["kind"] != "BreakpointAdded") return;
+      sink.add(newVMBreakpoint(_scope, json["breakpoint"]));
     });
 
     _stdout = _transform(_scope.streams.stdout, (json, sink) {
@@ -227,6 +238,29 @@ class VMIsolateRef {
   /// the new name.
   Future setName(String name) => _scope.sendRequest("setName", {"name": name});
 
+  /// Adds a breakpoint at [line] (and optionally [column]) in the script with
+  /// the given canonical [uri].
+  ///
+  /// [uri] may be a [String] or a [Uri].
+  Future<VMBreakpoint> addBreakpoint(uri, int line, {int column}) async {
+    if (uri is! String && uri is! Uri) {
+      throw new ArgumentError("Invalid uri '$uri', must be a Uri or a String.");
+    }
+
+    var params = {"scriptUri": uri.toString(), "line": line};
+    if (column != null) params["column"] = column;
+
+    try {
+      var response = await _scope.sendRequest(
+          "addBreakpointWithScriptUri", params);
+      return newVMBreakpoint(_scope, response);
+    } on rpc.RpcException catch (error) {
+      // Error 102 indicates that the breakpoint couldn't be created.
+      if (error.code == 102) return null;
+      rethrow;
+    }
+  }
+
   bool operator ==(other) => other is VMIsolateRef &&
       other._scope.isolateId == _scope.isolateId;
 
@@ -257,6 +291,9 @@ class VMIsolate extends VMIsolateRef {
   /// The error that's causing the isolate to exit or `null`.
   final VMError error;
 
+  /// All breakpoints currently registered for this isolate.
+  final List<VMBreakpoint> breakpoints;
+
   VMIsolate._(Scope scope, Map json)
       : startTime = new DateTime.fromMillisecondsSinceEpoch(
             // Prior to v3.0, this was emitted as a double rather than an int.
@@ -265,6 +302,9 @@ class VMIsolate extends VMIsolateRef {
         pauseOnExit = json["pauseOnExit"],
         pauseEvent = newVMPauseEvent(scope, json["pauseEvent"]),
         error = newVMError(scope, json["error"]),
+        breakpoints = new UnmodifiableListView(json["breakpoints"]
+            .map((breakpoint) => newVMBreakpoint(scope, breakpoint))
+            .toList()),
         super._(scope, json);
 }
 
