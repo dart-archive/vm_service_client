@@ -22,6 +22,8 @@ export 'src/exceptions.dart';
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/isolate.dart' hide newVMIsolateRef;
 export 'src/library.dart' hide newVMLibraryRef;
+export 'src/object.dart';
+export 'src/pause_event.dart' hide newVMPauseEvent;
 export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
 export 'src/vm.dart' hide newVM;
