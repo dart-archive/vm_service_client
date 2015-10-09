@@ -65,4 +65,15 @@ void main() {
     await library.setDebuggable();
     expect((await library.load()).isDebuggable, isTrue);
   });
+
+  test("evaluate() evaluates code in the context of the library", () async {
+    var client = await runAndConnect(topLevel: r"""
+      int foo(int value) => value + 12;
+    """, flags: ["--pause-isolates-on-start"]);
+
+    var isolate = await (await client.getVM()).isolates.first.load();
+    var value = await isolate.rootLibrary.evaluate("foo(6)");
+    expect(value, new isInstanceOf<VMIntInstanceRef>());
+    expect(value.value, equals(18));
+  });
 }

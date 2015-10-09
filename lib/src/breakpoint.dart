@@ -36,7 +36,7 @@ class VMBreakpoint extends VMObject {
   final String _id;
 
   /// Whether [_id] is guaranteed to be the same for different VM service
-  /// library objects that refer to the same breakpoint.
+  /// instance objects that refer to the same breakpoint.
   final bool _fixedId;
 
   final int size;

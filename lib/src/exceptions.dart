@@ -4,6 +4,7 @@
 
 library vm_service_client.exceptions;
 
+import 'error.dart';
 import 'sentinel.dart';
 
 /// An exception thrown when the client attempts to load a remote object that's
@@ -15,4 +16,14 @@ class VMSentinelException implements Exception {
   VMSentinelException(this.sentinel);
 
   String toString() => "Unexpected $sentinel sentinel.";
+}
+
+/// An exception that represents a Dart exception in the remote VM.
+class VMErrorException implements Exception {
+  /// The error in the remote VM.
+  final VMErrorRef error;
+
+  VMErrorException(this.error);
+
+  String toString() => "Remote VM ${error.kind}: ${error.message}";
 }

@@ -8,7 +8,9 @@ import 'dart:async';
 
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
+import 'error.dart';
 import 'exceptions.dart';
+import 'instance.dart';
 import 'sentinel.dart';
 import 'stream_manager.dart';
 
@@ -49,6 +51,25 @@ class Scope {
   Future<Map> sendRequest(String method, [Map<String, Object> params]) async {
     var allParams = {"isolateId": isolateId}..addAll(params ?? {});
     return (await peer.sendRequest(method, allParams)) as Map;
+  }
+
+  /// Evaluates [expression] in the context of the object identified by [id].
+  ///
+  /// Throws a [VMErrorException] if evaluating the expression throws an error.
+  /// Throws a [VMSentinelException] if the object has expired.
+  Future<VMInstanceRef> evaluate(String id, String expression) async {
+    var result = await sendRequest("evaluate", {
+      "targetId": id,
+      "expression": expression
+    });
+
+    switch (result["type"]) {
+      case "Sentinel": throw new VMSentinelException(newVMSentinel(result));
+      case "@Error": throw new VMErrorException(newVMErrorRef(this, result));
+      case "@Instance": return newVMInstanceRef(this, result);
+      default:
+        throw new StateError('Unexpected Object type "${result["type"]}".');
+    }
   }
 
   /// A race-condition-free way of getting an object in a particular state.

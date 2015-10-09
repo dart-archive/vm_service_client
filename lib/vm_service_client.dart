@@ -22,6 +22,8 @@ export 'src/error.dart' hide newVMError, newVMErrorRef;
 export 'src/exceptions.dart';
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/isolate.dart' hide newVMIsolateRef;
+export 'src/instance.dart' hide newVMInstanceRef, newVMInstance,
+    newVMTypeLikeInstanceRef, newVMTypeInstanceRef, newVMInstanceRefOrSentinel;
 export 'src/library.dart' hide newVMLibraryRef;
 export 'src/object.dart';
 export 'src/pause_event.dart' hide newVMPauseEvent;

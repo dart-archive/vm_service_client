@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:async/async.dart';
 import 'package:test/test.dart';
@@ -36,6 +37,23 @@ void main() {
   });
 
   group("events:", () {
+    test("onGC fires when a garbage collection happens", () async {
+      var isolates = await _twoIsolates();
+      var main = await isolates.first.loadRunnable();
+      var other = isolates.last;
+
+      // We should be properly filtering events to the right isolate.
+      other.onGC.listen(expectAsync((_) {}, count: 0));
+
+      // Allocate a bunch of data, which should eventually trigger a GC.
+      var onGC = new ResultFuture(main.onGC.first);
+      while (onGC.result == null) {
+        await main.rootLibrary.evaluate("new List(10000)");
+      }
+
+      await onGC;
+    });
+
     test("onUpdate fires when the Isolate's name changes", () async {
       var isolates = await _twoIsolates();
       var main = await isolates.first.loadRunnable();
@@ -48,6 +66,52 @@ void main() {
       other.onUpdate.listen(expectAsync((_) {}, count: 0));
 
       await main.setName('fblthp');
+    });
+
+    test("onPauseOrResume fires when the isolate pauses or resumes", () async {
+      var isolates = await _twoIsolates();
+      var main = await isolates.first.loadRunnable();
+      var other = isolates.last;
+
+      // Give the isolate something to run. This works around sdk#24349, which
+      // causes pause to fail if no code is running.
+      main.rootLibrary.evaluate("""
+        (() {
+          while (true) {}
+        })()
+      """);
+
+      var queue = new StreamQueue(main.onPauseOrResume);
+      expect(queue.next,
+          completion(new isInstanceOf<VMPauseInterruptedEvent>()));
+      expect(queue.next, completion(new isInstanceOf<VMResumeEvent>()));
+
+      // We should be properly filtering events to the right isolate.
+      other.onPauseOrResume.listen(expectAsync((_) {}, count: 0));
+
+      await main.pause();
+      await main.waitUntilPaused();
+      await main.resume();
+    });
+
+    test("stdout and stderr", () async {
+      var isolates = await _twoIsolates();
+      var main = await isolates.first.loadRunnable();
+      var other = isolates.last;
+
+      // We should be properly filtering events to the right isolate.
+      other.stdout.listen(expectAsync((_) {}, count: 0));
+      other.stderr.listen(expectAsync((_) {}, count: 0));
+
+      var stdout = new StreamQueue(main.stdout.transform(lines));
+      expect(stdout.next, completion(equals("out")));
+      expect(stdout.next, completion(equals("print")));
+      expect(main.stderr.transform(lines).first, completion(equals("err")));
+
+      // TODO(nweiz): Test stdout when sdk#24351 is fixed.
+      await main.rootLibrary.evaluate("stdout.writeln('out')");
+      await main.rootLibrary.evaluate("print('print')");
+      await main.rootLibrary.evaluate("stderr.writeln('err')");
     });
 
     group("onExit", () {
@@ -119,6 +183,24 @@ void main() {
   });
 
   group("waitUntilPaused", () {
+    test("for an unpaused isolate", () async {
+      client = await runAndConnect(topLevel: r"""
+        var stop = false;
+      """, main: r"""
+        print('looping');
+        while (!stop) {}
+        debugger();
+      """, flags: ['--pause-isolates-on-start']);
+
+      var isolate = (await client.getVM()).isolates.first;
+      isolate.resume();
+      expect(await isolate.stdout.transform(lines).first, equals("looping"));
+
+      var waitUntilPaused = isolate.waitUntilPaused();
+      await (await isolate.loadRunnable()).rootLibrary.evaluate("stop = true");
+      await waitUntilPaused;
+    });
+
     test("for a paused isolate", () async {
       client = await runAndConnect(main: r"""
         print('pausing');
@@ -176,7 +258,7 @@ void main() {
 }
 
 /// Starts a client with two unpaused empty isolates.
-Future<List<Isolate>> _twoIsolates() async {
+Future<List<VMRunnableIsolate>> _twoIsolates() async {
   client = await runAndConnect(topLevel: r"""
     void otherIsolate(_) {}
   """, main: r"""

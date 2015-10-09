@@ -9,6 +9,7 @@ import 'dart:collection';
 
 import 'scope.dart';
 import 'object.dart';
+import 'instance.dart';
 
 VMLibraryRef newVMLibraryRef(Scope scope, Map json) {
   if (json == null) return null;
@@ -57,6 +58,12 @@ class VMLibraryRef implements VMObjectRef {
       "isDebuggable": false
     });
   }
+
+  /// Evaluates [expression] in the context of this library.
+  ///
+  /// Throws a [VMErrorException] if evaluating the expression throws an error.
+  Future<VMInstanceRef> evaluate(String expression) =>
+      _scope.evaluate(_id, expression);
 
   bool operator ==(other) => other is VMLibraryRef &&
       (_fixedId ? _id == other._id : super == other);
