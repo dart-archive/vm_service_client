@@ -12,6 +12,7 @@ import 'package:pub_semver/pub_semver.dart';
 
 import 'isolate.dart';
 import 'stream_manager.dart';
+import 'utils.dart';
 
 VM newVM(rpc.Peer peer, StreamManager streams, Map json) {
   if (json == null) return null;
@@ -19,14 +20,53 @@ VM newVM(rpc.Peer peer, StreamManager streams, Map json) {
   return new VM._(peer, streams, json);
 }
 
-/// Data about the Dart VM as a whole.
-class VM {
+/// A reference to data the Dart VM as a whole.
+///
+/// The full VM with additional metadata can be loaded using [load].
+class VMRef {
   /// The underlying JSON-RPC peer used to communicate with the VM service.
   final rpc.Peer _peer;
 
   /// The streams shared among the entire service protocol client.
   final StreamManager _streams;
 
+  /// A name identifying this VM for debugging.
+  ///
+  /// This isn't guaranteed to be unique. It can be set using [setName]. This is
+  /// only supported on the VM service protocol version 3.0 and greater.
+  final String name;
+
+  /// A broadcast stream that emits a new reference to the VM every time its
+  /// metadata changes.
+  ///
+  /// This is only supported on the VM service protocol version 3.0 and greater.
+  Stream<VMRef> get onUpdate => _onUpdate;
+  Stream<VMRef> _onUpdate;
+
+  VMRef._(rpc.Peer peer, StreamManager streams, Map json)
+      : _peer = peer,
+        _streams = streams,
+        name = json["name"] {
+    _onUpdate = transform(_streams.vm, (json, sink) {
+      if (json["kind"] != "VMUpdate") return;
+      sink.add(new VMRef._(peer, streams, json["vm"]));
+    });
+  }
+
+  /// Sets the debugging [name] of the VM.
+  ///
+  /// Note that since this object is immutable, it needs to be reloaded to see
+  /// the new name.
+  Future setName(String name) =>
+      _peer.sendRequest("setVMName", {"name": name});
+
+  /// Loads the full representation of the VM.
+  Future<VM> load() async =>
+      new VM._(_peer, _streams, await _peer.sendRequest("getVM", {}));
+}
+
+/// Data about the Dart VM as a whole.
+class VM extends VMRef {
   /// The word length of the target architecture, in bits.
   final int architectureBits;
 
@@ -57,9 +97,7 @@ class VM {
   final List<VMIsolateRef> isolates;
 
   VM._(rpc.Peer peer, StreamManager streams, Map json)
-      : _peer = peer,
-        _streams = streams,
-        architectureBits = json["architectureBits"],
+      : architectureBits = json["architectureBits"],
         targetCpu = json["targetCPU"],
         hostCpu = json["hostCPU"],
         version = new Version.parse(json["version"].split(" ").first),
@@ -72,9 +110,6 @@ class VM {
             json["startTime"].round()),
         isolates = new UnmodifiableListView(json["isolates"]
             .map((isolate) => newVMIsolateRef(peer, streams, isolate))
-            .toList());
-
-  /// Reloads the current state of the VM.
-  Future<VM> load() async =>
-      new VM._(_peer, _streams, await _peer.sendRequest("getVM", {}));
+            .toList()),
+        super._(peer, streams, json);
 }

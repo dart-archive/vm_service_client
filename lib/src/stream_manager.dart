@@ -19,6 +19,10 @@ class StreamManager {
   /// The underlying JSON-RPC 2.0 peer used to communicate with the VM service.
   final rpc.Peer _peer;
 
+  /// Events related to the whole VM.
+  Stream<Map> get vm => _vmController.stream;
+  StreamController<Map> _vmController;
+
   /// Events related to isolate lifecycles.
   Stream<Map> get isolate => _isolateController.stream;
   StreamController<Map> _isolateController;
@@ -47,6 +51,7 @@ class StreamManager {
 
   StreamManager(this._peer) {
     _isolateController = _controller("Isolate");
+    _vmController = _controller("VM");
     _debugController = _controller("Debug");
     _gcController = _controller("GC");
     _stdoutController = _controller("Stdout");
@@ -54,6 +59,9 @@ class StreamManager {
 
     _peer.registerMethod("streamNotify", (params) {
       switch (params["streamId"].asString) {
+        case "VM":
+          _vmController.add(params["event"].asMap);
+          break;
         case "Isolate":
           _isolateController.add(params["event"].asMap);
           break;
@@ -73,6 +81,7 @@ class StreamManager {
     });
 
     _peer.done.then((_) {
+      _vmController.close();
       _isolateController.close();
       _debugController.close();
       _gcController.close();
