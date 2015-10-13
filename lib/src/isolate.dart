@@ -18,6 +18,7 @@ import 'library.dart';
 import 'pause_event.dart';
 import 'scope.dart';
 import 'sentinel.dart';
+import 'stack.dart';
 import 'stream_manager.dart';
 import 'utils.dart';
 
@@ -213,6 +214,10 @@ class VMIsolateRef {
           : new VMRunnableIsolate._(_scope, response);
     }
   }
+
+  /// Returns the isolate's current execution stack and message queue.
+  Future<VMStack> getStack() async =>
+      newVMStack(_scope, await _scope.sendRequest("getStack"));
 
   /// Pauses this isolate.
   ///

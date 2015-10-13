@@ -4,7 +4,12 @@
 
 library vm_service_client.pause_event;
 
+import 'dart:collection';
+
+import 'breakpoint.dart';
+import 'frame.dart';
 import 'scope.dart';
+import 'instance.dart';
 
 VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
   if (json == null) return null;
@@ -23,6 +28,13 @@ VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
 
 /// An event indicating that an isolate has been paused or resumed.
 abstract class VMPauseEvent {
+  /// The top stack frame associated with this event.
+  ///
+  /// This is `null` for [VMPauseInterruptedEvent]s when the interrupt arrived
+  /// while the Isolate was idle, and for the initial [VMPauseResume] event
+  /// that's delivered when an isolate begins execution.
+  final VMFrame topFrame;
+
   /// The time at which the event fired.
   ///
   /// This is only available in version 3.0 or greater of the VM service
@@ -30,7 +42,8 @@ abstract class VMPauseEvent {
   final DateTime time;
 
   VMPauseEvent._(Scope scope, Map json)
-      : time = json["timestamp"] == null
+      : topFrame = newVMFrame(scope, json["frame"]),
+        time = json["timestamp"] == null
             ? new DateTime.fromMillisecondsSinceEpoch(json["timestamp"])
             : null;
 }
@@ -56,10 +69,20 @@ class VMPauseExitEvent extends VMPauseEvent {
 /// An event indicating that an isolate was paused at a breakpoint or due to
 /// stepping through code.
 class VMPauseBreakpointEvent extends VMPauseEvent {
-  VMPauseBreakpointEvent._(Scope scope, Map json)
-      : super._(scope, json);
+  /// The breakpoint that caused this pause event.
+  final VMBreakpoint breakpoint;
 
-  String toString() => "pause at breakpoint";
+  /// The list of breakpoints at the current execution point.
+  final List<VMBreakpoint> breakpoints;
+
+  VMPauseBreakpointEvent._(Scope scope, Map json)
+      : breakpoint = newVMBreakpoint(scope, json["breakpoint"]),
+        breakpoints = new UnmodifiableListView(json["pauseBreakpoints"]
+            .map((breakpoint) => newVMBreakpoint(scope, breakpoint))
+            .toList()),
+        super._(scope, json);
+
+  String toString() => "pause at $breakpoint";
 }
 
 /// An event indicating that an isolate was paused due to an interruption.
@@ -75,8 +98,12 @@ class VMPauseInterruptedEvent extends VMPauseEvent {
 /// An event indicating that an isolate was paused due to an exception.
 /// An event indicating that an isolate was paused due to an exception.
 class VMPauseExceptionEvent extends VMPauseEvent {
+  /// The exception that caused the isolate to become paused.
+  final VMInstanceRef exception;
+
   VMPauseExceptionEvent._(Scope scope, Map json)
-      : super._(scope, json);
+      : exception = newVMInstanceRef(scope, json["exception"]),
+        super._(scope, json);
 
   String toString() => "pause on exception";
 }

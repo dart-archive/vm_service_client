@@ -17,7 +17,7 @@ class VMBoundField {
   /// The value that the field is bound to.
   ///
   /// If this field is uninitialized, this will be [VMSentinel.notInitialized].
-  /// If it's current being initialized, it will be
+  /// If it's currently being initialized, it will be
   /// [VMSentinel.beingInitialized]. Otherwise, it will be a [VMInstanceRef].
   final value;
 

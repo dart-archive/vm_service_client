@@ -21,14 +21,17 @@ export 'src/breakpoint.dart' hide newVMBreakpoint;
 export 'src/error.dart' hide newVMError, newVMErrorRef;
 export 'src/exceptions.dart';
 export 'src/flag.dart' hide newVMFlagList;
+export 'src/frame.dart' hide newVMFrame;
 export 'src/isolate.dart' hide newVMIsolateRef;
 export 'src/instance.dart' hide newVMInstanceRef, newVMInstance,
     newVMTypeLikeInstanceRef, newVMTypeInstanceRef, newVMInstanceRefOrSentinel;
 export 'src/library.dart' hide newVMLibraryRef;
+export 'src/message.dart' hide newVMMessage;
 export 'src/object.dart';
 export 'src/pause_event.dart' hide newVMPauseEvent;
 export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
+export 'src/stack.dart' hide newVMStack;
 export 'src/vm.dart' hide newVM;
 
 /// A client for the [Dart VM service protocol][service api].
