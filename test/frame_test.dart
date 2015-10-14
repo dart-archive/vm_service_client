@@ -30,6 +30,7 @@ void main() {
     expect(frame.index, equals(0));
     expect(frame.variables, contains("foo"));
     expect(frame.toString(), equals("#0"));
+    expect(await sourceLine(frame.location), equals(11));
   });
 
   test("evaluate() evaluates code in the context of the frame", () async {

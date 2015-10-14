@@ -235,6 +235,70 @@ void main() {
         new isInstanceOf<VMPauseInterruptedEvent>());
   });
 
+  group("resume()", () {
+    var isolate;
+    var stdout;
+    setUp(() async {
+      client = await runAndConnect(topLevel: r"""
+        inner() { // line 3
+          print("in inner");
+        }
+
+        outer() {
+          debugger();
+          inner();
+          print("after inner"); // line 10
+        }
+      """, main: r"""
+        outer();
+        print("after outer"); // line 18
+      """);
+
+      isolate = (await client.getVM()).isolates.first;
+      await isolate.waitUntilPaused();
+      stdout = new StreamQueue(lines.bind(isolate.stdout));
+    });
+
+    test("resumes normal execution by default", () async {
+      expect(stdout.next, completion(equals("in inner")));
+      expect(stdout.next, completion(equals("after inner")));
+      expect(stdout.next, completion(equals("after outer")));
+
+      isolate.resume();
+    });
+
+    test("steps into the next function with VMStep.into", () async {
+      await isolate.resume(step: VMStep.into);
+      await isolate.waitUntilPaused();
+
+      var frame = (await isolate.getStack()).frames.first;
+      expect(await sourceLine(frame.location), equals(3));
+    });
+
+    test("steps over the next function with VMStep.over", () async {
+      expect(stdout.next, completion(equals("in inner")));
+      stdout.next.then(expectAsync((_) {}, count: 0)).catchError((_) {});
+
+      await isolate.resume(step: VMStep.over);
+      await isolate.waitUntilPaused();
+
+      var frame = (await isolate.getStack()).frames.first;
+      expect(await sourceLine(frame.location), equals(10));
+    });
+
+    test("steps out of the current function with VMStep.out", () async {
+      expect(stdout.next, completion(equals("in inner")));
+      expect(stdout.next, completion(equals("after inner")));
+      stdout.next.then(expectAsync((_) {}, count: 0)).catchError((_) {});
+
+      await isolate.resume(step: VMStep.out);
+      await isolate.waitUntilPaused();
+
+      var frame = (await isolate.getStack()).frames.first;
+      expect(await sourceLine(frame.location), equals(18));
+    });
+  });
+
   test("setName() sets the isolate's name", () async {
     client = await runAndConnect(flags: ['--pause-isolates-on-start']);
 

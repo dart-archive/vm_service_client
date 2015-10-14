@@ -29,8 +29,10 @@ export 'src/library.dart' hide newVMLibraryRef;
 export 'src/message.dart' hide newVMMessage;
 export 'src/object.dart';
 export 'src/pause_event.dart' hide newVMPauseEvent;
+export 'src/script.dart' hide newVMScriptRef, newVMScriptToken;
 export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
+export 'src/source_location.dart' hide newVMSourceLocation;
 export 'src/stack.dart' hide newVMStack;
 export 'src/vm.dart' hide newVM;
 

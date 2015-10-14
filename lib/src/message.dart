@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'instance.dart';
 import 'scope.dart';
+import 'source_location.dart';
 
 VMMessage newVMMessage(Scope scope, Map json) {
   if (json == null) return null;
@@ -32,12 +33,18 @@ class VMMessage {
 
   final int size;
 
+  /// The source location of the handler function.
+  ///
+  /// This may be `null` if there is no handler.
+  final VMSourceLocation location;
+
   VMMessage._(Scope scope, Map json)
       : _scope = scope,
         _objectId = json["messageObjectId"],
         index = json["index"],
         name = json["name"],
-        size = json["size"];
+        size = json["size"],
+        location = newVMSourceLocation(scope, json["location"]);
 
   /// Loads the message's payload.
   ///

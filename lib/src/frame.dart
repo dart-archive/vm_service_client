@@ -11,6 +11,7 @@ import 'error.dart';
 import 'exceptions.dart';
 import 'instance.dart';
 import 'scope.dart';
+import 'source_location.dart';
 
 VMFrame newVMFrame(Scope scope, Map json) {
   if (json == null) return null;
@@ -28,12 +29,16 @@ class VMFrame {
   /// actual point of execution has index 0.
   final int index;
 
+  /// The location of the frame in Dart source.
+  final VMSourceLocation location;
+
   /// The local variables in the current frame, indexed by name.
   final Map<String, VMBoundVariable> variables;
 
   VMFrame._(Scope scope, Map json)
       : _scope = scope,
         index = json["index"],
+        location = newVMSourceLocation(scope, json["location"]),
         variables = new UnmodifiableMapView(new Map.fromIterable(json["vars"],
             key: (variable) => variable["name"],
             value: (variable) => new VMBoundVariable._(scope, variable)));

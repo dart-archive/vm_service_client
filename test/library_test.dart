@@ -48,6 +48,8 @@ void main() {
           dependency.target.uri.toString() == 'dart:typed_data';
     }, "export 'dart:typed_data'")));
 
+    expect(library.scripts, hasLength(1));
+    expect(library.scripts.single.uri, equals(library.uri));
   });
 
   test("setNotDebuggable and setDebuggable control library debuggability",

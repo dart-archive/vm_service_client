@@ -35,6 +35,7 @@ void main() {
     expect(message.index, equals(0));
     expect(message.name, isNotNull);
     expect(message.size, greaterThan(0));
+    expect(message.location, isNotNull);
 
     var value = await message.loadValue();
     expect(value, new isInstanceOf<VMStringInstanceRef>());

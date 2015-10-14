@@ -10,6 +10,7 @@ import 'dart:collection';
 import 'scope.dart';
 import 'object.dart';
 import 'instance.dart';
+import 'script.dart';
 
 VMLibraryRef newVMLibraryRef(Scope scope, Map json) {
   if (json == null) return null;
@@ -83,11 +84,20 @@ class VMLibrary extends VMLibraryRef implements VMObject {
   /// The imports and exports for this library.
   final List<VMLibraryDependency> dependencies;
 
+  /// The scripts that make up the library.
+  ///
+  /// Most libraries have only one script, but the `part` directive means that
+  /// it can have multiple.
+  final List<VMScriptRef> scripts;
+
   VMLibrary._(Scope scope, Map json)
       : size = json["size"],
         isDebuggable = json["debuggable"],
         dependencies = new UnmodifiableListView(json["dependencies"]
             .map((dependency) => new VMLibraryDependency._(scope, dependency))
+            .toList()),
+        scripts = new UnmodifiableListView(json["scripts"]
+            .map((script) => newVMScriptRef(scope, script))
             .toList()),
         super._(scope, json);
 }
