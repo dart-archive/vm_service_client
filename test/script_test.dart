@@ -8,7 +8,7 @@ import 'package:vm_service_client/vm_service_client.dart';
 import 'utils.dart';
 
 VMServiceClient client;
-VMIsolate isolate;
+VMRunnableIsolate isolate;
 VMScriptRef scriptRef;
 
 void main() {

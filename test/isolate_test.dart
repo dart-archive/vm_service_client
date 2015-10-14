@@ -3,8 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:async/async.dart';
 import 'package:test/test.dart';
@@ -132,7 +130,6 @@ void main() {
 
       test("onExit for a dead isolate", () async {
         var isolates = await _twoIsolates();
-        var main = await isolates.first.loadRunnable();
         var other = await isolates.last.loadRunnable();
 
         await other.waitUntilPaused();

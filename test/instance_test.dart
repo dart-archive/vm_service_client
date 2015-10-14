@@ -3,10 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:async/async.dart';
 import 'package:vm_service_client/vm_service_client.dart';
 import 'package:test/test.dart';
 
@@ -160,7 +158,7 @@ void main() {
     });
 
     test("a long String", () async {
-      var value = await _evaluate(r"""'foo' * 10000""");
+      var value = await _evaluate(r"""'foo' * 10000""") as VMStringInstanceRef;
 
       expect(value, new isInstanceOf<VMStringInstanceRef>());
       expect(value.value, startsWith("foo"));
@@ -258,7 +256,8 @@ void main() {
     });
 
     test("a RegExp", () async {
-      var value = await _evaluate("new RegExp('foo', caseSensitive: false)");
+      var value = await _evaluate("new RegExp('foo', caseSensitive: false)")
+          as VMRegExpInstanceRef;
 
       expect(value, new isInstanceOf<VMRegExpInstanceRef>());
       expect(value.pattern, new isInstanceOf<VMStringInstanceRef>());
@@ -279,7 +278,8 @@ void main() {
     });
 
     test("a RegExp with a long pattern", () async {
-      var value = await _evaluate("new RegExp('foo' * 10000, multiLine: true)");
+      var value = await _evaluate("new RegExp('foo' * 10000, multiLine: true)")
+          as VMRegExpInstanceRef;
 
       expect(value, new isInstanceOf<VMRegExpInstanceRef>());
       expect(value.pattern, new isInstanceOf<VMStringInstanceRef>());
