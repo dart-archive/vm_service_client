@@ -30,6 +30,10 @@ void main() {
 
     tearDown(() => client.close());
 
+    test("includes the instance's metadata", () async {
+      expect((await value.load()).fields, contains("_value"));
+    });
+
     test("evaluate() runs in the context of the instance", () async {
       var result = await value.evaluate("this._value + 1");
       expect(result, new isInstanceOf<VMIntInstanceRef>());

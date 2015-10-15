@@ -34,6 +34,7 @@ export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
 export 'src/source_location.dart' hide newVMSourceLocation;
 export 'src/stack.dart' hide newVMStack;
+export 'src/unresolved_source_location.dart' hide newVMUnresolvedSourceLocation;
 export 'src/vm.dart' hide newVM;
 
 /// A client for the [Dart VM service protocol][service api].

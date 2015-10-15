@@ -132,8 +132,8 @@ class VMScript extends VMScriptRef implements VMObject {
       throw new ArgumentError("SourceLocation isn't for this script.");
     }
 
-    var end = location.end ?? location.start;
-    return new _ScriptSpan(this, location.start.offset, end.offset);
+    var end = location.end ?? location.token;
+    return new _ScriptSpan(this, location.token.offset, end.offset);
   }
 
   /// Returns a [FileLocation] representing the location indicated by [token].

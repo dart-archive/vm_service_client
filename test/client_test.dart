@@ -48,6 +48,7 @@ void main() {
     });
 
     var isolate = await (await client.onIsolateStart.first).load();
-    expect(isolate.livePorts, equals(0));
+    expect(isolate.pauseEvent, isNotNull);
+    expect(isolate.error, isNull);
   });
 }

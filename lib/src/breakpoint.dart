@@ -13,19 +13,31 @@ import 'package:json_rpc_2/error_code.dart' as rpc_error;
 import 'exceptions.dart';
 import 'object.dart';
 import 'scope.dart';
+import 'script.dart';
 import 'sentinel.dart';
+import 'source_location.dart';
+import 'unresolved_source_location.dart';
 import 'utils.dart';
 
 VMBreakpoint newVMBreakpoint(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "Breakpoint");
-  return new VMBreakpoint._(scope, json);
+  return json["resolved"]
+      ? new VMResolvedBreakpoint._(scope, json)
+      : new VMBreakpoint._(scope, json);
 }
 
 /// A debugger breakpoint.
 ///
 /// A breakpoint corresponds to a location in the source file. Before the
 /// isolate would execute that location, it pauses.
+///
+/// A breakpoint starts out unresolved, meaning that the exact location of the
+/// breakpoint is imprecisely known because its script has not yet been fully
+/// loaded. Once that script is fully loaded, the breakpoint is resolved and its
+/// location is fully avaiable. A resolved breakpoint is always represented as a
+/// [VMResolvedBreakpoint], no matter how it was loaded. The easiest way to wait
+/// for a breakpoint to be resolved is by calling [loadResolved].
 ///
 /// Unlike most [VMObject]s, this has no corresponding [VMObjectRef] type. The
 /// full metadata is always available.
@@ -45,6 +57,12 @@ class VMBreakpoint extends VMObject {
   ///
   /// This number is user-visible.
   final int number;
+
+  /// The location of the breakpoint in the isolate's Dart source.
+  ///
+  /// If this breakpoint is unresolved, this will be a
+  /// [VMUnresolvedSourceLocation]. Otherwise, it will be a [VMSourceLocation].
+  final VMBreakpointLocation location;
 
   /// A stream that emits a copy of [this] each time it causes the isolate to
   /// become paused.
@@ -74,7 +92,8 @@ class VMBreakpoint extends VMObject {
         _id = json["id"],
         _fixedId = json["fixedId"] ?? false,
         size = json["size"],
-        number = json["breakpointNumber"] {
+        number = json["breakpointNumber"],
+        location = _newVMBreakpointLocation(scope, json["location"]) {
     _onPause = transform(_scope.streams.debug, (json, sink) {
       if (json["isolate"]["id"] != _scope.isolateId) return;
       if (json["kind"] != "PauseBreakpoint") return;
@@ -85,6 +104,18 @@ class VMBreakpoint extends VMObject {
         break;
       }
     });
+  }
+
+  static VMBreakpointLocation _newVMBreakpointLocation(Scope scope, Map json) {
+    if (json == null) return null;
+    switch (json["type"]) {
+      case "SourceLocation": return newVMSourceLocation(scope, json);
+      case "UnresolvedSourceLocation":
+        return newVMUnresolvedSourceLocation(scope, json);
+      default:
+        throw new StateError(
+            'Unknown breakpoint location type ${json['type']}.');
+    }
   }
 
   Future<VMBreakpoint> load() async {
@@ -98,6 +129,21 @@ class VMBreakpoint extends VMObject {
     }
   }
 
+  /// Reloads this breakpoint once it's resolved.
+  ///
+  /// This will work whether this breakpoint is already resolved or has yet to
+  /// be resolved. However, it doesn't cause the breakpoint to be resolved.
+  Future<VMBreakpoint> loadResolved() {
+    return _scope.getInState(_scope.streams.debug, () async {
+      var breakpoint = await load();
+      return breakpoint is VMResolvedBreakpoint ? breakpoint : null;
+    }, (json) {
+      if (json["kind"] != "BreakpointResolved") return null;
+      if (json["breakpoint"]["id"] != _id) return null;
+      return newVMBreakpoint(_scope, json["breakpoint"]);
+    });
+  }
+
   /// Removes this breakpoint.
   Future remove() =>
       _scope.sendRequest("removeBreakpoint", {"breakpointId": _id});
@@ -107,5 +153,39 @@ class VMBreakpoint extends VMObject {
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
-  String toString() => "breakpoint #$number";
+  String toString() => "breakpoint #$number in ${location.uri}";
+}
+
+/// A resolved breakpoint with a precise source location.
+class VMResolvedBreakpoint extends VMBreakpoint {
+  VMSourceLocation get location => super.location as VMSourceLocation;
+
+  VMResolvedBreakpoint._(Scope scope, Map json)
+      : super._(scope, json) {
+    assert(super.location is VMSourceLocation);
+  }
+
+  Future<VMBreakpoint> loadResolved() => load();
+}
+
+/// The location of a breakpoint, whether or not it's resolved.
+abstract class VMBreakpointLocation {
+  /// The URI of the script in which the breakpoint exists.
+  ///
+  /// This is always set regardless of how resolved the breakpoint is.
+  Uri get uri;
+
+  /// The script the breakpoint is located in.
+  ///
+  /// This may be `null` if the breakpoint is unresolved and the script hasn't
+  /// been loaded.
+  VMScriptRef get script;
+
+  /// The location of the breakpoint in [script].
+  ///
+  /// This will be `null` if [script] is `null`. If the breakpoint is unresolved
+  /// but the script has been loaded, this will be the VM's best guess of the
+  /// correct token. If the breakpoint is resolved, it will be an exact
+  /// location.
+  VMScriptToken get token;
 }

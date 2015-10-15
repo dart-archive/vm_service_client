@@ -92,6 +92,24 @@ void main() {
       await main.resume();
     });
 
+    test("onBreakpointAdded fires when a breakpoint is added", () async {
+      client = await runAndConnect(main: """
+        print('here'); // line 8
+      """, flags: ["--pause-isolates-on-start", "--pause-isolates-on-exit"]);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      await isolate.waitUntilPaused();
+
+      expect(isolate.onBreakpointAdded.first,
+          completion(new isInstanceOf<VMBreakpoint>()));
+
+      var library = await isolate.rootLibrary.load();
+      var breakpoint = await library.scripts.single.addBreakpoint(8);
+      await isolate.resume();
+      await isolate.waitUntilPaused();
+      await breakpoint.remove();
+    });
+
     test("stdout and stderr", () async {
       var isolates = await _twoIsolates();
       var main = await isolates.first.loadRunnable();
@@ -305,6 +323,44 @@ void main() {
   });
 
   group("addBreakpoint", () {
+    test("adds a breakpoint at the given line", () async {
+      var client = await runAndConnect(main: r"""
+        print("one");
+        print("two"); // line 9
+      """, flags: ["--pause-isolates-on-start"]);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      var breakpoint = await isolate.addBreakpoint(isolate.rootLibrary.uri, 9);
+      expect(breakpoint.number, equals(1));
+
+      await isolate.resume();
+      await isolate.waitUntilPaused();
+
+      var stack = await isolate.getStack();
+      expect(await sourceLine(stack.frames.first.location), equals(9));
+    });
+
+    test("adds a breakpoint at the given column", () async {
+      var client = await runAndConnect(main: r"""
+        print("one"); /* line 8, column 21+ */ print("two");
+      """, flags: ["--pause-isolates-on-start"]);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      var breakpoint = await isolate.addBreakpoint(
+          isolate.rootLibrary.uri, 8, column: 22);
+      expect(breakpoint.number, equals(1));
+
+      await isolate.resume();
+      await isolate.waitUntilPaused();
+
+      var stack = await isolate.getStack();
+      var location = stack.frames.first.location;
+      var script = await location.script.load();
+      var sourceLocation = script.sourceLocation(location.token);
+      expect(sourceLocation.line, equals(8));
+      expect(sourceLocation.column, greaterThan(21));
+    });
+
     test("works before the isolate is runnable", () async {
       client = await runAndConnect(flags: ['--pause-isolates-on-start']);
 

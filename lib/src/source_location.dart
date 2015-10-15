@@ -4,6 +4,7 @@
 
 library vm_service_client.source_location;
 
+import 'breakpoint.dart';
 import 'scope.dart';
 import 'script.dart';
 
@@ -15,26 +16,26 @@ VMSourceLocation newVMSourceLocation(Scope scope,
 }
 
 /// A location or span of code in a Dart script.
-class VMSourceLocation {
+class VMSourceLocation implements VMBreakpointLocation {
   /// The script containing the source location.
   final VMScriptRef script;
 
   /// The canonical source URI of [script].
   Uri get uri => script.uri;
 
-  /// The first token of the location.
-  final VMScriptToken start;
+  /// If this is a span, this represents the start of that span.
+  final VMScriptToken token;
 
   /// The final token of the location, or `null` if this is not a span.
   final VMScriptToken end;
 
   VMSourceLocation._(Scope scope, Map json)
       : script = newVMScriptRef(scope, json["script"]),
-        start = newVMScriptToken(
+        token = newVMScriptToken(
             scope.isolateId, json["script"]["id"], json["tokenPos"]),
         end = newVMScriptToken(
             scope.isolateId, json["script"]["id"], json["endTokenPos"]);
 
   String toString() =>
-      end == null ? "$script at $start" : "$script from $start to $end";
+      end == null ? "$script at $token" : "$script from $token to $end";
 }
