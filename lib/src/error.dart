@@ -6,6 +6,7 @@ library vm_service_client.error;
 
 import 'dart:async';
 
+import 'class.dart';
 import 'object.dart';
 import 'scope.dart';
 
@@ -57,10 +58,13 @@ class VMErrorRef implements VMObjectRef {
 
 /// A Dart language error.
 class VMError extends VMErrorRef implements VMObject {
+  final VMClassRef klass;
+
   final int size;
 
   VMError._(Scope scope, Map json)
-      : size = json["size"],
+      : klass = newVMClassRef(scope, json["class"]),
+        size = json["size"],
         super._(scope, json);
 }
 

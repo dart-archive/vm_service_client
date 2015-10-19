@@ -6,6 +6,8 @@ library vm_service_client.object;
 
 import 'dart:async';
 
+import 'class.dart';
+
 /// A reference to persistent service-protocol object that's local to an
 /// isolate.
 ///
@@ -28,6 +30,15 @@ abstract class VMObjectRef {
 
 /// A persistent service-protocol object that's local to an isolate.
 abstract class VMObject implements VMObjectRef {
+  /// This object's class, or `null` if this object wasn't allocated on the Dart
+  /// heap.
+  ///
+  /// Objects that aren't [VMInstance]s will have internal VM classes.
+  ///
+  /// Moving an object onto or off of the heap is considered an implementation
+  /// detail for objects other than instances.
+  VMClassRef get klass;
+
   /// The size (in bytes) of this object on the heap.
   ///
   /// If an object is not heap-allocated, this will be `null`.

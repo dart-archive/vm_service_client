@@ -12,6 +12,7 @@ import 'package:crypto/crypto.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import 'bound_field.dart';
+import 'class.dart';
 import 'exceptions.dart';
 import 'scope.dart';
 import 'object.dart';
@@ -165,10 +166,13 @@ class VMInstanceRef implements VMObjectRef {
   /// instance objects that refer to the same instance.
   final bool _fixedId;
 
+  final VMClassRef klass;
+
   VMInstanceRef._(Scope scope, Map json)
       : _scope = scope,
         _id = json["id"],
-        _fixedId = json["fixedId"] ?? false;
+        _fixedId = json["fixedId"] ?? false,
+        klass = newVMClassRef(scope, json["class"]);
 
   /// Returns a local Dart copy of the remote Dart object.
   ///
@@ -201,7 +205,7 @@ class VMInstanceRef implements VMObjectRef {
         cache[this] = await onUnknownValue(this);
       } else {
         throw new UnsupportedError(
-            "Can't get the value of a $runtimeType instance.");
+            "Can't get the value of a ${klass.name} instance.");
       }
     }
 
@@ -225,7 +229,7 @@ class VMInstanceRef implements VMObjectRef {
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
-  String toString() => "Remote instance of '$runtimeType'";
+  String toString() => "Remote instance of '${klass.name}'";
 }
 
 /// An instance of a Dart class on the remote VM.
@@ -973,9 +977,11 @@ abstract class VMTypeLikeInstance
 class VMTypeInstanceRef extends VMTypeLikeInstanceRef {
   /// The name of the type.
   final String name;
+  final VMClassRef typeClass;
 
   VMTypeInstanceRef._(Scope scope, Map json)
       : name = json["name"],
+        typeClass = newVMClassRef(scope, json["typeClass"]),
         super._(scope, json);
 
   Future<VMTypeInstance> load() async =>
@@ -998,8 +1004,11 @@ class VMTypeInstance extends VMTypeInstanceRef implements VMTypeLikeInstance {
 
 /// A reference to an instance of the VM-internal TypeParameter class.
 class VMTypeParameterInstanceRef extends VMTypeLikeInstanceRef {
+  final VMClassRef parameterizedClass;
+
   VMTypeParameterInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+      : parameterizedClass = newVMClassRef(scope, json["parameterizedClass"]),
+        super._(scope, json);
 
   Future<VMTypeParameterInstance> load() async =>
       new VMTypeParameterInstance._(_scope, await _load());

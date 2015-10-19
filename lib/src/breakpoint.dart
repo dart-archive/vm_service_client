@@ -10,6 +10,7 @@ import 'package:async/async.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:json_rpc_2/error_code.dart' as rpc_error;
 
+import 'class.dart';
 import 'exceptions.dart';
 import 'object.dart';
 import 'scope.dart';
@@ -53,6 +54,8 @@ class VMBreakpoint extends VMObject {
 
   final int size;
 
+  final VMClassRef klass;
+
   /// The number of this breakpoint.
   ///
   /// This number is user-visible.
@@ -92,6 +95,7 @@ class VMBreakpoint extends VMObject {
         _id = json["id"],
         _fixedId = json["fixedId"] ?? false,
         size = json["size"],
+        klass = newVMClassRef(scope, json["class"]),
         number = json["breakpointNumber"],
         location = _newVMBreakpointLocation(scope, json["location"]) {
     _onPause = transform(_scope.streams.debug, (json, sink) {

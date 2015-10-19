@@ -11,6 +11,7 @@ import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:source_span/source_span.dart';
 
 import 'breakpoint.dart';
+import 'class.dart';
 import 'library.dart';
 import 'object.dart';
 import 'scope.dart';
@@ -79,6 +80,8 @@ class VMScriptRef implements VMObjectRef {
 
 /// A script in the Dart VM.
 class VMScript extends VMScriptRef implements VMObject {
+  final VMClassRef klass;
+
   final int size;
 
   /// The library that owns this script.
@@ -114,7 +117,8 @@ class VMScript extends VMScriptRef implements VMObject {
   SourceFile _sourceFile;
 
   VMScript._(Scope scope, Map json)
-      : size = json["size"],
+      : klass = newVMClassRef(scope, json["class"]),
+        size = json["size"],
         library = newVMLibraryRef(scope, json["library"]),
         source = json["source"],
         _tokenPositions = json["tokenPosTable"],

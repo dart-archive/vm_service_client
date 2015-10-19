@@ -7,6 +7,7 @@ library vm_service_client.library;
 import 'dart:async';
 import 'dart:collection';
 
+import 'class.dart';
 import 'scope.dart';
 import 'object.dart';
 import 'instance.dart';
@@ -76,6 +77,8 @@ class VMLibraryRef implements VMObjectRef {
 
 /// A a Dart library—that is, a single importable Dart file.
 class VMLibrary extends VMLibraryRef implements VMObject {
+  final VMClassRef klass;
+
   final int size;
 
   /// Whether breakpoints and stepping are enabled for this library.
@@ -90,8 +93,12 @@ class VMLibrary extends VMLibraryRef implements VMObject {
   /// it can have multiple.
   final List<VMScriptRef> scripts;
 
+  /// The classes defined in this library, indexed by name.
+  final Map<String, VMClassRef> classes;
+
   VMLibrary._(Scope scope, Map json)
-      : size = json["size"],
+      : klass = newVMClassRef(scope, json["class"]),
+        size = json["size"],
         isDebuggable = json["debuggable"],
         dependencies = new UnmodifiableListView(json["dependencies"]
             .map((dependency) => new VMLibraryDependency._(scope, dependency))
@@ -99,6 +106,9 @@ class VMLibrary extends VMLibraryRef implements VMObject {
         scripts = new UnmodifiableListView(json["scripts"]
             .map((script) => newVMScriptRef(scope, script))
             .toList()),
+        classes = new UnmodifiableMapView(new Map.fromIterable(json["classes"],
+            key: (klass) => klass["name"],
+            value: (klass) => newVMClassRef(scope, klass))),
         super._(scope, json);
 }
 
