@@ -32,4 +32,16 @@ void main() {
     expect(script.source, contains("final foo = 1;"));
     expect(script.sourceFile.length, equals(script.source.length));
   });
+
+  test("sourceLocation looks up a source location", () async {
+    var script = await scriptRef.load();
+    var library = await isolate.rootLibrary.load();
+    var field = await library.fields["foo"].load();
+    var location = script.sourceLocation(field.location.token);
+
+    expect(location.file, same(script.sourceFile));
+    expect(location.sourceUrl, equals(script.uri));
+    expect(location.line, equals(3));
+    expect(location.column, equals(13));
+  });
 }

@@ -46,6 +46,7 @@ void main() {
 
     expect(library.scripts, hasLength(1));
     expect(library.scripts.single.uri, equals(library.uri));
+    expect(library.fields, contains("foo"));
     expect(library.classes, contains("Baz"));
   });
 

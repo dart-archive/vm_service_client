@@ -31,6 +31,8 @@ void main() {
     tearDown(() => client.close());
 
     test("includes the instance's metadata", () async {
+      expect(value.klass.name, equals("Foo"));
+      expect(value.toString(), equals("Remote instance of 'Foo'"));
       expect((await value.load()).fields, contains("_value"));
     });
 

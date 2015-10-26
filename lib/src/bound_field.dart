@@ -4,6 +4,7 @@
 
 library vm_service_client.bound_field;
 
+import 'field.dart';
 import 'instance.dart';
 import 'scope.dart';
 
@@ -14,6 +15,9 @@ VMBoundField newVMBoundField(Scope scope, Map json) {
 
 /// An instance field bound to a particular value.
 class VMBoundField {
+  /// The declaration of this field.
+  final VMFieldRef declaration;
+
   /// The value that the field is bound to.
   ///
   /// If this field is uninitialized, this will be [VMSentinel.notInitialized].
@@ -22,7 +26,8 @@ class VMBoundField {
   final value;
 
   VMBoundField._(Scope scope, Map json)
-      : value = newVMInstanceRefOrSentinel(scope, json["value"]);
+      : declaration = newVMFieldRef(scope, json["decl"]),
+        value = newVMInstanceRefOrSentinel(scope, json["value"]);
 
-  String toString() => value.toString();
+  String toString() => "${declaration.description} = $value";
 }

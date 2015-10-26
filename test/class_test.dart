@@ -38,6 +38,7 @@ void main() {
     expect(klass.location.script.uri.scheme, equals("data"));
     expect(klass.superclass.name, equals("Object"));
     expect(klass.interfaces.single.name, equals("Comparable"));
+    expect(klass.fields, contains("value"));
     expect(klass.subclasses.single.name, equals("Bar"));
   });
 

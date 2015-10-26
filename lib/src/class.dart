@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'error.dart';
+import 'field.dart';
 import 'instance.dart';
 import 'library.dart';
 import 'object.dart';
@@ -84,6 +85,9 @@ class VMClass extends VMClassRef implements VMObject {
   /// This class's interface types.
   final List<VMTypeInstanceRef> interfaces;
 
+  /// The fields defined in this class, indexed by name.
+  final Map<String, VMFieldRef> fields;
+
   /// This class's subclasses.
   final List<VMClassRef> subclasses;
 
@@ -99,6 +103,9 @@ class VMClass extends VMClassRef implements VMObject {
         interfaces = new UnmodifiableListView(json["interfaces"]
             .map((interfaceJson) => newVMTypeInstanceRef(scope, interfaceJson))
             .toList()),
+        fields = new UnmodifiableMapView(new Map.fromIterable(json["fields"],
+            key: (field) => field["name"],
+            value: (field) => newVMFieldRef(scope, field))),
         subclasses = new UnmodifiableListView(json["subclasses"]
             .map((subclass) => newVMClassRef(scope, subclass))
             .toList()),
