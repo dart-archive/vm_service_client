@@ -13,6 +13,7 @@ import 'package:stack_trace/stack_trace.dart';
 
 import 'bound_field.dart';
 import 'class.dart';
+import 'context.dart';
 import 'exceptions.dart';
 import 'function.dart';
 import 'scope.dart';
@@ -907,10 +908,16 @@ class VMClosureInstance extends VMClosureInstanceRef implements VMInstance {
   /// The function associated with this closure.
   final VMFunctionRef function;
 
+  /// The context of this closure.
+  ///
+  /// This contains the variables captures by the closure.
+  final VMContextRef context;
+
   VMClosureInstance._(Scope scope, Map json)
       : size = json["size"],
         fields = _fields(scope, json),
         function = newVMFunctionRef(scope, json["closureFunction"]),
+        context = newVMContextRef(scope, json["closureContext"]),
         super._(scope, json);
 }
 

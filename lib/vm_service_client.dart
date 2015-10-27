@@ -20,6 +20,7 @@ import 'src/vm.dart';
 export 'src/breakpoint.dart' hide newVMBreakpoint;
 export 'src/class.dart' hide newVMClassRef;
 export 'src/code.dart' hide newVMCodeRef;
+export 'src/context.dart' hide newVMContextRef;
 export 'src/error.dart' hide newVMError, newVMErrorRef;
 export 'src/exceptions.dart';
 export 'src/field.dart' hide newVMFieldRef;

@@ -318,6 +318,12 @@ void main() {
 
       value = await value.load();
       expect(value.function.name, equals("myFunction"));
+      expect(value.context.length, equals(1));
+
+      var context = await value.context.load();
+      expect(context.variables, hasLength(1));
+      expect(context.variables.first, new isInstanceOf<VMIntInstanceRef>());
+      expect(context.parent.length, equals(0));
     });
   });
 }
