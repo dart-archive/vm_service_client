@@ -25,6 +25,7 @@ void main() {
     var frame = (await isolate.getStack()).frames.first;
     expect(frame.index, equals(0));
     expect(frame.function.name, equals("<main_async_body>"));
+    expect(frame.code.kind, equals(VMCodeKind.dart));
     expect(frame.variables, contains("foo"));
     expect(frame.toString(), equals("#0 in <main_async_body>"));
     expect(await sourceLine(frame.location), equals(11));

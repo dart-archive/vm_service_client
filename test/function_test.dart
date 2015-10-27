@@ -31,6 +31,7 @@ void main() {
       expect(function.toString(), equals("foo"));
 
       function = await function.load();
+      expect(function.code.kind, equals(VMCodeKind.stub));
       expect(await sourceLine(function.location), equals(3));
     });
 
@@ -53,6 +54,7 @@ void main() {
       expect(function.toString(), equals("static foo"));
 
       function = await function.load();
+      expect(function.code.kind, equals(VMCodeKind.stub));
       expect(await sourceLine(function.location), equals(4));
     });
 
@@ -75,6 +77,7 @@ void main() {
       expect(function.toString(), equals("foo"));
 
       function = await function.load();
+      expect(function.code.kind, equals(VMCodeKind.stub));
       expect(await sourceLine(function.location), equals(4));
     });
   });

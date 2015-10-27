@@ -7,6 +7,7 @@ library vm_service_client.frame;
 import 'dart:async';
 import 'dart:collection';
 
+import 'code.dart';
 import 'error.dart';
 import 'exceptions.dart';
 import 'function.dart';
@@ -33,6 +34,9 @@ class VMFrame {
   /// The function containing the frame.
   final VMFunctionRef function;
 
+  /// The frame's code.
+  final VMCodeRef code;
+
   /// The location of the frame in Dart source.
   final VMSourceLocation location;
 
@@ -43,6 +47,7 @@ class VMFrame {
       : _scope = scope,
         index = json["index"],
         function = newVMFunctionRef(scope, json["function"]),
+        code = newVMCodeRef(scope, json["code"]),
         location = newVMSourceLocation(scope, json["location"]),
         variables = new UnmodifiableMapView(new Map.fromIterable(json["vars"],
             key: (variable) => variable["name"],

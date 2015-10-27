@@ -10,6 +10,7 @@ import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'breakpoint.dart';
 import 'class.dart';
+import 'code.dart';
 import 'library.dart';
 import 'object.dart';
 import 'scope.dart';
@@ -109,9 +110,13 @@ class VMFunction extends VMFunctionRef implements VMObject {
   /// The location of this function in the source code.
   final VMSourceLocation location;
 
+  /// The function's code.
+  final VMCodeRef code;
+
   VMFunction._(Scope scope, Map json)
       : size = json["size"],
         klass = newVMClassRef(scope, json["class"]),
         location = newVMSourceLocation(scope, json["location"]),
+        code = newVMCodeRef(scope, json["code"]),
         super._(scope, json);
 }
