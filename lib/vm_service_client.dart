@@ -24,6 +24,7 @@ export 'src/exceptions.dart';
 export 'src/field.dart' hide newVMFieldRef;
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/frame.dart' hide newVMFrame;
+export 'src/function.dart' hide newVMFunctionRef;
 export 'src/isolate.dart' hide newVMIsolateRef;
 export 'src/instance.dart' hide newVMInstanceRef, newVMInstance,
     newVMTypeLikeInstanceRef, newVMTypeInstanceRef, newVMInstanceRefOrSentinel;

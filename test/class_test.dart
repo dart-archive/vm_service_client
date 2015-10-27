@@ -39,6 +39,7 @@ void main() {
     expect(klass.superclass.name, equals("Object"));
     expect(klass.interfaces.single.name, equals("Comparable"));
     expect(klass.fields, contains("value"));
+    expect(klass.functions, contains("compareTo"));
     expect(klass.subclasses.single.name, equals("Bar"));
   });
 

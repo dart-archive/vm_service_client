@@ -6,6 +6,7 @@ library vm_service_client.message;
 
 import 'dart:async';
 
+import 'function.dart';
 import 'instance.dart';
 import 'scope.dart';
 import 'source_location.dart';
@@ -33,6 +34,9 @@ class VMMessage {
 
   final int size;
 
+  /// The function that will be called to handle this message.
+  final VMFunctionRef handler;
+
   /// The source location of the handler function.
   ///
   /// This may be `null` if there is no handler.
@@ -44,6 +48,7 @@ class VMMessage {
         index = json["index"],
         name = json["name"],
         size = json["size"],
+        handler = newVMFunctionRef(scope, json["handler"]),
         location = newVMSourceLocation(scope, json["location"]);
 
   /// Loads the message's payload.

@@ -304,6 +304,21 @@ void main() {
       expect(await value.getValue(),
           equals(new RegExp('foo' * 10000, multiLine: true)));
     });
+
+    test("a function", () async {
+      var value = await _evaluate("""
+        (() {
+          var i = 0;
+          myFunction() => i;
+          return myFunction;
+        })()
+      """);
+
+      expect(value, new isInstanceOf<VMClosureInstanceRef>());
+
+      value = await value.load();
+      expect(value.function.name, equals("myFunction"));
+    });
   });
 }
 

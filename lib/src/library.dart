@@ -11,6 +11,7 @@ import 'class.dart';
 import 'field.dart';
 import 'scope.dart';
 import 'object.dart';
+import 'function.dart';
 import 'instance.dart';
 import 'script.dart';
 
@@ -97,6 +98,9 @@ class VMLibrary extends VMLibraryRef implements VMObject {
   /// The fields defined in this library, indexed by name.
   final Map<String, VMFieldRef> fields;
 
+  /// The top-level functions defined in this library, indexed by name.
+  final Map<String, VMFunctionRef> functions;
+
   /// The classes defined in this library, indexed by name.
   final Map<String, VMClassRef> classes;
 
@@ -113,6 +117,10 @@ class VMLibrary extends VMLibraryRef implements VMObject {
         fields = new UnmodifiableMapView(new Map.fromIterable(json["variables"],
             key: (field) => field["name"],
             value: (field) => newVMFieldRef(scope, field))),
+        functions = new UnmodifiableMapView(
+            new Map.fromIterable(json["functions"],
+                key: (function) => function["name"],
+                value: (function) => newVMFunctionRef(scope, function))),
         classes = new UnmodifiableMapView(new Map.fromIterable(json["classes"],
             key: (klass) => klass["name"],
             value: (klass) => newVMClassRef(scope, klass))),

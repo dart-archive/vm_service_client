@@ -14,6 +14,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'bound_field.dart';
 import 'class.dart';
 import 'exceptions.dart';
+import 'function.dart';
 import 'scope.dart';
 import 'object.dart';
 import 'sentinel.dart';
@@ -903,9 +904,13 @@ class VMClosureInstance extends VMClosureInstanceRef implements VMInstance {
 
   final Map<String, VMBoundField> fields;
 
+  /// The function associated with this closure.
+  final VMFunctionRef function;
+
   VMClosureInstance._(Scope scope, Map json)
       : size = json["size"],
         fields = _fields(scope, json),
+        function = newVMFunctionRef(scope, json["closureFunction"]),
         super._(scope, json);
 }
 

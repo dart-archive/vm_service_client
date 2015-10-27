@@ -9,6 +9,7 @@ import 'dart:collection';
 
 import 'error.dart';
 import 'field.dart';
+import 'function.dart';
 import 'instance.dart';
 import 'library.dart';
 import 'object.dart';
@@ -86,7 +87,15 @@ class VMClass extends VMClassRef implements VMObject {
   final List<VMTypeInstanceRef> interfaces;
 
   /// The fields defined in this class, indexed by name.
+  ///
+  /// This doesn't include fields from superclasses.
   final Map<String, VMFieldRef> fields;
+
+  /// The functions defined in this class, indexed by name.
+  ///
+  /// This includes both static and instance functions, but doesn't include
+  /// functions from superclasses.
+  final Map<String, VMFunctionRef> functions;
 
   /// This class's subclasses.
   final List<VMClassRef> subclasses;
@@ -106,6 +115,10 @@ class VMClass extends VMClassRef implements VMObject {
         fields = new UnmodifiableMapView(new Map.fromIterable(json["fields"],
             key: (field) => field["name"],
             value: (field) => newVMFieldRef(scope, field))),
+        functions = new UnmodifiableMapView(
+            new Map.fromIterable(json["functions"],
+                key: (function) => function["name"],
+                value: (function) => newVMFunctionRef(scope, function))),
         subclasses = new UnmodifiableListView(json["subclasses"]
             .map((subclass) => newVMClassRef(scope, subclass))
             .toList()),

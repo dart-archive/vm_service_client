@@ -9,6 +9,7 @@ import 'dart:collection';
 
 import 'error.dart';
 import 'exceptions.dart';
+import 'function.dart';
 import 'instance.dart';
 import 'scope.dart';
 import 'source_location.dart';
@@ -29,6 +30,9 @@ class VMFrame {
   /// actual point of execution has index 0.
   final int index;
 
+  /// The function containing the frame.
+  final VMFunctionRef function;
+
   /// The location of the frame in Dart source.
   final VMSourceLocation location;
 
@@ -38,6 +42,7 @@ class VMFrame {
   VMFrame._(Scope scope, Map json)
       : _scope = scope,
         index = json["index"],
+        function = newVMFunctionRef(scope, json["function"]),
         location = newVMSourceLocation(scope, json["location"]),
         variables = new UnmodifiableMapView(new Map.fromIterable(json["vars"],
             key: (variable) => variable["name"],
@@ -61,7 +66,7 @@ class VMFrame {
     }
   }
 
-  String toString() => "#$index";
+  String toString() => "#$index in $function";
 }
 
 /// A local variable bound to a particular value in a [VMFrame].

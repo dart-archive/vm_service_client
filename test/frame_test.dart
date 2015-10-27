@@ -24,8 +24,9 @@ void main() {
     await isolate.waitUntilPaused();
     var frame = (await isolate.getStack()).frames.first;
     expect(frame.index, equals(0));
+    expect(frame.function.name, equals("<main_async_body>"));
     expect(frame.variables, contains("foo"));
-    expect(frame.toString(), equals("#0"));
+    expect(frame.toString(), equals("#0 in <main_async_body>"));
     expect(await sourceLine(frame.location), equals(11));
   });
 

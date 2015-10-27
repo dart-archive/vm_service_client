@@ -31,6 +31,7 @@ void main() {
     expect(message.index, equals(0));
     expect(message.name, isNotNull);
     expect(message.size, greaterThan(0));
+    expect(message.handler, isNotNull);
     expect(message.location, isNotNull);
 
     var value = await message.loadValue();
