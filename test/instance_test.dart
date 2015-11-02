@@ -325,6 +325,23 @@ void main() {
       expect(context.variables.first, new isInstanceOf<VMIntInstanceRef>());
       expect(context.parent.length, equals(0));
     });
+
+    test("a type", () async {
+      var value = await _evaluate("<int>[].runtimeType");
+
+      expect(value, new isInstanceOf<VMTypeInstanceRef>());
+      expect(value.name, equals("_GrowableList<int>"));
+      expect(value.typeClass.name, equals("_GrowableList"));
+
+      value = await value.load();
+      var arguments = value.arguments;
+      expect(arguments.name, equals("<int>"));
+
+      arguments = await arguments.load();
+      expect(arguments.types, hasLength(1));
+      expect(arguments.types.first, new isInstanceOf<VMTypeInstanceRef>());
+      expect(arguments.types.first.name, equals("int"));
+    });
   });
 }
 

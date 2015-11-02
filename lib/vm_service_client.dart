@@ -17,6 +17,7 @@ import 'src/stream_manager.dart';
 import 'src/utils.dart';
 import 'src/vm.dart';
 
+export 'src/bound_field.dart' hide newVMBoundField;
 export 'src/breakpoint.dart' hide newVMBreakpoint;
 export 'src/class.dart' hide newVMClassRef;
 export 'src/code.dart' hide newVMCodeRef;
@@ -27,9 +28,9 @@ export 'src/field.dart' hide newVMFieldRef;
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/frame.dart' hide newVMFrame;
 export 'src/function.dart' hide newVMFunctionRef;
-export 'src/isolate.dart' hide newVMIsolateRef;
 export 'src/instance.dart' hide newVMInstanceRef, newVMInstance,
     newVMTypeLikeInstanceRef, newVMTypeInstanceRef, newVMInstanceRefOrSentinel;
+export 'src/isolate.dart' hide newVMIsolateRef;
 export 'src/library.dart' hide newVMLibraryRef;
 export 'src/message.dart' hide newVMMessage;
 export 'src/object.dart';
@@ -39,6 +40,7 @@ export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
 export 'src/source_location.dart' hide newVMSourceLocation;
 export 'src/stack.dart' hide newVMStack;
+export 'src/type_arguments.dart' hide newVMTypeArgumentsRef;
 export 'src/unresolved_source_location.dart' hide newVMUnresolvedSourceLocation;
 export 'src/vm.dart' hide newVM;
 

@@ -19,6 +19,7 @@ import 'function.dart';
 import 'scope.dart';
 import 'object.dart';
 import 'sentinel.dart';
+import 'type_arguments.dart';
 import 'utils.dart';
 
 VMInstanceRef newVMInstanceRef(Scope scope, Map json) {
@@ -1008,9 +1009,15 @@ class VMTypeInstance extends VMTypeInstanceRef implements VMTypeLikeInstance {
 
   final Map<String, VMBoundField> fields;
 
+  /// The type arguments for this type.
+  ///
+  /// This will be empty unless this is an instantiated generic type.
+  final VMTypeArgumentsRef arguments;
+
   VMTypeInstance._(Scope scope, Map json)
       : size = json["size"],
         fields = _fields(scope, json),
+        arguments = newVMTypeArgumentsRef(scope, json["typeArguments"]),
         super._(scope, json);
 }
 
