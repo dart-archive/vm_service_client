@@ -6,7 +6,10 @@ library vm_service_client.error;
 
 import 'dart:async';
 
+import 'package:stack_trace/stack_trace.dart';
+
 import 'class.dart';
+import 'instance.dart';
 import 'object.dart';
 import 'scope.dart';
 
@@ -62,10 +65,44 @@ class VMError extends VMErrorRef implements VMObject {
 
   final int size;
 
+  /// The exception that caused the error.
+  ///
+  /// Note that for asynchonous errors prior to VM service version 3.0, this
+  /// may be a wrapped instance of [AsyncError].
+  final VMInstanceRef exception;
+
+  /// The stack trace for the error.
+  ///
+  /// This can be accessed as a local trace using [getTrace].
+  ///
+  /// Note that for asynchonous errors prior to VM service version 3.0,
+  /// [exception] may be an instance of [AsyncError], in which case that error
+  /// contains the original stack trace.
+  final VMInstanceRef stackTrace;
+
   VMError._(Scope scope, Map json)
       : klass = newVMClassRef(scope, json["class"]),
         size = json["size"],
+        exception = newVMInstanceRef(scope, json["exception"]),
+        stackTrace = newVMInstanceRef(scope, json["stacktrace"]),
         super._(scope, json);
+
+  /// Loads the error's stack trace as a concrete Dart stack trace.
+  ///
+  /// If the original stack trace was a [Chain], this returns a [Chain].
+  /// Otherwise, it returns a [Trace].
+  Future<StackTrace> getTrace() async {
+    var vmTrace = stackTrace;
+    if (exception.klass.name == '_UncaughtAsyncError') {
+      vmTrace = (await exception.load()).fields['stackTrace'].value;
+    }
+
+    if (vmTrace is VMStackTraceInstanceRef) return vmTrace.value;
+
+    VMStringInstanceRef contents = await vmTrace.evaluate("toString()");
+    if (contents.isValueTruncated) contents = await contents.load();
+    return new Chain.parse(contents.value);
+  }
 }
 
 /// An enum of different kinds of Dart errors.

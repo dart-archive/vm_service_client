@@ -4,11 +4,15 @@
 
 library vm_service_client.stack;
 
+import 'dart:async';
 import 'dart:collection';
+
+import 'package:stack_trace/stack_trace.dart';
 
 import 'frame.dart';
 import 'message.dart';
 import 'scope.dart';
+import 'utils.dart';
 
 VMStack newVMStack(Scope scope, Map json) {
   if (json == null) return null;
@@ -38,4 +42,11 @@ class VMStack {
         messages = new UnmodifiableListView(json["messages"]
             .map((message) => newVMMessage(scope, message))
             .toList());
+
+  /// Returns the trace of this stack.
+  Future<Trace> getTrace() async {
+    var scripts = {};
+    return new Trace(await Future.wait(
+        frames.map((frame) => frameToFrame(frame, scripts))));
+  }
 }

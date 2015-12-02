@@ -496,7 +496,7 @@ class VMInt32x4Instance extends VMInt32x4InstanceRef
 }
 
 class VMStackTraceInstanceRef extends VMValueInstanceRef<StackTrace> {
-  final StackTrace value;
+  final Trace value;
 
   VMStackTraceInstanceRef._(Scope scope, Map json)
       : value = new Trace.parseVM(json["valueAsString"]),

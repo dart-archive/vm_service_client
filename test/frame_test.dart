@@ -44,4 +44,18 @@ void main() {
     expect(value, new isInstanceOf<VMStringInstanceRef>());
     expect(value.value, equals("hello! world"));
   });
+
+  test("getFrame() returns a stack_trace frame", () async {
+    var client = await runAndConnect(main: r"""
+      debugger();
+    """);
+
+    var isolate = (await client.getVM()).isolates.first;
+    await isolate.waitUntilPaused();
+    var frame = await (await isolate.getStack()).frames.first.getFrame();
+    expect(frame.uri.scheme, equals('data'));
+    expect(frame.line, equals(10));
+    expect(frame.column, equals(1));
+    expect(frame.member, equals('main.<fn>'));
+  });
 }

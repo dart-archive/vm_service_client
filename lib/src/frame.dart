@@ -7,6 +7,8 @@ library vm_service_client.frame;
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:stack_trace/stack_trace.dart';
+
 import 'code.dart';
 import 'error.dart';
 import 'exceptions.dart';
@@ -14,6 +16,7 @@ import 'function.dart';
 import 'instance.dart';
 import 'scope.dart';
 import 'source_location.dart';
+import 'utils.dart';
 
 VMFrame newVMFrame(Scope scope, Map json) {
   if (json == null) return null;
@@ -70,6 +73,9 @@ class VMFrame {
         throw new StateError('Unexpected Object type "${result["type"]}".');
     }
   }
+
+  /// Loads a `stack_trace` [Frame] that corresponds to this frame.
+  Future<Frame> getFrame() async => frameToFrame(this);
 
   String toString() => "#$index in $function";
 }
