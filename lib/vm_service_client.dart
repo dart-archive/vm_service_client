@@ -107,8 +107,30 @@ class VMServiceClient {
     return new VMServiceClient._(peer);
   }
 
-  // TODO(nweiz): add constructors that take raw Stream/Sink of either Strings
-  // or decoded maps.
+  /// Creates a client that reads incoming messages from [incoming] and writes
+  /// outgoing messages to [outgoing].
+  ///
+  /// If [incoming] is a [StreamSink] as well as a [Stream] (for example, a
+  /// [WebSocket]), [outgoing] may be omitted.
+  ///
+  /// This is useful when using the client over a pre-existing connection. To
+  /// establish a connection from scratch, use [connect].
+  VMServiceClient(Stream<String> incoming, [StreamSink<String> outgoing])
+      : this._(new rpc.Peer(incoming, outgoing));
+
+  /// Creates a client that reads incoming decoded messages from [incoming] and
+  /// writes outgoing decoded messages to [outgoing].
+  ///
+  /// Unlike [new VMServiceClient], this doesn't read or write JSON strings.
+  /// Instead, it reads and writes decoded maps.
+  ///
+  /// If [incoming] is a [StreamSink] as well as a [Stream], [outgoing] may be
+  /// omitted.
+  ///
+  /// This is useful when using the client over a pre-existing connection. To
+  /// establish a connection from scratch, use [connect].
+  VMServiceClient.withoutJson(Stream incoming, [StreamSink outgoing])
+      : this._(new rpc.Peer.withoutJson(incoming, outgoing));
 
   VMServiceClient._(rpc.Peer peer)
       : _peer = peer,
