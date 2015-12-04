@@ -27,3 +27,19 @@ class VMErrorException implements Exception {
 
   String toString() => "Remote VM ${error.kind}: ${error.message}";
 }
+
+/// An exception indicating that the VM service client doesn't support the
+/// current protocol version.
+class VMUnsupportedVersionException implements Exception {
+  /// The version reported by the VM service protocol.
+  ///
+  /// This may be `null` if the reported version isn't in a format the client
+  /// understands.
+  final VMServiceVersion version;
+
+  UnsupportedVersionException([this.version]);
+
+  String toString() => version == null
+      ? "The VM service protocol is an unsupported version."
+      : "The VM service protocol is unsupported version $version.";
+}

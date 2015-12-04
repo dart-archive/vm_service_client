@@ -23,6 +23,17 @@ void main() {
     expect(version.minor, equals(0));
   });
 
+  test("considers the VM service version valid", () async {
+    client = await runAndConnect();
+    await client.validateVersion();
+  });
+
+  test("validateVersion() respects a custom timeout", () async {
+    client = await runAndConnect();
+    expect(client.validateVersion(timeout: Duration.ZERO),
+        throwsA(new isInstanceOf<VMUnsupportedVersionException>()));
+  });
+
   test("returns the flags passed to the VM", () async {
     client = await runAndConnect();
 

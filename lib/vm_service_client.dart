@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
+import 'src/exceptions.dart';
 import 'src/flag.dart';
 import 'src/isolate.dart';
 import 'src/service_version.dart';
@@ -56,6 +57,10 @@ export 'src/vm.dart' hide newVM;
 /// be unavailable in older VM service versions; those places will be clearly
 /// documented. You can check the version of the VM service you're connected to
 /// using [getVersion].
+///
+/// Because it takes an extra RPC call to verify compatibility with the protocol
+/// version, the client doesn't do so by default. Users who want to be sure
+/// they're talking to a supported protocol version can call [validateVersion].
 class VMServiceClient {
   /// The underlying JSON-RPC peer used to communicate with the VM service.
   final rpc.Peer _peer;
@@ -120,7 +125,33 @@ class VMServiceClient {
     });
   }
 
-  // TODO(nweiz): Add a method to validate the version number.
+  /// Checks the VM service protocol version and throws a
+  /// [VMUnsupportedVersionException] if it's not a supported version.
+  ///
+  /// Because it's possible the VM service protocol doesn't speak JSON-RPC 2.0
+  /// at all, by default this will also throw a [VMUnsupportedVersionException]
+  /// if a reply isn't received within two seconds. This timeout can be
+  /// controlled with [timeout], or `null` can be passed to use no timeout.
+  Future validateVersion({Duration timeout: const Duration(seconds: 2)}) {
+    var future = _peer.sendRequest("getVersion", {}).then((json) {
+      var version;
+      try {
+        version = newVMServiceVersion(json);
+      } catch (_) {
+        throw new VMUnsupportedVersionException();
+      }
+
+      if (version.major < 2 || version.major > 3) {
+        throw new VMUnsupportedVersionException(version);
+      }
+    });
+
+    if (timeout == null) return future;
+
+    return future.timeout(timeout, onTimeout: () {
+      throw new VMUnsupportedVersionException();
+    });
+  }
 
   /// Closes the underlying connection to the VM service.
   ///
