@@ -6,6 +6,7 @@ library vm_service_client.exceptions;
 
 import 'error.dart';
 import 'sentinel.dart';
+import 'service_version.dart';
 
 /// An exception thrown when the client attempts to load a remote object that's
 /// no longer available.
@@ -37,7 +38,7 @@ class VMUnsupportedVersionException implements Exception {
   /// understands.
   final VMServiceVersion version;
 
-  UnsupportedVersionException([this.version]);
+  VMUnsupportedVersionException([this.version]);
 
   String toString() => version == null
       ? "The VM service protocol is an unsupported version."
