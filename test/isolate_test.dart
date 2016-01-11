@@ -248,7 +248,7 @@ void main() {
     await isolate.pause();
     expect((await isolate.load()).pauseEvent,
         new isInstanceOf<VMPauseInterruptedEvent>());
-  });
+  }, skip: "Broken by dart-lang/sdk#25379");
 
   group("resume()", () {
     var isolate;
@@ -365,10 +365,9 @@ void main() {
       client = await runAndConnect(flags: ['--pause-isolates-on-start']);
 
       // We should be able to set a breakpoint before the relevant library is
-      // loaded, although it may fail to resolve if (as in this case) the line
-      // number is bogus.
+      // loaded, although it may fail to resolve if the line number is bogus.
       var isolate = (await client.getVM()).isolates.first;
-      var breakpoint = await isolate.addBreakpoint('dart:async', 0);
+      var breakpoint = await isolate.addBreakpoint('my/script.dart', 0);
       expect(breakpoint.number, equals(1));
     });
   });
