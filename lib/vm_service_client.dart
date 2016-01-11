@@ -5,9 +5,11 @@
 library vm_service_client;
 
 import 'dart:async';
+import 'dart:convert';
 // TODO(nweiz): Conditionally import dart:io when cross-platform libraries work.
 import 'dart:io';
 
+import 'package:async/async.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'src/exceptions.dart';
@@ -16,6 +18,7 @@ import 'src/isolate.dart';
 import 'src/service_version.dart';
 import 'src/stream_manager.dart';
 import 'src/utils.dart';
+import 'src/v1_compatibility.dart';
 import 'src/vm.dart';
 
 export 'src/bound_field.dart' hide newVMBoundField;
@@ -45,6 +48,14 @@ export 'src/type_arguments.dart' hide newVMTypeArgumentsRef;
 export 'src/unresolved_source_location.dart' hide newVMUnresolvedSourceLocation;
 export 'src/vm.dart' hide newVM;
 
+/// A [StreamSinkTransformer] that converts encodes JSON messages.
+///
+/// We can't use fromStreamTransformer with JSON.encoder because it isn't
+/// guaranteed to emit the entire object as a single message, and the WebSocket
+/// protocol cares about that.
+final _jsonSinkEncoder = new StreamSinkTransformer.fromHandlers(
+    handleData: (data, sink) => sink.add(JSON.encode(data)));
+
 /// A client for the [Dart VM service protocol][service api].
 ///
 /// [service api]: https://github.com/dart-lang/sdk/blob/master/runtime/vm/service/service.md
@@ -52,11 +63,11 @@ export 'src/vm.dart' hide newVM;
 /// Connect to a VM service endpoint using [connect], and use [getVM] to load
 /// information about the VM itself.
 ///
-/// The client supports VM service versions 2.x (which first shipped with Dart
-/// 1.12) and 3.x (which first shipped with Dart 1.13). Some functionality may
-/// be unavailable in older VM service versions; those places will be clearly
-/// documented. You can check the version of the VM service you're connected to
-/// using [getVersion].
+/// The client supports VM service versions 1.x (which first shipped with Dart
+/// 1.11), 2.x (which first shipped with Dart 1.12), and 3.x (which first
+/// shipped with Dart 1.13). Some functionality may be unavailable in older VM
+/// service versions; those places will be clearly documented. You can check the
+/// version of the VM service you're connected to using [getVersion].
 ///
 /// Because it takes an extra RPC call to verify compatibility with the protocol
 /// version, the client doesn't do so by default. Users who want to be sure
@@ -101,10 +112,7 @@ class VMServiceClient {
     var uri = url is String ? Uri.parse(url) : url;
     if (uri.scheme == 'http') uri = uri.replace(scheme: 'ws', path: '/ws');
 
-    // TODO(nweiz): check the protocol version before connecting, and add a
-    // compatibility wrapper if it's 1.0.
-    var peer = new rpc.Peer(await WebSocket.connect(uri.toString()));
-    return new VMServiceClient._(peer);
+    return new VMServiceClient(await WebSocket.connect(uri.toString()));
   }
 
   /// Creates a client that reads incoming messages from [incoming] and writes
@@ -115,8 +123,17 @@ class VMServiceClient {
   ///
   /// This is useful when using the client over a pre-existing connection. To
   /// establish a connection from scratch, use [connect].
-  VMServiceClient(Stream<String> incoming, [StreamSink<String> outgoing])
-      : this._(new rpc.Peer(incoming, outgoing));
+  factory VMServiceClient(Stream<String> incoming,
+      [StreamSink<String> outgoing]) {
+    if (outgoing == null) outgoing = incoming as StreamSink;
+
+    var incomingEncoded = incoming
+        .map(JSON.decode)
+        .transform(v1CompatibilityTransformer);
+    var outgoingEncoded = _jsonSinkEncoder.bind(outgoing);
+    return new VMServiceClient._(
+        new rpc.Peer.withoutJson(incomingEncoded, outgoingEncoded));
+  }
 
   /// Creates a client that reads incoming decoded messages from [incoming] and
   /// writes outgoing decoded messages to [outgoing].
@@ -129,8 +146,13 @@ class VMServiceClient {
   ///
   /// This is useful when using the client over a pre-existing connection. To
   /// establish a connection from scratch, use [connect].
-  VMServiceClient.withoutJson(Stream incoming, [StreamSink outgoing])
-      : this._(new rpc.Peer.withoutJson(incoming, outgoing));
+  factory VMServiceClient.withoutJson(Stream incoming, [StreamSink outgoing]) {
+    if (outgoing == null) outgoing = incoming as StreamSink;
+
+
+    incoming = incoming.transform(v1CompatibilityTransformer);
+    return new VMServiceClient._(new rpc.Peer.withoutJson(incoming, outgoing));
+  }
 
   VMServiceClient._(rpc.Peer peer)
       : _peer = peer,
