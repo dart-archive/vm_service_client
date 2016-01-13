@@ -23,6 +23,15 @@ class _V1CompatibilityTransformer implements StreamTransformer {
       event.remove("jsonrpc");
       event["json-rpc"] = "2.0";
 
+      // The V1 protocol used a non-standard event format.
+      if (event.containsKey("event")) {
+        event["method"] = "streamNotify";
+        event["params"] = {
+          "streamId": event.remove("streamId"),
+          "event": event.remove("event")
+        };
+      }
+
       // The V1 protocol converted ints to strings. The json_rpc_2 package
       // always uses int IDs.
       event["id"] = int.parse(event["id"]);

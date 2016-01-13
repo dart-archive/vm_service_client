@@ -1,5 +1,7 @@
-# Changelog
+## 0.1.1
 
-## 0.0.1
+* Fix support for VM service protocol 1.0 events.
 
-- Initial version
+## 0.1.0
+
+* Initial version.
