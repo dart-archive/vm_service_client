@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library vm_service_client.v1_compatibility;
-
 import 'dart:async';
 
 const v1CompatibilityTransformer = const _V1CompatibilityTransformer();
