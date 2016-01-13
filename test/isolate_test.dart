@@ -245,10 +245,14 @@ void main() {
     isolate.resume();
     expect(await isolate.stdout.transform(lines).first, equals("looping"));
 
-    await isolate.pause();
+    var onPaused = isolate.onPauseOrResume
+        .firstWhere((event) => event is! VMResumeEvent);
+    expect(isolate.pause(), completes);
+    await onPaused;
+
     expect((await isolate.load()).pauseEvent,
         new isInstanceOf<VMPauseInterruptedEvent>());
-  }, skip: "Broken by dart-lang/sdk#25379");
+  });
 
   group("resume()", () {
     var isolate;
