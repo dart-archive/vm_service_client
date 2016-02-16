@@ -99,7 +99,9 @@ void main() {
 
     var isolate = (await client.getVM()).isolates.first;
 
-    var stdout = new StreamQueue(lines.bind(isolate.stdout));
+    var stdout = new StreamQueue(isolate.stdout
+        .transform(lines)
+        .transform(const SingleSubscriptionTransformer()));
 
     await isolate.waitUntilPaused();
     var library = await (await isolate.load()).rootLibrary.load();
