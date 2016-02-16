@@ -5,8 +5,8 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:json_rpc_2/error_code.dart' as rpc_error;
+import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'class.dart';
 import 'exceptions.dart';

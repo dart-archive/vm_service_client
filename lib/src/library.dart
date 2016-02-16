@@ -7,10 +7,10 @@ import 'dart:collection';
 
 import 'class.dart';
 import 'field.dart';
-import 'scope.dart';
-import 'object.dart';
 import 'function.dart';
 import 'instance.dart';
+import 'object.dart';
+import 'scope.dart';
 import 'script.dart';
 
 VMLibraryRef newVMLibraryRef(Scope scope, Map json) {

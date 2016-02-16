@@ -6,9 +6,9 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'class.dart';
-import 'scope.dart';
 import 'instance.dart';
 import 'object.dart';
+import 'scope.dart';
 
 VMTypeArgumentsRef newVMTypeArgumentsRef(Scope scope,
     Map json) {

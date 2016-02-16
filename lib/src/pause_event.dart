@@ -6,8 +6,8 @@ import 'dart:collection';
 
 import 'breakpoint.dart';
 import 'frame.dart';
-import 'scope.dart';
 import 'instance.dart';
+import 'scope.dart';
 
 VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
   if (json == null) return null;
