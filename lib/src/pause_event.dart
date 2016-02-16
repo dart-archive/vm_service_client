@@ -42,8 +42,8 @@ abstract class VMPauseEvent {
   VMPauseEvent._(Scope scope, Map json)
       : topFrame = newVMFrame(scope, json["frame"]),
         time = json["timestamp"] == null
-            ? new DateTime.fromMillisecondsSinceEpoch(json["timestamp"])
-            : null;
+            ? null
+            : new DateTime.fromMillisecondsSinceEpoch(json["timestamp"]);
 }
 
 /// An event indicating that an isolate was paused as it started, before it
