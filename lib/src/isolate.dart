@@ -68,6 +68,25 @@ class VMIsolateRef {
   Stream<VMBreakpoint> get onBreakpointAdded => _onBreakpointAdded;
   Stream<VMBreakpoint> _onBreakpointAdded;
 
+  /// A broadcast stream that emits custom events posted via `postEvent` from
+  /// the `dart:developer` package.
+  Stream<VMExtensionEvent> get onExtensionEvent => _onExtensionEvent;
+  Stream<VMExtensionEvent> _onExtensionEvent;
+
+  /// A broadcast stream that emits custom events posted via `postEvent` from
+  /// the `dart:developer` package, limited to specific [kind].
+  ///
+  /// If [prefix] is `true`, then [kind] is matched to the event kind as a
+  /// prefix.
+  Stream<VMExtensionEvent> selectExtensionEvents(String kind,
+          {bool prefix: false}) =>
+      transform(_onExtensionEvent,
+          (VMExtensionEvent event, EventSink<VMExtensionEvent> sink) {
+        if (event.kind == kind || (prefix && event.kind.startsWith(kind))) {
+          sink.add(event);
+        }
+      });
+
   /// A broadcast stream that emits this isolate's standard output.
   ///
   /// This is only usable for embedders that provide access to `dart:io`.
@@ -85,6 +104,11 @@ class VMIsolateRef {
   /// This is only usable for embedders that provide access to `dart:io`.
   Stream<List<int>> get stderr => _stderr;
   Stream<List<int>> _stderr;
+
+  /// A broadcast stream that emits the name of VM service extensions
+  Stream<String> get onServiceExtensionAdded =>
+      _onServiceExtensionAdded;
+  Stream<String> _onServiceExtensionAdded;
 
   /// A future that fires when the isolate exits.
   ///
@@ -126,6 +150,11 @@ class VMIsolateRef {
       sink.add(new VMIsolateRef._(_scope, json["isolate"]));
     });
 
+    _onServiceExtensionAdded = _transform(_scope.streams.isolate, (json, sink) {
+      if (json["kind"] != "ServiceExtensionAdded") return;
+      sink.add(json["extensionRPC"]);
+    });
+
     _onPauseOrResume = _transform(_scope.streams.debug, (json, sink) {
       var event = newVMPauseEvent(_scope, json);
       if (event != null) sink.add(event);
@@ -145,6 +174,11 @@ class VMIsolateRef {
     _stderr = _transform(_scope.streams.stderr, (json, sink) {
       if (json["kind"] != "WriteEvent") return;
       sink.add(CryptoUtils.base64StringToBytes(json["bytes"]));
+    });
+
+    _onExtensionEvent = _transform(_scope.streams.extension, (json, sink) {
+      sink.add(
+          new VMExtensionEvent._(json['extensionKind'], json['extensionData']));
     });
   }
 
@@ -264,6 +298,37 @@ class VMIsolateRef {
     }
   }
 
+  /// Returns a future that completes once extension with the given [name] is
+  /// available.
+  ///
+  /// This works whether the extension is already registered or has yet to be
+  /// registered.
+  Future waitForExtension(String name) async {
+    return _scope.getInState(_scope.streams.isolate, () async {
+      var extensions = (await load()).extensionRpcs;
+      return extensions.contains(name);
+    }, (Map json) {
+      return json["kind"] == "ServiceExtensionAdded" &&
+          json["extensionRPC"] == name;
+    }).then((_) => null);
+  }
+
+  /// Makes a raw RPC to a VM service extension registered in this isolate
+  /// corresponding to the ID [number].
+  ///
+  /// [method] must correspond to a VM service extension installed on the VM
+  /// isolate and it must begin with prefix "ext.".
+  ///
+  /// [params] are passed to the extension handler and must be serializable to
+  /// a JSON string.
+  Future<Object> invokeExtension(String method, [Map<String, String> params]) {
+    if (!method.startsWith('ext.')) {
+      throw new ArgumentError.value(method, 'method',
+          'must begin with "ext." prefix');
+    }
+    return _scope.sendRequest(method, params);
+  }
+
   bool operator ==(other) => other is VMIsolateRef &&
       other._scope.isolateId == _scope.isolateId;
 
@@ -297,6 +362,9 @@ class VMIsolate extends VMIsolateRef {
   /// All breakpoints currently registered for this isolate.
   final List<VMBreakpoint> breakpoints;
 
+  /// The list of service extension RPCs that are registered for this isolate.
+  final List<String> extensionRpcs;
+
   VMIsolate._(Scope scope, Map json)
       : startTime = new DateTime.fromMillisecondsSinceEpoch(
             // Prior to v3.0, this was emitted as a double rather than an int.
@@ -308,6 +376,8 @@ class VMIsolate extends VMIsolateRef {
         breakpoints = new UnmodifiableListView(json["breakpoints"]
             .map((breakpoint) => newVMBreakpoint(scope, breakpoint))
             .toList()),
+        // The returned list is null when no extensions are registered
+        extensionRpcs = new UnmodifiableListView(json["extensionRPCs"] ?? []),
         super._(scope, json);
 }
 
@@ -365,4 +435,15 @@ class VMStep {
   const VMStep._(this._value);
 
   String toString() => _value;
+}
+
+/// An event posted via `postEvent` from the `dart:developer` package.
+class VMExtensionEvent {
+  /// Event kind.
+  final String kind;
+
+  /// Event data.
+  final Map data;
+
+  VMExtensionEvent._(this.kind, this.data);
 }

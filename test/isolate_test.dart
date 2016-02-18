@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
 
@@ -164,6 +165,108 @@ void main() {
 
         expect(other.onExit, completes);
       });
+    });
+
+    test("onServiceExtensionAdded fires when an extension is added", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.test', (_, __) {});
+      """, flags: ["--pause-isolates-on-start"]);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      await isolate.waitUntilPaused();
+      await isolate.resume();
+
+      String ext = await isolate.onServiceExtensionAdded.first;
+      expect(ext, 'ext.test');
+    });
+
+    group("onExtensionEvent", () {
+      test("emits extension events", () async {
+        client = await runAndConnect(main: """
+          postEvent('foo', {'bar': 'baz'});
+        """, flags: ["--pause-isolates-on-start"]);
+
+        var isolate = await (await client.getVM()).isolates.first.load();
+        await isolate.waitUntilPaused();
+        var eventFuture = _onlyEvent(isolate.onExtensionEvent);
+        await isolate.resume();
+
+        var event = await eventFuture;
+        expect(event.kind, 'foo');
+        expect(event.data, {'bar': 'baz'});
+      });
+    });
+
+    group("selectExtensionEvents", () {
+      test("chooses by extension kind", () async {
+        client = await runAndConnect(main: """
+          postEvent('foo', {'prefixed': false});
+          postEvent('bar.baz', {'prefixed': true});
+          postEvent('not.captured', {});
+        """, flags: ["--pause-isolates-on-start"]);
+
+        var isolate = await (await client.getVM()).isolates.first.load();
+
+        var unprefixedEvent = _onlyEvent(isolate.selectExtensionEvents('foo'));
+        var prefixedEvent =
+            _onlyEvent(isolate.selectExtensionEvents('bar.', prefix: true));
+
+        await isolate.waitUntilPaused();
+        await isolate.resume();
+
+        expect((await unprefixedEvent).kind, 'foo');
+        expect((await prefixedEvent).kind, 'bar.baz');
+      });
+    });
+  });
+
+  group("waitForExtension", () {
+    test("notifies when the extension is already registered", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.test', (_, __) {});
+        postEvent('registered', {});
+      """, flags: ["--pause-isolates-on-start"]);
+
+      var isolate = await (await client.getVM()).isolates.first.load();
+      await isolate.waitUntilPaused();
+      var whenRegistered = isolate.selectExtensionEvents('registered').first;
+      await isolate.resume();
+      await whenRegistered;
+      expect(isolate.waitForExtension('ext.test'), completes);
+    });
+
+    test("notifies when the extension is registered later", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.one', (_, __) {
+          registerExtension('ext.two', (_, __) {
+            return new ServiceExtensionResponse.result('''{
+              "ext.two": "is ok"
+            }''');
+          });
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.load();
+      isolate.waitForExtension('ext.two').then(expectAsync((_) async {
+        expect(await isolate.invokeExtension('ext.two'), {
+          'ext.two': 'is ok',
+        });
+      }));
+
+      await isolate.waitForExtension('ext.one');
+      isolate.invokeExtension('ext.one');
+    });
+  });
+
+  group("load", () {
+    test("loads extensionRpcs", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.foo', (_, __) {});
+        registerExtension('ext.bar', (_, __) {});
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.load();
+      expect(isolate.extensionRpcs, unorderedEquals(['ext.foo', 'ext.bar']));
     });
   });
 
@@ -375,6 +478,60 @@ void main() {
       expect(breakpoint.number, equals(1));
     });
   });
+
+  group("invokeExtension", () {
+    test("enforces ext. prefix", () async {
+      var client = await runAndConnect();
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      expect(() => isolate.invokeExtension('noprefix'), throwsArgumentError);
+    });
+
+    test("invokes extension", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.ping', (_, __) async {
+          return new ServiceExtensionResponse.result('{"type": "pong"}');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      var response = await isolate.invokeExtension('ext.ping');
+      expect(response, {'type': 'pong'});
+    });
+
+    test("passes parameters", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.params', (_, params) async {
+          return new ServiceExtensionResponse.result('''{
+            "foo": "${params['foo']}"
+          }''');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      var response = await isolate.invokeExtension('ext.params', {
+        'foo': 'bar',
+      });
+      expect(response, {
+        'foo': 'bar',
+      });
+    });
+
+    test("returns errors", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.error', (_, __) async {
+          return new ServiceExtensionResponse.error(-32013, 'some error');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      await isolate.invokeExtension('ext.error')
+        .then(expectAsync((_) {}, count: 0))
+        .catchError(expectAsync((rpc.RpcException error) {
+          expect(error.code, -32013);
+          expect(error.data, {'details': 'some error'});
+        }));
+    });
+  });
 }
 
 /// Starts a client with two unpaused empty isolates.
@@ -394,4 +551,19 @@ Future<List<VMRunnableIsolate>> _twoIsolates() async {
   await other.resume();
 
   return [main, other];
+}
+
+Future _onlyEvent(Stream stream) {
+  var completer = new Completer.sync();
+  stream.listen(expectAsync(completer.complete, count: 1),
+      onError: registerException,
+      onDone: () {
+        if (completer.isCompleted) return;
+        throw "Expected an event.";
+      });
+
+  // Hack to cause the test to stick around long enough to receive all events
+  // from the VM service.
+  expect(new Future.delayed(new Duration(milliseconds: 200)), completes);
+  return completer.future;
 }

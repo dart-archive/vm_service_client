@@ -41,6 +41,10 @@ class StreamManager {
   Stream<Map> get stderr => _stderrController.stream;
   StreamController<Map> _stderrController;
 
+  /// Custom events posted via `postEvent` from the `dart:developer` package.
+  Stream<Map> get extension => _extensionController.stream;
+  StreamController<Map> _extensionController;
+
   /// A subscription to [debug].
   ///
   /// This subscription fires no events, but it exists as long as there's also a
@@ -54,6 +58,7 @@ class StreamManager {
     _gcController = _controller("GC");
     _stdoutController = _controller("Stdout");
     _stderrController = _controller("Stderr");
+    _extensionController = _controller("Extension");
 
     _peer.registerMethod("streamNotify", (params) {
       switch (params["streamId"].asString) {
@@ -75,6 +80,9 @@ class StreamManager {
         case "Stderr":
           _stderrController.add(params["event"].asMap);
           break;
+        case "Extension":
+          _extensionController.add(params["event"].asMap);
+          break;
       }
     });
 
@@ -85,6 +93,7 @@ class StreamManager {
       _gcController.close();
       _stderrController.close();
       _stdoutController.close();
+      _extensionController.close();
     }, onError: (_) {});
   }
 
