@@ -99,8 +99,8 @@ class VMIsolateRef {
   /// Each event is the name of a registered RPC.
   ///
   /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
-  Stream<String> get onServiceExtensionAdded => _onServiceExtensionAdded;
-  Stream<String> _onServiceExtensionAdded;
+  Stream<String> get onExtensionAdded => _onExtensionAdded;
+  Stream<String> _onExtensionAdded;
 
   /// A future that fires when the isolate exits.
   ///
@@ -142,7 +142,7 @@ class VMIsolateRef {
       sink.add(new VMIsolateRef._(_scope, json["isolate"]));
     });
 
-    _onServiceExtensionAdded = _transform(_scope.streams.isolate, (json, sink) {
+    _onExtensionAdded = _transform(_scope.streams.isolate, (json, sink) {
       if (json["kind"] != "ServiceExtensionAdded") return;
       sink.add(json["extensionRPC"]);
     });

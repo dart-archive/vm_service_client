@@ -6,8 +6,8 @@
 * Add `VMIsolateRef.selectExtensionEvents()`, which selects events with specific
   kinds posted by VM service extensions using `postEvent` in `dart:developer`.
 
-* Add `VMIsolateRef.onServiceExtensionAdded`, which emits an event when a VM
-  service extension registers a new RPC.
+* Add `VMIsolateRef.onExtensionAdded`, which emits an event when a VM service
+  extension registers a new RPC.
 
 * Add `VMIsolateRef.waitForExtension()`, which returns when a given extension
   RPC is available.
