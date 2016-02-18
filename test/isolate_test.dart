@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
 
@@ -164,6 +165,106 @@ void main() {
 
         expect(other.onExit, completes);
       });
+    });
+
+    test("onServiceExtensionAdded fires when an extension is added", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.test', (_, __) {});
+      """, flags: ["--pause-isolates-on-start"]);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      await isolate.waitUntilPaused();
+      await isolate.resume();
+
+      expect(await isolate.onServiceExtensionAdded.first, equals('ext.test'));
+    });
+
+    group("onExtensionEvent", () {
+      test("emits extension events", () async {
+        client = await runAndConnect(main: """
+          postEvent('foo', {'bar': 'baz'});
+        """, flags: ["--pause-isolates-on-start"]);
+
+        var isolate = await (await client.getVM()).isolates.first.load();
+        await isolate.waitUntilPaused();
+        var eventFuture = onlyEvent(isolate.onExtensionEvent);
+        await isolate.resume();
+
+        var event = await eventFuture;
+        expect(event.kind, 'foo');
+        expect(event.data, {'bar': 'baz'});
+      });
+    });
+
+    group("selectExtensionEvents", () {
+      test("chooses by extension kind", () async {
+        client = await runAndConnect(main: """
+          postEvent('foo', {'prefixed': false});
+          postEvent('bar.baz', {'prefixed': true});
+          postEvent('not.captured', {});
+        """, flags: ["--pause-isolates-on-start"]);
+
+        var isolate = await (await client.getVM()).isolates.first.load();
+
+        var unprefixedEvent = onlyEvent(isolate.selectExtensionEvents('foo'));
+        var prefixedEvent =
+            onlyEvent(isolate.selectExtensionEvents('bar.', prefix: true));
+
+        await isolate.waitUntilPaused();
+        await isolate.resume();
+
+        expect((await unprefixedEvent).kind, 'foo');
+        expect((await prefixedEvent).kind, 'bar.baz');
+      });
+    });
+  });
+
+  group("waitForExtension", () {
+    test("notifies when the extension is already registered", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.test', (_, __) {});
+        postEvent('registered', {});
+      """, flags: ["--pause-isolates-on-start"]);
+
+      var isolate = await (await client.getVM()).isolates.first.load();
+      await isolate.waitUntilPaused();
+      var whenRegistered = isolate.selectExtensionEvents('registered').first;
+      await isolate.resume();
+      await whenRegistered;
+      expect(isolate.waitForExtension('ext.test'), completes);
+    });
+
+    test("notifies when the extension is registered later", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.one', (_, __) {
+          registerExtension('ext.two', (_, __) {
+            return new ServiceExtensionResponse.result('''{
+              "ext.two": "is ok"
+            }''');
+          });
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.load();
+      isolate.waitForExtension('ext.two').then(expectAsync((_) async {
+        expect(await isolate.invokeExtension('ext.two'),
+            equals({'ext.two': 'is ok'}));
+      }));
+
+      await isolate.waitForExtension('ext.one');
+      isolate.invokeExtension('ext.one');
+    });
+  });
+
+  group("load", () {
+    test("loads extensionRpcs", () async {
+      client = await runAndConnect(main: """
+        registerExtension('ext.foo', (_, __) {});
+        registerExtension('ext.bar', (_, __) {});
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.load();
+      expect(isolate.extensionRpcs, unorderedEquals(['ext.foo', 'ext.bar']));
     });
   });
 
@@ -373,6 +474,58 @@ void main() {
       var isolate = (await client.getVM()).isolates.first;
       var breakpoint = await isolate.addBreakpoint('my/script.dart', 0);
       expect(breakpoint.number, equals(1));
+    });
+  });
+
+  group("invokeExtension", () {
+    test("enforces ext. prefix", () async {
+      var client = await runAndConnect();
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      expect(() => isolate.invokeExtension('noprefix'), throwsArgumentError);
+    });
+
+    test("invokes extension", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.ping', (_, __) async {
+          return new ServiceExtensionResponse.result('{"type": "pong"}');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      expect(await isolate.invokeExtension('ext.ping'),
+          equals({'type': 'pong'}));
+    });
+
+    test("passes parameters", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.params', (_, params) async {
+          return new ServiceExtensionResponse.result('''{
+            "foo": "${params['foo']}"
+          }''');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      var response = await isolate.invokeExtension(
+          'ext.params', {'foo': 'bar'});
+      expect(response, equals({'foo': 'bar'}));
+    });
+
+    test("returns errors", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.error', (_, __) async {
+          return new ServiceExtensionResponse.error(-32013, 'some error');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+
+      expect(isolate.invokeExtension('ext.error'), throwsA(predicate((error) {
+        expect(error, new isInstanceOf<rpc.RpcException>());
+        expect(error.code, equals(-32013));
+        expect(error.data, equals({'details': 'some error'}));
+        return true;
+      })));
     });
   });
 }

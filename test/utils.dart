@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
 
 final lines = UTF8.decoder.fuse(const LineSplitter());
@@ -61,4 +62,20 @@ main() ${sync ? '' : 'async'} {
 Future<int> sourceLine(VMBreakpointLocation location) async {
   var script = await location.script.load();
   return script.sourceLocation(location.token).line;
+}
+
+/// Returns the first event on [stream] and asserts that it emits no more events
+/// until it closes.
+Future onlyEvent(Stream stream) {
+  var completer = new Completer.sync();
+  stream.listen(expectAsync(completer.complete, count: 1),
+      onError: registerException,
+      onDone: () {
+        if (completer.isCompleted) return;
+        throw "Expected an event.";
+      });
+
+  // Wait a bit to see if any further events are emitted.
+  expect(new Future.delayed(new Duration(milliseconds: 200)), completes);
+  return completer.future;
 }
