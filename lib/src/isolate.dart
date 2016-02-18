@@ -68,24 +68,12 @@ class VMIsolateRef {
   Stream<VMBreakpoint> get onBreakpointAdded => _onBreakpointAdded;
   Stream<VMBreakpoint> _onBreakpointAdded;
 
-  /// A broadcast stream that emits custom events posted via `postEvent` from
-  /// the `dart:developer` package.
+  /// A broadcast stream that emits custom events posted using `postEvent` from
+  /// `dart:developer`.
+  ///
+  /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
   Stream<VMExtensionEvent> get onExtensionEvent => _onExtensionEvent;
   Stream<VMExtensionEvent> _onExtensionEvent;
-
-  /// A broadcast stream that emits custom events posted via `postEvent` from
-  /// the `dart:developer` package, limited to specific [kind].
-  ///
-  /// If [prefix] is `true`, then [kind] is matched to the event kind as a
-  /// prefix.
-  Stream<VMExtensionEvent> selectExtensionEvents(String kind,
-          {bool prefix: false}) =>
-      transform(_onExtensionEvent,
-          (VMExtensionEvent event, EventSink<VMExtensionEvent> sink) {
-        if (event.kind == kind || (prefix && event.kind.startsWith(kind))) {
-          sink.add(event);
-        }
-      });
 
   /// A broadcast stream that emits this isolate's standard output.
   ///
@@ -105,9 +93,13 @@ class VMIsolateRef {
   Stream<List<int>> get stderr => _stderr;
   Stream<List<int>> _stderr;
 
-  /// A broadcast stream that emits the name of VM service extensions
-  Stream<String> get onServiceExtensionAdded =>
-      _onServiceExtensionAdded;
+  /// A broadcast stream that emits an event whenever a new VM service extension
+  /// RPC is registered.
+  ///
+  /// Each event is the name of a registered RPC.
+  ///
+  /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
+  Stream<String> get onServiceExtensionAdded => _onServiceExtensionAdded;
   Stream<String> _onServiceExtensionAdded;
 
   /// A future that fires when the isolate exits.
@@ -177,8 +169,7 @@ class VMIsolateRef {
     });
 
     _onExtensionEvent = _transform(_scope.streams.extension, (json, sink) {
-      sink.add(
-          new VMExtensionEvent._(json['extensionKind'], json['extensionData']));
+      sink.add(new VMExtensionEvent._(json));
     });
   }
 
@@ -247,6 +238,23 @@ class VMIsolateRef {
     }
   }
 
+  /// Returns a broadcast stream that emits custom events posted via `postEvent`
+  /// from the `dart:developer` package.
+  ///
+  /// Unlike [onExtensionEvent], this only emits events for which
+  /// [VMExtensionEvent.kind] is [kind]. If [prefix] is `true`, it also emits
+  /// events for which [VMExtensionEvent.kind] starts with [kind].
+  ///
+  /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
+  Stream<VMExtensionEvent> selectExtensionEvents(String kind,
+          {bool prefix: false}) {
+    return transform(_onExtensionEvent, (event, sink) {
+      if (prefix == null ? event.kind == kind : event.kind.startsWith(kind)) {
+        sink.add(event);
+      }
+    });
+  }
+
   /// Returns the isolate's current execution stack and message queue.
   Future<VMStack> getStack() async =>
       newVMStack(_scope, await _scope.sendRequest("getStack"));
@@ -298,11 +306,13 @@ class VMIsolateRef {
     }
   }
 
-  /// Returns a future that completes once extension with the given [name] is
-  /// available.
+  /// Returns a future that completes once the VM service extension RPC with the
+  /// given [name] is available.
   ///
   /// This works whether the extension is already registered or has yet to be
   /// registered.
+  ///
+  /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
   Future waitForExtension(String name) async {
     return _scope.getInState(_scope.streams.isolate, () async {
       var extensions = (await load()).extensionRpcs;
@@ -313,14 +323,18 @@ class VMIsolateRef {
     }).then((_) => null);
   }
 
-  /// Makes a raw RPC to a VM service extension registered in this isolate
-  /// corresponding to the ID [number].
+  /// Invokes the VM service extension RPC named [method] registered in this
+  /// isolate.
   ///
-  /// [method] must correspond to a VM service extension installed on the VM
-  /// isolate and it must begin with prefix "ext.".
+  /// VM service extensions are registered using the `registerExtension` method
+  /// in `dart:developer`. The [method] name must be the same as the name passed
+  /// to `registerExtension`, which means it must begin with "ext.".
   ///
-  /// [params] are passed to the extension handler and must be serializable to
-  /// a JSON string.
+  /// The [params] are passed to the extension handler.
+  ///
+  /// Returns the extension handler's decoded response.
+  ///
+  /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
   Future<Object> invokeExtension(String method, [Map<String, String> params]) {
     if (!method.startsWith('ext.')) {
       throw new ArgumentError.value(method, 'method',
@@ -362,7 +376,10 @@ class VMIsolate extends VMIsolateRef {
   /// All breakpoints currently registered for this isolate.
   final List<VMBreakpoint> breakpoints;
 
-  /// The list of service extension RPCs that are registered for this isolate.
+  /// The VM service extension RPCs that are currently registered for this
+  /// isolate.
+  ///
+  /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
   final List<String> extensionRpcs;
 
   VMIsolate._(Scope scope, Map json)
@@ -376,7 +393,6 @@ class VMIsolate extends VMIsolateRef {
         breakpoints = new UnmodifiableListView(json["breakpoints"]
             .map((breakpoint) => newVMBreakpoint(scope, breakpoint))
             .toList()),
-        // The returned list is null when no extensions are registered
         extensionRpcs = new UnmodifiableListView(json["extensionRPCs"] ?? []),
         super._(scope, json);
 }
@@ -439,11 +455,13 @@ class VMStep {
 
 /// An event posted via `postEvent` from the `dart:developer` package.
 class VMExtensionEvent {
-  /// Event kind.
+  /// The kind, which identifies the type of event and its source.
   final String kind;
 
-  /// Event data.
+  /// The event's payload.
   final Map data;
 
-  VMExtensionEvent._(this.kind, this.data);
+  VMExtensionEvent._(Map json)
+      : kind = json['extensionKind'],
+        data = json['extensionData'];
 }

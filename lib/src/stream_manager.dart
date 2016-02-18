@@ -41,7 +41,7 @@ class StreamManager {
   Stream<Map> get stderr => _stderrController.stream;
   StreamController<Map> _stderrController;
 
-  /// Custom events posted via `postEvent` from the `dart:developer` package.
+  /// Custom events posted using `postEvent` from `dart:developer`.
   Stream<Map> get extension => _extensionController.stream;
   StreamController<Map> _extensionController;
 

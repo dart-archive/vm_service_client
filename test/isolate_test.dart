@@ -176,8 +176,7 @@ void main() {
       await isolate.waitUntilPaused();
       await isolate.resume();
 
-      String ext = await isolate.onServiceExtensionAdded.first;
-      expect(ext, 'ext.test');
+      expect(await isolate.onServiceExtensionAdded.first, equals('ext.test'));
     });
 
     group("onExtensionEvent", () {
@@ -188,7 +187,7 @@ void main() {
 
         var isolate = await (await client.getVM()).isolates.first.load();
         await isolate.waitUntilPaused();
-        var eventFuture = _onlyEvent(isolate.onExtensionEvent);
+        var eventFuture = onlyEvent(isolate.onExtensionEvent);
         await isolate.resume();
 
         var event = await eventFuture;
@@ -207,9 +206,9 @@ void main() {
 
         var isolate = await (await client.getVM()).isolates.first.load();
 
-        var unprefixedEvent = _onlyEvent(isolate.selectExtensionEvents('foo'));
+        var unprefixedEvent = onlyEvent(isolate.selectExtensionEvents('foo'));
         var prefixedEvent =
-            _onlyEvent(isolate.selectExtensionEvents('bar.', prefix: true));
+            onlyEvent(isolate.selectExtensionEvents('bar.', prefix: true));
 
         await isolate.waitUntilPaused();
         await isolate.resume();
@@ -248,9 +247,8 @@ void main() {
 
       var isolate = await (await client.getVM()).isolates.first.load();
       isolate.waitForExtension('ext.two').then(expectAsync((_) async {
-        expect(await isolate.invokeExtension('ext.two'), {
-          'ext.two': 'is ok',
-        });
+        expect(await isolate.invokeExtension('ext.two'),
+            equals({'ext.two': 'is ok'}));
       }));
 
       await isolate.waitForExtension('ext.one');
@@ -494,8 +492,8 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      var response = await isolate.invokeExtension('ext.ping');
-      expect(response, {'type': 'pong'});
+      expect(await isolate.invokeExtension('ext.ping'),
+          equals({'type': 'pong'}));
     });
 
     test("passes parameters", () async {
@@ -508,12 +506,9 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      var response = await isolate.invokeExtension('ext.params', {
-        'foo': 'bar',
-      });
-      expect(response, {
-        'foo': 'bar',
-      });
+      var response = await isolate.invokeExtension(
+          'ext.params', {'foo': 'bar'});
+      expect(response, equals({'foo': 'bar'}));
     });
 
     test("returns errors", () async {
@@ -524,12 +519,13 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      await isolate.invokeExtension('ext.error')
-        .then(expectAsync((_) {}, count: 0))
-        .catchError(expectAsync((rpc.RpcException error) {
-          expect(error.code, -32013);
-          expect(error.data, {'details': 'some error'});
-        }));
+
+      expect(isolate.invokeExtension('ext.error'), throwsA(predicate((error) {
+        expect(error, new isInstanceOf<rpc.RpcException>());
+        expect(error.code, equals(-32013));
+        expect(error.data, equals({'details': 'some error'}));
+        return true;
+      })));
     });
   });
 }
@@ -551,19 +547,4 @@ Future<List<VMRunnableIsolate>> _twoIsolates() async {
   await other.resume();
 
   return [main, other];
-}
-
-Future _onlyEvent(Stream stream) {
-  var completer = new Completer.sync();
-  stream.listen(expectAsync(completer.complete, count: 1),
-      onError: registerException,
-      onDone: () {
-        if (completer.isCompleted) return;
-        throw "Expected an event.";
-      });
-
-  // Hack to cause the test to stick around long enough to receive all events
-  // from the VM service.
-  expect(new Future.delayed(new Duration(milliseconds: 200)), completes);
-  return completer.future;
 }
