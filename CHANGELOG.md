@@ -1,3 +1,7 @@
+## 0.1.2+1
+
+* Drop the dependency on the `crypto` package.
+
 ## 0.1.2
 
 * Add `VMIsolateRef.onExtensionEvent`, which emits events posted by VM service

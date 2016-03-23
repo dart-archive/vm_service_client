@@ -4,9 +4,9 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:async/async.dart';
-import 'package:crypto/crypto.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'breakpoint.dart';
@@ -159,13 +159,13 @@ class VMIsolateRef {
 
     _stdout = _transform(_scope.streams.stdout, (json, sink) {
       if (json["kind"] != "WriteEvent") return;
-      var bytes = CryptoUtils.base64StringToBytes(json["bytes"]);
+      var bytes = BASE64.decode(json["bytes"]);
       sink.add(bytes);
     });
 
     _stderr = _transform(_scope.streams.stderr, (json, sink) {
       if (json["kind"] != "WriteEvent") return;
-      sink.add(CryptoUtils.base64StringToBytes(json["bytes"]));
+      sink.add(BASE64.decode(json["bytes"]));
     });
 
     _onExtensionEvent = _transform(_scope.streams.extension, (json, sink) {

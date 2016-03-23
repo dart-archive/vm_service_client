@@ -4,9 +4,9 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import 'bound_field.dart';
@@ -794,7 +794,7 @@ class VMTypedDataInstance<T extends TypedData> extends VMTypedDataInstanceRef<T>
         super._(scope, json);
 
   static TypedData _value(Map json) {
-    var byteList = CryptoUtils.base64StringToBytes(json["bytes"]);
+    var byteList = BASE64.decode(json["bytes"]);
     var bytes = byteList is TypedData
         ? byteList
         : new Uint8List.fromList(byteList);
