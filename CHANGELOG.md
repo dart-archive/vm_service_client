@@ -1,3 +1,8 @@
+## 0.1.3
+
+* On VM service versions 3.4 and greater, `VMIsolate.pauseEvent` now returns an
+  instance of `VMNoneEvent` before the isolate is runnable.
+
 ## 0.1.2+1
 
 * Drop the dependency on the `crypto` package.

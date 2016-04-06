@@ -209,8 +209,7 @@ class VMIsolateRef {
   /// fires.
   Future waitUntilPaused() {
     return _scope.getInState(_scope.streams.debug, () async {
-      var isolate = await load();
-      return isolate.pauseEvent is! VMResumeEvent;
+      return (await load()).isPaused;
     }, (json) {
       return json["kind"] == "PauseStart" || json["kind"] == "PauseException" ||
           json["kind"] == "PauseExit" || json["kind"] == "PauseInterrupted" ||
@@ -365,10 +364,14 @@ class VMIsolate extends VMIsolateRef {
   /// The last pause event delivered to this isolate.
   ///
   /// If the isolate is running, this will be a [VMResumeEvent].
+  ///
+  /// As of VM service version 3.4, this will be a [VMNoneEvent] before the
+  /// isolate is runnable.
   final VMPauseEvent pauseEvent;
 
   /// Whether this isolate is paused.
-  bool get isPaused => pauseEvent is! VMResumeEvent;
+  bool get isPaused =>
+      pauseEvent is! VMNoneEvent && pauseEvent is! VMResumeEvent;
 
   /// The error that's causing the isolate to exit or `null`.
   final VMError error;

@@ -59,7 +59,11 @@ void main() {
     });
 
     var isolate = await (await client.onIsolateStart.first).load();
-    expect(isolate.pauseEvent, isNotNull);
+    expect(isolate.pauseEvent, new isInstanceOf<VMNoneEvent>());
+    expect(isolate.error, isNull);
+
+    isolate = await isolate.loadRunnable();
+    expect(isolate.pauseEvent, new isInstanceOf<VMPauseStartEvent>());
     expect(isolate.error, isNull);
   });
 }

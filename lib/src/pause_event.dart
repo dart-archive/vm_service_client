@@ -20,6 +20,7 @@ VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
     case "PauseInterrupted": return new VMPauseInterruptedEvent._(scope, json);
     case "PauseException": return new VMPauseExceptionEvent._(scope, json);
     case "Resume": return new VMResumeEvent._(scope, json);
+    case "None": return new VMNoneEvent._(scope, json);
     default: return null;
   }
 }
@@ -29,8 +30,8 @@ abstract class VMPauseEvent {
   /// The top stack frame associated with this event.
   ///
   /// This is `null` for [VMPauseInterruptedEvent]s when the interrupt arrived
-  /// while the Isolate was idle, and for the initial [VMPauseResume] event
-  /// that's delivered when an isolate begins execution.
+  /// while the Isolate was idle, and for pause events that don't occur while
+  /// the isolate is running code.
   final VMFrame topFrame;
 
   /// The time at which the event fired.
@@ -112,4 +113,12 @@ class VMResumeEvent extends VMPauseEvent {
       : super._(scope, json);
 
   String toString() => "resume";
+}
+
+/// An event indicating that an isolate was unpaused.
+class VMNoneEvent extends VMPauseEvent {
+  VMNoneEvent._(Scope scope, Map json)
+      : super._(scope, json);
+
+  String toString() => "none";
 }
