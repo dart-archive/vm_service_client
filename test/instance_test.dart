@@ -330,7 +330,7 @@ void main() {
       var value = await _evaluate("<int>[].runtimeType");
 
       expect(value, new isInstanceOf<VMTypeInstanceRef>());
-      expect(value.name, equals("_GrowableList<int>"));
+      expect(value.name, equals("List<int>"));
       expect(value.typeClass.name, equals("_GrowableList"));
 
       value = await value.load();

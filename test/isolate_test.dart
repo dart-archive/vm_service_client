@@ -167,7 +167,7 @@ void main() {
       });
     });
 
-    test("onServiceExtensionAdded fires when an extension is added", () async {
+    test("onExtensionAdded fires when an extension is added", () async {
       client = await runAndConnect(main: """
         registerExtension('ext.test', (_, __) {});
       """, flags: ["--pause-isolates-on-start"]);
@@ -176,7 +176,7 @@ void main() {
       await isolate.waitUntilPaused();
       await isolate.resume();
 
-      expect(await isolate.onServiceExtensionAdded.first, equals('ext.test'));
+      expect(await isolate.onExtensionAdded.first, equals('ext.test'));
     });
 
     group("onExtensionEvent", () {
