@@ -20,7 +20,7 @@ void main() {
     client = await runAndConnect();
     var version = await client.getVersion();
     expect(version.major, equals(3));
-    expect(version.minor, equals(0));
+    expect(version.minor, new isInstanceOf<int>());
   });
 
   test("considers the VM service version valid", () async {

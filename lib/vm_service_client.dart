@@ -210,7 +210,9 @@ class VMServiceClient {
   /// communicating with.
   ///
   /// Note that this is distinct from the version of Dart, which is accessible
-  /// via [VM.version].
+  /// via [VM.version]. Note also that this doesn't necessarily accurately
+  /// reflect the available APIs; for example, VM service versions 3.1, 3.2, and
+  /// 3.3 all reported themseves as version 3.0.
   Future<VMServiceVersion> getVersion() async =>
       newVMServiceVersion(await _peer.sendRequest("getVersion", {}));
 
