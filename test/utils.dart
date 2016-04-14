@@ -49,7 +49,7 @@ main() ${sync ? '' : 'async'} {
   var stdout = new StreamQueue(process.stdout.transform(lines));
   var line = await stdout.next;
   var match = new RegExp('Observatory listening on (.*)').firstMatch(line);
-  var client = await VMServiceClient.connect(match[1]);
+  var client = new VMServiceClient.connect(match[1]);
   client.done.then((_) => process.kill());
 
   // Drain the rest of the stdout queue. Otherwise the stdout and stderr streams

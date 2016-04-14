@@ -4,11 +4,11 @@
 
 import 'dart:async';
 import 'dart:convert';
-// TODO(nweiz): Conditionally import dart:io when cross-platform libraries work.
-import 'dart:io';
 
 import 'package:async/async.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
+import 'package:stream_channel/stream_channel.dart';
+import 'package:web_socket_channel/io.dart';
 
 import 'src/exceptions.dart';
 import 'src/flag.dart';
@@ -102,7 +102,10 @@ class VMServiceClient {
   /// interpreted as the URL for the Dart observatory, and the corresponding
   /// WebSocket URL is determined based on that. It may be either a [String] or
   /// a [Uri].
-  static Future<VMServiceClient> connect(url) async {
+  ///
+  /// If this encounters a connection error, [done] will complete with a
+  /// [WebSocketChannelException].
+  factory VMServiceClient.connect(url) {
     if (url is! Uri && url is! String) {
       throw new ArgumentError.value(url, "url", "must be a String or a Uri");
     }
@@ -110,7 +113,9 @@ class VMServiceClient {
     var uri = url is String ? Uri.parse(url) : url;
     if (uri.scheme == 'http') uri = uri.replace(scheme: 'ws', path: '/ws');
 
-    return new VMServiceClient(await WebSocket.connect(uri.toString()));
+    // TODO(nweiz): Just use [WebSocketChannel.connect] when cross-platform
+    // libraries work.
+    return new VMServiceClient(new IOWebSocketChannel.connect(uri));
   }
 
   /// Creates a client that reads incoming messages from [incoming] and writes
@@ -121,17 +126,8 @@ class VMServiceClient {
   ///
   /// This is useful when using the client over a pre-existing connection. To
   /// establish a connection from scratch, use [connect].
-  factory VMServiceClient(Stream<String> incoming,
-      [StreamSink<String> outgoing]) {
-    if (outgoing == null) outgoing = incoming as StreamSink;
-
-    var incomingEncoded = incoming
-        .map(JSON.decode)
-        .transform(v1CompatibilityTransformer);
-    var outgoingEncoded = _jsonSinkEncoder.bind(outgoing);
-    return new VMServiceClient._(
-        new rpc.Peer.withoutJson(incomingEncoded, outgoingEncoded));
-  }
+  factory VMServiceClient(StreamChannel<String> channel) =>
+      new VMServiceClient.withoutJson(channel.transform(jsonDocument));
 
   /// Creates a client that reads incoming decoded messages from [incoming] and
   /// writes outgoing decoded messages to [outgoing].
@@ -144,13 +140,9 @@ class VMServiceClient {
   ///
   /// This is useful when using the client over a pre-existing connection. To
   /// establish a connection from scratch, use [connect].
-  factory VMServiceClient.withoutJson(Stream incoming, [StreamSink outgoing]) {
-    if (outgoing == null) outgoing = incoming as StreamSink;
-
-
-    incoming = incoming.transform(v1CompatibilityTransformer);
-    return new VMServiceClient._(new rpc.Peer.withoutJson(incoming, outgoing));
-  }
+  factory VMServiceClient.withoutJson(StreamChannel channel) =>
+      new VMServiceClient._(new rpc.Peer.withoutJson(
+          channel.transformStream(v1CompatibilityTransformer)));
 
   VMServiceClient._(rpc.Peer peer)
       : _peer = peer,

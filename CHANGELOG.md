@@ -1,3 +1,13 @@
+## 0.2.0
+
+* **Breaking change**: `new VMServiceClient()` and `new
+  VMServiceClient.withoutJson()` now take a `StreamChannel` rather than a
+  `Stream`/`Sink` pair.
+
+* **Breaking change**: the static asynchronous factory
+  `VMServiceClient.connect()` is now a synchronous constructor, `new
+  VMServiceClient.connect()`.
+
 ## 0.1.3
 
 * On VM service versions 3.4 and greater, `VMIsolate.pauseEvent` now returns an

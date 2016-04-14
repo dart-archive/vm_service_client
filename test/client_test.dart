@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
+import 'package:web_socket_channel/io.dart';
 
 import 'utils.dart';
 
@@ -65,5 +66,10 @@ void main() {
     isolate = await isolate.loadRunnable();
     expect(isolate.pauseEvent, new isInstanceOf<VMPauseStartEvent>());
     expect(isolate.error, isNull);
+  });
+
+  test("with an invalid URL", () {
+    var client = new VMServiceClient.connect("ws://example.org/not-a-ws");
+    expect(client.done, throwsA(new isInstanceOf<WebSocketChannelException>()));
   });
 }
