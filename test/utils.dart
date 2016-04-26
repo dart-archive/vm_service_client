@@ -43,7 +43,8 @@ main() ${sync ? '' : 'async'} {
 
   var uri = "data:application/dart;charset=utf-8,${Uri.encodeFull(library)}";
 
-  var args = flags.toList()..addAll(['--observe=0', uri]);
+  var args = flags.toList()
+    ..addAll(['--pause-isolates-on-exit', '--enable-vm-service=0', uri]);
   var process = await Process.start(Platform.resolvedExecutable, args);
 
   var stdout = new StreamQueue(process.stdout.transform(lines));
