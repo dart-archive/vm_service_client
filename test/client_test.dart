@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'utils.dart';
 
