@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:pub_semver/pub_semver.dart';
@@ -106,8 +105,7 @@ class VM extends VMRef {
         startTime = new DateTime.fromMillisecondsSinceEpoch(
             // Prior to v3.0, this was emitted as a double rather than an int.
             json["startTime"].round()),
-        isolates = new UnmodifiableListView(json["isolates"]
-            .map((isolate) => newVMIsolateRef(peer, streams, isolate))
-            .toList()),
+        isolates = new List.unmodifiable(json["isolates"]
+            .map((isolate) => newVMIsolateRef(peer, streams, isolate))),
         super._(peer, streams, json);
 }

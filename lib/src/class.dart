@@ -107,9 +107,9 @@ class VMClass extends VMClassRef implements VMObject {
         library = newVMLibraryRef(scope, json["library"]),
         location = newVMSourceLocation(scope, json["location"]),
         superclass = newVMClassRef(scope, json["super"]),
-        interfaces = new UnmodifiableListView(json["interfaces"]
-            .map((interfaceJson) => newVMTypeInstanceRef(scope, interfaceJson))
-            .toList()),
+        interfaces = new List.unmodifiable(json["interfaces"]
+            .map((interfaceJson) =>
+                newVMTypeInstanceRef(scope, interfaceJson))),
         fields = new UnmodifiableMapView(new Map.fromIterable(json["fields"],
             key: (field) => field["name"],
             value: (field) => newVMFieldRef(scope, field))),
@@ -117,8 +117,7 @@ class VMClass extends VMClassRef implements VMObject {
             new Map.fromIterable(json["functions"],
                 key: (function) => function["name"],
                 value: (function) => newVMFunctionRef(scope, function))),
-        subclasses = new UnmodifiableListView(json["subclasses"]
-            .map((subclass) => newVMClassRef(scope, subclass))
-            .toList()),
+        subclasses = new List.unmodifiable(json["subclasses"]
+            .map((subclass) => newVMClassRef(scope, subclass))),
         super._(scope, json);
 }

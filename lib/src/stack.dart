@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:stack_trace/stack_trace.dart';
 
@@ -34,12 +33,10 @@ class VMStack {
   final List<VMMessage> messages;
 
   VMStack._(Scope scope, Map json)
-      : frames = new UnmodifiableListView(json["frames"]
-            .map((frame) => newVMFrame(scope, frame))
-            .toList()),
-        messages = new UnmodifiableListView(json["messages"]
-            .map((message) => newVMMessage(scope, message))
-            .toList());
+      : frames = new List.unmodifiable(json["frames"]
+            .map((frame) => newVMFrame(scope, frame))),
+        messages = new List.unmodifiable(json["messages"]
+            .map((message) => newVMMessage(scope, message)));
 
   /// Returns the trace of this stack.
   Future<Trace> getTrace() async {

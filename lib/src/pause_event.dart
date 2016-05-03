@@ -2,8 +2,6 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'dart:collection';
-
 import 'breakpoint.dart';
 import 'frame.dart';
 import 'instance.dart';
@@ -76,9 +74,8 @@ class VMPauseBreakpointEvent extends VMPauseEvent {
 
   VMPauseBreakpointEvent._(Scope scope, Map json)
       : breakpoint = newVMBreakpoint(scope, json["breakpoint"]),
-        breakpoints = new UnmodifiableListView(json["pauseBreakpoints"]
-            .map((breakpoint) => newVMBreakpoint(scope, breakpoint))
-            .toList()),
+        breakpoints = new List.unmodifiable(json["pauseBreakpoints"]
+            .map((breakpoint) => newVMBreakpoint(scope, breakpoint))),
         super._(scope, json);
 
   String toString() => "pause at $breakpoint";

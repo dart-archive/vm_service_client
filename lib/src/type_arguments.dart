@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'class.dart';
 import 'instance.dart';
@@ -60,8 +59,7 @@ class VMTypeArguments extends VMTypeArgumentsRef implements VMObject {
   VMTypeArguments._(Scope scope, Map json)
       : klass = newVMClassRef(scope, json["class"]),
         size = json["size"],
-        types = new UnmodifiableListView(json["types"]
-            .map((type) => newVMTypeLikeInstanceRef(scope, type))
-            .toList()),
+        types = new List.unmodifiable(json["types"]
+            .map((type) => newVMTypeLikeInstanceRef(scope, type))),
         super._(scope, json);
 }

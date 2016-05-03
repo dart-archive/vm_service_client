@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'class.dart';
 import 'instance.dart';
@@ -63,9 +62,8 @@ class VMContext extends VMContextRef implements VMObject {
       : size = json["size"],
         klass = newVMClassRef(scope, json["class"]),
         parent = newVMContextRef(scope, json["parent"]),
-        variables = new UnmodifiableListView(json["variables"]
+        variables = new List.unmodifiable(json["variables"]
             .map((variable) =>
-                newVMInstanceRefOrSentinel(scope, variable["value"]))
-            .toList()),
+                newVMInstanceRefOrSentinel(scope, variable["value"]))),
         super._(scope, json);
 }

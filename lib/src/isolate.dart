@@ -393,9 +393,8 @@ class VMIsolate extends VMIsolateRef {
         pauseOnExit = json["pauseOnExit"],
         pauseEvent = newVMPauseEvent(scope, json["pauseEvent"]),
         error = newVMError(scope, json["error"]),
-        breakpoints = new UnmodifiableListView(json["breakpoints"]
-            .map((breakpoint) => newVMBreakpoint(scope, breakpoint))
-            .toList()),
+        breakpoints = new List.unmodifiable(json["breakpoints"]
+            .map((breakpoint) => newVMBreakpoint(scope, breakpoint))),
         extensionRpcs = new UnmodifiableListView(json["extensionRPCs"] ?? []),
         super._(scope, json);
 }

@@ -603,9 +603,8 @@ class VMListInstance extends VMListInstanceRef implements VMInstance {
 
   VMListInstance._(Scope scope, Map json)
       : size = json["size"],
-        elements = new UnmodifiableListView(json["elements"]
-            .map((element) => newVMInstanceRefOrSentinel(scope, element))
-            .toList()),
+        elements = new List.unmodifiable(json["elements"]
+            .map((element) => newVMInstanceRefOrSentinel(scope, element))),
         fields = _fields(scope, json),
         super._(scope, json);
 
@@ -667,9 +666,8 @@ class VMMapInstance extends VMMapInstanceRef implements VMInstance {
 
   VMMapInstance._(Scope scope, Map json)
       : size = json["size"],
-        associations = new UnmodifiableListView(json["associations"]
-            .map((element) => new VMMapAssociation._(scope, element))
-            .toList()),
+        associations = new List.unmodifiable(json["associations"]
+            .map((element) => new VMMapAssociation._(scope, element))),
         fields = _fields(scope, json),
         super._(scope, json);
 

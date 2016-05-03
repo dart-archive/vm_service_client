@@ -106,12 +106,10 @@ class VMLibrary extends VMLibraryRef implements VMObject {
       : klass = newVMClassRef(scope, json["class"]),
         size = json["size"],
         isDebuggable = json["debuggable"],
-        dependencies = new UnmodifiableListView(json["dependencies"]
-            .map((dependency) => new VMLibraryDependency._(scope, dependency))
-            .toList()),
-        scripts = new UnmodifiableListView(json["scripts"]
-            .map((script) => newVMScriptRef(scope, script))
-            .toList()),
+        dependencies = new List.unmodifiable(json["dependencies"]
+            .map((dependency) => new VMLibraryDependency._(scope, dependency))),
+        scripts = new List.unmodifiable(json["scripts"]
+            .map((script) => newVMScriptRef(scope, script))),
         fields = new UnmodifiableMapView(new Map.fromIterable(json["variables"],
             key: (field) => field["name"],
             value: (field) => newVMFieldRef(scope, field))),
