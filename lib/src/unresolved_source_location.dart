@@ -24,13 +24,13 @@ class VMUnresolvedSourceLocation implements VMBreakpointLocation {
 
   /// The line specified by the user when they created the breakpoint.
   ///
-  /// This is `null` if and only if [token] is non-`null`.
+  /// This is 1-based. It's `null` if and only if [token] is non-`null`.
   final int line;
 
   /// The column specified by the user when they created the breakpoint.
   ///
-  /// This is `null` if [token] is non-`null` or if the user didn't specify a
-  /// column.
+  /// This is 1-based. It's `null` if [token] is non-`null` or if the user
+  /// didn't specify a column.
   final int column;
 
   VMUnresolvedSourceLocation._(Scope scope, Map json)

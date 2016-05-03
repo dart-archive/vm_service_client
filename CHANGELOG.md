@@ -1,3 +1,12 @@
+## 0.2.1
+
+* `VMScriptToken.offset` is deprecated. This never returned the documented value
+  in the first place, and in practice determining that value isn't possible from
+  the information available in the token.
+
+* `VMScript.getLocation()` and `VMScript.getSpan()` now return spans with the
+  correct line, column, and offset numbers.
+
 ## 0.2.0
 
 * **Breaking change**: `new VMServiceClient()` and `new

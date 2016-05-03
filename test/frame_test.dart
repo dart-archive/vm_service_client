@@ -28,7 +28,7 @@ void main() {
     expect(frame.code.kind, equals(VMCodeKind.dart));
     expect(frame.variables, contains("foo"));
     expect(frame.toString(), equals("#0 in <main_async_body>"));
-    expect(await sourceLine(frame.location), equals(11));
+    expect(await sourceLine(frame.location), equals(10));
   });
 
   test("evaluate() evaluates code in the context of the frame", () async {
@@ -54,8 +54,8 @@ void main() {
     await isolate.waitUntilPaused();
     var frame = await (await isolate.getStack()).frames.first.getFrame();
     expect(frame.uri.scheme, equals('data'));
-    expect(frame.line, equals(10));
-    expect(frame.column, equals(1));
+    expect(frame.line, equals(9));
+    expect(frame.column, equals(0));
     expect(frame.member, equals('main.<fn>'));
   });
 }

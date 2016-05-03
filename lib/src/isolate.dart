@@ -285,7 +285,8 @@ class VMIsolateRef {
   /// Adds a breakpoint at [line] (and optionally [column]) in the script with
   /// the given canonical [uri].
   ///
-  /// [uri] may be a [String] or a [Uri].
+  /// Both [line] and [column] are 1-based. The [uri] may be a [String] or a
+  /// [Uri].
   Future<VMBreakpoint> addBreakpoint(uri, int line, {int column}) async {
     if (uri is! String && uri is! Uri) {
       throw new ArgumentError("Invalid uri '$uri', must be a Uri or a String.");

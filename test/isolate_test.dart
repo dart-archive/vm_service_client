@@ -392,7 +392,7 @@ void main() {
       await isolate.waitUntilPaused();
 
       var frame = (await isolate.getStack()).frames.first;
-      expect(await sourceLine(frame.location), equals(3));
+      expect(await sourceLine(frame.location), equals(2));
     });
 
     test("steps over the next function with VMStep.over", () async {
@@ -403,7 +403,7 @@ void main() {
       await isolate.waitUntilPaused();
 
       var frame = (await isolate.getStack()).frames.first;
-      expect(await sourceLine(frame.location), equals(10));
+      expect(await sourceLine(frame.location), equals(9));
     });
 
     test("steps out of the current function with VMStep.out", () async {
@@ -415,7 +415,7 @@ void main() {
       await isolate.waitUntilPaused();
 
       var frame = (await isolate.getStack()).frames.first;
-      expect(await sourceLine(frame.location), equals(18));
+      expect(await sourceLine(frame.location), equals(17));
     });
   });
 
@@ -442,7 +442,7 @@ void main() {
       await isolate.waitUntilPaused();
 
       var stack = await isolate.getStack();
-      expect(await sourceLine(stack.frames.first.location), equals(9));
+      expect(await sourceLine(stack.frames.first.location), equals(8));
     });
 
     test("adds a breakpoint at the given column", () async {
@@ -462,7 +462,7 @@ void main() {
       var location = stack.frames.first.location;
       var script = await location.script.load();
       var sourceLocation = script.sourceLocation(location.token);
-      expect(sourceLocation.line, equals(8));
+      expect(sourceLocation.line, equals(7));
       expect(sourceLocation.column, greaterThan(21));
     });
 

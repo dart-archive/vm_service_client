@@ -53,7 +53,7 @@ void main() {
     expect(breakpoint.location, new isInstanceOf<VMSourceLocation>());
     expect(breakpoint.location.uri.scheme, equals('data'));
 
-    expect(await sourceLine(breakpoint.location), equals(9));
+    expect(await sourceLine(breakpoint.location), equals(8));
   });
 
   test("removes the breakpoint when remove() is called", () async {

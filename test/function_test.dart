@@ -32,7 +32,7 @@ void main() {
 
       function = await function.load();
       expect(function.code.kind, equals(VMCodeKind.stub));
-      expect(await sourceLine(function.location), equals(3));
+      expect(await sourceLine(function.location), equals(2));
     });
 
     test("a static function", () async {
@@ -55,7 +55,7 @@ void main() {
 
       function = await function.load();
       expect(function.code.kind, equals(VMCodeKind.stub));
-      expect(await sourceLine(function.location), equals(4));
+      expect(await sourceLine(function.location), equals(3));
     });
 
     test("an instance function", () async {
@@ -78,7 +78,7 @@ void main() {
 
       function = await function.load();
       expect(function.code.kind, equals(VMCodeKind.stub));
-      expect(await sourceLine(function.location), equals(4));
+      expect(await sourceLine(function.location), equals(3));
     });
   });
 
