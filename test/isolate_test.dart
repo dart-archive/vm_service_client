@@ -376,7 +376,7 @@ void main() {
 
       isolate = (await client.getVM()).isolates.first;
       await isolate.waitUntilPaused();
-      stdout = new StreamQueue(lines.bind(isolate.stdout));
+      stdout = new StreamQueue(isolate.stdout.transform(lines));
     });
 
     test("resumes normal execution by default", () async {

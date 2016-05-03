@@ -25,7 +25,7 @@ void main() {
 
     var isolate = (await client.getVM()).isolates.first;
 
-    var stdout = new StreamQueue(lines.bind(isolate.stdout));
+    var stdout = new StreamQueue(isolate.stdout.transform(lines));
     var line1 = new ResultFuture(stdout.next);
     var line2 = new ResultFuture(stdout.next.catchError((_) {}));
 
@@ -64,7 +64,7 @@ void main() {
 
     var isolate = (await client.getVM()).isolates.first;
 
-    var stdout = new StreamQueue(lines.bind(isolate.stdout));
+    var stdout = new StreamQueue(isolate.stdout.transform(lines));
     expect(stdout.next, completion(equals("one")));
     expect(stdout.next, completion(equals("two")));
 
