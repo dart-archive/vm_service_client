@@ -37,10 +37,13 @@ export 'src/library.dart' hide newVMLibraryRef;
 export 'src/message.dart' hide newVMMessage;
 export 'src/object.dart';
 export 'src/pause_event.dart' hide newVMPauseEvent;
-export 'src/script.dart' hide newVMScriptRef, newVMScriptToken;
+export 'src/script.dart' hide newVMScriptRef, newVMScriptToken,
+    newVMScriptTokenFromPosition;
 export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
-export 'src/source_location.dart' hide newVMSourceLocation;
+export 'src/source_location.dart' hide newVMSourceLocation,
+    newVMSourceLocationFromPosition;
+export 'src/source_report.dart' hide newSourceReport;
 export 'src/stack.dart' hide newVMStack;
 export 'src/type_arguments.dart' hide newVMTypeArgumentsRef;
 export 'src/unresolved_source_location.dart' hide newVMUnresolvedSourceLocation;
@@ -127,7 +130,7 @@ class VMServiceClient {
   /// This is useful when using the client over a pre-existing connection. To
   /// establish a connection from scratch, use [connect].
   factory VMServiceClient(StreamChannel<String> channel) =>
-      new VMServiceClient.withoutJson(channel.transform(jsonDocument));
+      new VMServiceClient.withoutJson(jsonDocument.bind(channel));
 
   /// Creates a client that reads incoming decoded messages from [incoming] and
   /// writes outgoing decoded messages to [outgoing].

@@ -1,3 +1,9 @@
+## 0.2.2
+
+* Add `getSourceReport` to `VMIsolateRef` and `VMScriptRef`, which return a 
+  `VMSourceReport` for the target isolate or just the target script 
+  respectively.
+
 ## 0.2.1
 
 * `VMScriptToken.offset` is deprecated. This never returned the documented value

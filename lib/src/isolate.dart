@@ -16,6 +16,7 @@ import 'library.dart';
 import 'pause_event.dart';
 import 'scope.dart';
 import 'sentinel.dart';
+import 'source_report.dart';
 import 'stack.dart';
 import 'stream_manager.dart';
 import 'utils.dart';
@@ -341,6 +342,38 @@ class VMIsolateRef {
           'must begin with "ext." prefix');
     }
     return _scope.sendRequest(method, params);
+  }
+
+  /// Generates a report of code coverage information and possible break points
+  /// for the scripts in this isolate.
+  ///
+  /// If [includeCoverageReport] is `true`, the report includes code coverage
+  /// information via [VMSourceReportRange.hits] and
+  /// [VMSourceReportRange.misses] in [VMSourceReport.ranges]. Otherwise,
+  /// [VMSourceReportRange.coverage] is `null`.
+  ///
+  /// If [includePossibleBreakpoints] is `true`, the report includes a list of
+  /// token positions which correspond to possible breakpoints via
+  /// [VMSourceReportRange.possibleBreakpoints] in [VMSourceReport.ranges].
+  /// Otherwise, [VMSourceReportRange.possibleBreakpoints] is `null`.
+  ///
+  /// If [forceCompile] is `true`, all functions in the range of the report
+  /// will be compiled. If `false`, functions that are never used may not appear
+  /// in [VMSourceReportRange.misses]. Forcing compilation can cause a
+  /// compilation error, which could terminate the running Dart program.
+  Future<VMSourceReport> getSourceReport(
+      {bool includeCoverageReport: true,
+      bool includePossibleBreakpoints: true,
+      bool forceCompile: false}) async {
+    var reports = <String>[];
+    if (includeCoverageReport) reports.add('Coverage');
+    if (includePossibleBreakpoints) reports.add('PossibleBreakpoints');
+
+    var params = {'reports': reports};
+    if (forceCompile) params['forceCompile'] = true;
+
+    var json = await _scope.sendRequest('getSourceReport', params);
+    return newSourceReport(_scope, json);
   }
 
   bool operator ==(other) => other is VMIsolateRef &&

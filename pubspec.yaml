@@ -1,11 +1,11 @@
 name: vm_service_client
-version: 0.2.1
+version: 0.2.2
 description: A client for the Dart VM service.
 author: Dart Team <misc@dartlang.org>
 homepage: https://github.com/dart-lang/vm_service_client
 
 environment:
-  sdk: '>=1.13.0 <2.0.0'
+  sdk: '>=1.16.0 <2.0.0'
 
 dependencies:
   async: '^1.7.0'

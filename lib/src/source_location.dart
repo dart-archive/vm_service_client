@@ -6,12 +6,15 @@ import 'breakpoint.dart';
 import 'scope.dart';
 import 'script.dart';
 
-VMSourceLocation newVMSourceLocation(Scope scope,
-    Map json) {
+VMSourceLocation newVMSourceLocation(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "SourceLocation");
   return new VMSourceLocation._(scope, json);
 }
+
+VMSourceLocation newVMSourceLocationFromPosition(
+        VMScriptRef script, int tokenPos, int endTokenPos) =>
+    new VMSourceLocation._fromPositions(script, tokenPos, endTokenPos);
 
 /// A location or span of code in a Dart script.
 class VMSourceLocation implements VMBreakpointLocation {
@@ -33,6 +36,12 @@ class VMSourceLocation implements VMBreakpointLocation {
             scope.isolateId, json["script"]["id"], json["tokenPos"]),
         end = newVMScriptToken(
             scope.isolateId, json["script"]["id"], json["endTokenPos"]);
+
+  VMSourceLocation._fromPositions(
+      VMScriptRef script, int tokenPos, int endTokenPos)
+      : this.script = script,
+        token = newVMScriptTokenFromPosition(script, tokenPos),
+        end = newVMScriptTokenFromPosition(script, endTokenPos);
 
   String toString() =>
       end == null ? "$script at $token" : "$script from $token to $end";

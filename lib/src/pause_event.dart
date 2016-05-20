@@ -92,7 +92,6 @@ class VMPauseInterruptedEvent extends VMPauseEvent {
 }
 
 /// An event indicating that an isolate was paused due to an exception.
-/// An event indicating that an isolate was paused due to an exception.
 class VMPauseExceptionEvent extends VMPauseEvent {
   /// The exception that caused the isolate to become paused.
   final VMInstanceRef exception;

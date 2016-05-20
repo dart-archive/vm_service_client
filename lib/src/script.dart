@@ -14,6 +14,7 @@ import 'library.dart';
 import 'object.dart';
 import 'scope.dart';
 import 'source_location.dart';
+import 'source_report.dart';
 
 VMScriptRef newVMScriptRef(Scope scope, Map json) {
   if (json == null) return null;
@@ -25,6 +26,11 @@ VMScriptToken newVMScriptToken(String isolateId, String scriptId,
         int position) {
   if (position == null) return null;
   return new VMScriptToken._(isolateId, scriptId, position);
+}
+
+VMScriptToken newVMScriptTokenFromPosition(VMScriptRef script, int position) {
+  if (position == null) return null;
+  return new VMScriptToken._(script._scope.isolateId, script._id, position);
 }
 
 /// A reference to a script in the Dart VM.
@@ -68,6 +74,50 @@ class VMScriptRef implements VMObjectRef {
       if (error.code == 102) return null;
       rethrow;
     }
+  }
+
+  /// Generates a set of reports tied to this script.
+  ///
+  /// If [includeCoverageReport] is `true`, the report includes code coverage
+  /// information via [VMSourceReportRange.coverage] in
+  /// [VMSourceReport.ranges].
+  /// Otherwise, [VMSourceReportRange.coverage] is `null`.
+  ///
+  /// If [includePossibleBreakpoints] is `true`, the report includes a list of
+  /// token positions which correspond to possible breakpoints via
+  /// [VMSourceReportRange.possibleBreakpoints] in [VMSourceReport.ranges].
+  /// Otherwise, [VMSourceReportRange.possibleBreakpoints] is `null`.
+  ///
+  /// If [forceCompile] is `true`, all functions in the range of the report
+  /// will be compiled. If `false`, functions that are never used may not appear
+  /// in [VMSourceReportRange.misses].
+  /// Forcing compilation can cause a compilation error, which could terminate
+  /// the running Dart program.
+  ///
+  /// [location] can be provided to restrict analysis to a subrange of the
+  /// script. An [ArgumentError] is thrown if `location.end` is `null`.
+  Future<VMSourceReport> getSourceReport(
+      {bool includeCoverageReport: true,
+      bool includePossibleBreakpoints: true,
+      bool forceCompile: false,
+      VMSourceLocation location}) async {
+    var reports = <String>[];
+    if (includeCoverageReport) reports.add('Coverage');
+    if (includePossibleBreakpoints) reports.add('PossibleBreakpoints');
+
+    var params = <String, dynamic>{'scriptId': _id, 'reports': reports};
+    if (forceCompile) params['forceCompile'] = true;
+    if (location != null) {
+      if (location.end == null) {
+        throw new ArgumentError.value(
+            location, 'location', 'location.end cannot be null.');
+      }
+      params['tokenPos'] = location.token._position;
+      params['endTokenPos'] = location.end._position;
+    }
+
+    var json = await _scope.sendRequest('getSourceReport', params);
+    return newSourceReport(_scope, json);
   }
 
   bool operator ==(other) => other is VMScriptRef &&
