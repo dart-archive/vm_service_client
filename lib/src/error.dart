@@ -113,6 +113,7 @@ class VMErrorKind {
 
   /// An internal error.
   ///
+  /// --- boo! detecting a link as a reference. Easy to fix?
   /// These errors should not be exposed—if seen, they should be [reported as
   /// bugs](https://github.com/dart-lang/sdk/issues/new).
   static const internalError = const VMErrorKind._("InternalError");

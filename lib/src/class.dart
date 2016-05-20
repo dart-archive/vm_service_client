@@ -44,6 +44,8 @@ class VMClassRef implements VMObjectRef {
 
   /// Evaluates [expression] in the context of this class.
   ///
+  /// -- A LOT of these – need a way to reference types in non-imported libs
+  /// --    requiring an import just for these would REALLY suck.
   /// Throws a [VMErrorException] if evaluating the expression throws an error.
   Future<VMInstanceRef> evaluate(String expression) =>
       _scope.evaluate(_id, expression);

@@ -61,6 +61,7 @@ final _jsonSinkEncoder = new StreamSinkTransformer.fromHandlers(
 ///
 /// [service api]: https://github.com/dart-lang/sdk/blob/master/runtime/vm/service/service.md
 ///
+/// --- no clue why `connect` here is an error, but `getVM` is fine. Help?
 /// Connect to a VM service endpoint using [connect], and use [getVM] to load
 /// information about the VM itself.
 ///
