@@ -79,9 +79,9 @@ class VMScriptRef implements VMObjectRef {
   /// Generates a set of reports tied to this script.
   ///
   /// If [includeCoverageReport] is `true`, the report includes code coverage
-  /// information via [VMSourceReportRange.coverage] in
-  /// [VMSourceReport.ranges].
-  /// Otherwise, [VMSourceReportRange.coverage] is `null`.
+  /// information via [VMSourceReportRange.hits] and
+  /// [VMSourceReportRange.misses] in [VMSourceReport.ranges]. Otherwise,
+  /// these properties are `null`.
   ///
   /// If [includePossibleBreakpoints] is `true`, the report includes a list of
   /// token positions which correspond to possible breakpoints via

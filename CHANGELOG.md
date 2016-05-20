@@ -1,3 +1,7 @@
+## 0.2.2+1
+
+* Fix some documentation comments.
+
 ## 0.2.2
 
 * Add `getSourceReport` to `VMIsolateRef` and `VMScriptRef`, which return a 
