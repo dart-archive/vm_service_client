@@ -121,28 +121,19 @@ class VMServiceClient {
     return new VMServiceClient(new IOWebSocketChannel.connect(uri));
   }
 
-  /// Creates a client that reads incoming messages from [incoming] and writes
-  /// outgoing messages to [outgoing].
-  ///
-  /// If [incoming] is a [StreamSink] as well as a [Stream] (for example, a
-  /// [WebSocket]), [outgoing] may be omitted.
+  /// Creates a client that reads incoming messages from a [channel] which
+  /// contains JSON-encoded [String] instances.
   ///
   /// This is useful when using the client over a pre-existing connection. To
-  /// establish a connection from scratch, use [connect].
+  /// establish a connection from scratch, use [VMServiceClient.connect].
   factory VMServiceClient(StreamChannel<String> channel) =>
       new VMServiceClient.withoutJson(jsonDocument.bind(channel));
 
-  /// Creates a client that reads incoming decoded messages from [incoming] and
-  /// writes outgoing decoded messages to [outgoing].
-  ///
-  /// Unlike [new VMServiceClient], this doesn't read or write JSON strings.
-  /// Instead, it reads and writes decoded maps.
-  ///
-  /// If [incoming] is a [StreamSink] as well as a [Stream], [outgoing] may be
-  /// omitted.
+  /// Creates a client that reads incoming messages from a [channel] which
+  /// contains decoded JSON maps and lists.
   ///
   /// This is useful when using the client over a pre-existing connection. To
-  /// establish a connection from scratch, use [connect].
+  /// establish a connection from scratch, use [VMServiceClient.connect].
   factory VMServiceClient.withoutJson(StreamChannel channel) =>
       new VMServiceClient._(new rpc.Peer.withoutJson(
           channel.transformStream(v1CompatibilityTransformer)));

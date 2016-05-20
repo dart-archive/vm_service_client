@@ -199,7 +199,7 @@ class VMScript extends VMScriptRef implements VMObject {
   /// Note that [FileLocation] uses 0-based lines and columns, whereas the rest
   /// of this package uses 1-based lines and columns.
   ///
-  /// Throws an [ArgumentError] if [location] isn't for this script.
+  /// Throws an [ArgumentError] if [token] isn't for this script.
   FileLocation sourceLocation(VMScriptToken token) {
     if (token._isolateId != _scope.isolateId ||
         (_fixedId && token._scriptId != _id)) {
@@ -242,7 +242,7 @@ class VMScript extends VMScriptRef implements VMObject {
 
 /// The location of a token in a Dart script.
 ///
-/// A token can be passed to [VMScriptRef.sourceLocation] to get the line and
+/// A token can be passed to [VMScript.sourceLocation] to get the line and
 /// column information for the token.
 class VMScriptToken {
   /// The ID of this token's script's isolate.

@@ -350,7 +350,7 @@ class VMIsolateRef {
   /// If [includeCoverageReport] is `true`, the report includes code coverage
   /// information via [VMSourceReportRange.hits] and
   /// [VMSourceReportRange.misses] in [VMSourceReport.ranges]. Otherwise,
-  /// [VMSourceReportRange.coverage] is `null`.
+  /// these properties are `null`.
   ///
   /// If [includePossibleBreakpoints] is `true`, the report includes a list of
   /// token positions which correspond to possible breakpoints via
