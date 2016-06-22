@@ -1,3 +1,7 @@
+## 0.2.2+2
+
+* Narrow the dependency on `source_span`.
+
 ## 0.2.2+1
 
 * Fix some documentation comments.
