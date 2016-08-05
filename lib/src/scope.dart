@@ -46,7 +46,7 @@ class Scope {
   /// Calls an isolate-scoped RPC named [method] with [params].
   ///
   /// This always adds the `isolateId` parameter to the RPC.
-  Future<Object> sendRequest(String method, [Map<String, Object> params]) async {
+  Future<dynamic> sendRequest(String method, [Map<String, Object> params]) async {
     var allParams = {"isolateId": isolateId}..addAll(params ?? {});
     return await peer.sendRequest(method, allParams);
   }
