@@ -369,7 +369,7 @@ class VMIsolateRef {
     if (includeCoverageReport) reports.add('Coverage');
     if (includePossibleBreakpoints) reports.add('PossibleBreakpoints');
 
-    var params = {'reports': reports};
+    var params = <String, dynamic>{'reports': reports};
     if (forceCompile) params['forceCompile'] = true;
 
     var json = await _scope.sendRequest('getSourceReport', params);
