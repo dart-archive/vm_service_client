@@ -42,6 +42,7 @@ VMBreakpoint newVMBreakpoint(Scope scope, Map json) {
 /// full metadata is always available.
 class VMBreakpoint extends VMObject {
   final Scope _scope;
+  final VMBreakpointLocation _location;
 
   /// The ID for this breakpoint, which is unique relative to its isolate.
   final String _id;
@@ -63,7 +64,7 @@ class VMBreakpoint extends VMObject {
   ///
   /// If this breakpoint is unresolved, this will be a
   /// [VMUnresolvedSourceLocation]. Otherwise, it will be a [VMSourceLocation].
-  final VMBreakpointLocation location;
+  VMBreakpointLocation get location => _location;
 
   /// A stream that emits a copy of [this] each time it causes the isolate to
   /// become paused.
@@ -95,7 +96,7 @@ class VMBreakpoint extends VMObject {
         size = json["size"],
         klass = newVMClassRef(scope, json["class"]),
         number = json["breakpointNumber"],
-        location = _newVMBreakpointLocation(scope, json["location"]) {
+        _location = _newVMBreakpointLocation(scope, json["location"]) {
     _onPause = transform(_scope.streams.debug, (json, sink) {
       if (json["isolate"]["id"] != _scope.isolateId) return;
       if (json["kind"] != "PauseBreakpoint") return;
