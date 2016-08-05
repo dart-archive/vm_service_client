@@ -770,7 +770,7 @@ class VMTypedDataInstanceRef<T extends TypedData> extends VMInstanceRef {
   }
 
   Future<VMTypedDataInstance<T>> load() async =>
-      new VMTypedDataInstance._(_scope, await _load());
+      new VMTypedDataInstance<T>._(_scope, await _load());
 
   String toString() => "[...]";
 }
@@ -793,8 +793,8 @@ class VMTypedDataInstance<T extends TypedData> extends VMTypedDataInstanceRef<T>
 
   static TypedData _value(Map json) {
     var byteList = BASE64.decode(json["bytes"]);
-    var bytes = byteList is TypedData
-        ? byteList
+    TypedData bytes = byteList is TypedData
+        ? byteList as TypedData
         : new Uint8List.fromList(byteList);
 
     switch (json["kind"]) {
