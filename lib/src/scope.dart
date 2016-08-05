@@ -62,9 +62,12 @@ class Scope {
     });
 
     switch (result["type"]) {
-      case "Sentinel": throw new VMSentinelException(newVMSentinel(result));
-      case "@Error": throw new VMErrorException(newVMErrorRef(this, result));
-      case "@Instance": return newVMInstanceRef(this, result);
+      case "Sentinel":
+        throw new VMSentinelException(newVMSentinel(result));
+      case "@Error":
+        throw new VMErrorException(newVMErrorRef(this, result));
+      case "@Instance":
+        return newVMInstanceRef(this, result);
       default:
         throw new StateError('Unexpected Object type "${result["type"]}".');
     }
