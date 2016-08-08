@@ -792,10 +792,8 @@ class VMTypedDataInstance<T extends TypedData> extends VMTypedDataInstanceRef<T>
         super._(scope, json);
 
   static TypedData _value(Map json) {
-    var byteList = BASE64.decode(json["bytes"]);
-    TypedData bytes = byteList is TypedData
-        ? byteList as TypedData
-        : new Uint8List.fromList(byteList);
+    List<int> byteList = BASE64.decode(json["bytes"]);
+    var bytes = new Uint8List.fromList(byteList);
 
     switch (json["kind"]) {
       case "Uint8ClampedList": return bytes.buffer.asUint8ClampedList();
