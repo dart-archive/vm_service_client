@@ -379,17 +379,18 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
   }
 
   SourceSpan union(SourceSpan other) {
-    if (other is! _ScriptSpan) return super.union(other);
+    if (other is _ScriptSpan) {
+      _ScriptSpan span = expand(other);
+      var beginSpan = span._startPosition == _startPosition ? this : other;
+      var endSpan = span._endPosition == _endPosition ? this : other;
 
-    _ScriptSpan span = expand(other);
-    _ScriptSpan beginSpan = span._startPosition == _startPosition ? this : other;
-    _ScriptSpan endSpan = span._endPosition == _endPosition ? this : other;
+      if (beginSpan._endPosition < endSpan._startPosition) {
+        throw new ArgumentError("Spans $this and $other are disjoint.");
+      }
 
-    if (beginSpan._endPosition < endSpan._startPosition) {
-      throw new ArgumentError("Spans $this and $other are disjoint.");
+      return span;
     }
-
-    return span;
+    return super.union(other);
   }
 
   bool operator ==(other) => other is _ScriptSpan
