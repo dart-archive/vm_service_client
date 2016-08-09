@@ -42,7 +42,6 @@ VMBreakpoint newVMBreakpoint(Scope scope, Map json) {
 /// full metadata is always available.
 class VMBreakpoint extends VMObject {
   final Scope _scope;
-  final VMBreakpointLocation _location;
 
   /// The ID for this breakpoint, which is unique relative to its isolate.
   final String _id;
@@ -64,6 +63,7 @@ class VMBreakpoint extends VMObject {
   ///
   /// If this breakpoint is unresolved, this will be a
   /// [VMUnresolvedSourceLocation]. Otherwise, it will be a [VMSourceLocation].
+  final VMBreakpointLocation _location;
   VMBreakpointLocation get location => _location;
 
   /// A stream that emits a copy of [this] each time it causes the isolate to
