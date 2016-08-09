@@ -316,7 +316,6 @@ class _ScriptLocation extends SourceLocationMixin implements FileLocation {
           ? _position - other._position
           : super.compareTo(other);
 
-  @override
   bool operator ==(other) => other is _ScriptLocation
       ? _position == other._position && sourceUrl == other.sourceUrl
       : super == other;
