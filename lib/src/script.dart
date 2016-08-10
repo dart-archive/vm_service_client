@@ -380,7 +380,7 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
 
   SourceSpan union(SourceSpan other) {
     if (other is _ScriptSpan) {
-      _ScriptSpan span = expand(other);
+      var span = expand(other) as _ScriptSpan;
       var beginSpan = span._startPosition == _startPosition ? this : other;
       var endSpan = span._endPosition == _endPosition ? this : other;
 
