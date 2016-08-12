@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 
 import 'error.dart';
@@ -50,7 +49,7 @@ class Scope {
   Future<Map<String, dynamic>> sendRequest(String method,
       [Map<String, Object> params]) async {
     var allParams = {"isolateId": isolateId}..addAll(params ?? {});
-    return DelegatingMap.typed/*<String, dynamic>*/(await peer.sendRequest(method, allParams));
+    return await peer.sendRequest(method, allParams) as Map<String, dynamic>;
   }
 
   /// Evaluates [expression] in the context of the object identified by [id].
