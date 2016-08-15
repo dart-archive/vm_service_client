@@ -49,14 +49,14 @@ Future<Frame> frameToFrame(VMFrame frame, [Map<String, VMScript> scripts])
   var member = scopes.reversed.join(".");
 
   var uri = frame.location.script.uri;
-  var script = scripts == null ? null : scripts[uri];
+  var script = scripts == null ? null : scripts[uri.toString()];
   if (script == null) {
     script = await frame.location.script.load();
 
     // The special "evaluate" scheme is used for evaluating code with the VM
     // service. Different scripts can have the same "evalute" scheme, so we
     // don't record them.
-    if (scripts != null && uri.scheme != 'evaluate') scripts[uri] = script;
+    if (scripts != null && uri.scheme != 'evaluate') scripts[uri.toString()] = script;
   }
   var location = await script.sourceLocation(frame.location.token);
 

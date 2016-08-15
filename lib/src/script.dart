@@ -316,7 +316,7 @@ class _ScriptLocation extends SourceLocationMixin implements FileLocation {
           ? _position - other._position
           : super.compareTo(other);
 
-  bool operator ==(SourceLocation other) => other is _ScriptLocation
+  bool operator ==(other) => other is _ScriptLocation
       ? _position == other._position && sourceUrl == other.sourceUrl
       : super == other;
 
@@ -379,17 +379,18 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
   }
 
   SourceSpan union(SourceSpan other) {
-    if (other is! _ScriptSpan) return super.union(other);
+    if (other is _ScriptSpan) {
+      var span = expand(other) as _ScriptSpan;
+      var beginSpan = span._startPosition == _startPosition ? this : other;
+      var endSpan = span._endPosition == _endPosition ? this : other;
 
-    var span = expand(other);
-    var beginSpan = span._startPosition == _startPosition ? this : other;
-    var endSpan = span._endPosition == _endPosition ? this : other;
+      if (beginSpan._endPosition < endSpan._startPosition) {
+        throw new ArgumentError("Spans $this and $other are disjoint.");
+      }
 
-    if (beginSpan._endPosition < endSpan._startPosition) {
-      throw new ArgumentError("Spans $this and $other are disjoint.");
+      return span;
     }
-
-    return span;
+    return super.union(other);
   }
 
   bool operator ==(other) => other is _ScriptSpan
