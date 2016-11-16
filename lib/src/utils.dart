@@ -28,7 +28,8 @@ final _asyncBody = new RegExp(r'<(<anonymous closure>|[^>]+)_async_body>');
 
 /// Transforms [stream] with a [StreamTransformer] that transforms data events
 /// using [handleData].
-Stream transform(Stream stream, handleData(data, EventSink sink)) =>
+Stream/*<T>*/ transform/*<S, T>*/(Stream/*<S>*/ stream,
+        void handleData(/*=S*/ data, EventSink/*<T>*/ sink)) =>
     stream.transform(
         new StreamTransformer.fromHandlers(handleData: handleData));
 

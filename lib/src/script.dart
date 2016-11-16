@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:source_span/source_span.dart';
 
@@ -174,7 +175,7 @@ class VMScript extends VMScriptRef implements VMObject {
         size = json["size"],
         library = newVMLibraryRef(scope, json["library"]),
         source = json["source"],
-        _tokenPositions = json["tokenPosTable"],
+        _tokenPositions = DelegatingList.typed(json["tokenPosTable"]),
         super._(scope, json);
 
   /// Returns a [FileSpan] representing the source covered by [location].
