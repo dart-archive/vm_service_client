@@ -47,9 +47,14 @@ class Scope {
   ///
   /// This always adds the `isolateId` parameter to the RPC.
   Future<Map<String, dynamic>> sendRequest(String method,
+          [Map<String, Object> params]) async =>
+      (await sendRequestRaw(method, params)) as Map<String, dynamic>;
+
+  /// Like [sendRequest], but doesn't assert that the result is a Map.
+  Future<Object> sendRequestRaw(String method,
       [Map<String, Object> params]) async {
     var allParams = {"isolateId": isolateId}..addAll(params ?? {});
-    return await peer.sendRequest(method, allParams) as Map<String, dynamic>;
+    return await peer.sendRequest(method, allParams);
   }
 
   /// Evaluates [expression] in the context of the object identified by [id].

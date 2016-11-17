@@ -496,6 +496,17 @@ void main() {
           equals({'type': 'pong'}));
     });
 
+    test("supports non-map return values", () async {
+      var client = await runAndConnect(main: r"""
+        registerExtension('ext.ping', (_, __) async {
+          return new ServiceExtensionResponse.result('"pong"');
+        });
+      """);
+
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      expect(await isolate.invokeExtension('ext.ping'), equals("pong"));
+    });
+
     test("passes parameters", () async {
       var client = await runAndConnect(main: r"""
         registerExtension('ext.params', (_, params) async {
