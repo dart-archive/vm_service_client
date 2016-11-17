@@ -788,7 +788,7 @@ class VMTypedDataInstance<T extends TypedData> extends VMTypedDataInstanceRef<T>
   VMTypedDataInstance._(Scope scope, Map json)
       : size = json["size"],
         fields = _fields(scope, json),
-        value = _value(json),
+        value = _value(json) as T,
         super._(scope, json);
 
   static TypedData _value(Map json) {
