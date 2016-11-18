@@ -343,7 +343,7 @@ class VMIsolateRef {
       throw new ArgumentError.value(method, 'method',
           'must begin with "ext." prefix');
     }
-    return _scope.sendRequest(method, params);
+    return _scope.sendRequestRaw(method, params);
   }
 
   /// Generates a report of code coverage information and possible break points
