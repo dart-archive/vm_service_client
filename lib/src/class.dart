@@ -31,6 +31,8 @@ class VMClassRef implements VMObjectRef {
   /// objects that refer to the same class.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The name of this class.
   final String name;
 

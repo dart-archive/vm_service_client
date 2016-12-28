@@ -49,6 +49,8 @@ class VMScriptRef implements VMObjectRef {
   /// script objects that refer to the same script.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The URI from which this script was loaded.
   final Uri uri;
 

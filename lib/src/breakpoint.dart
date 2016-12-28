@@ -50,6 +50,8 @@ class VMBreakpoint extends VMObject {
   /// instance objects that refer to the same breakpoint.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   final int size;
 
   final VMClassRef klass;

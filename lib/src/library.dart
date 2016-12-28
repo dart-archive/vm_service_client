@@ -30,6 +30,8 @@ class VMLibraryRef implements VMObjectRef {
   /// library objects that refer to the same library.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The name of this library, derived from its library tag.
   final String name;
 

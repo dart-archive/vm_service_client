@@ -31,6 +31,8 @@ class VMFunctionRef implements VMObjectRef {
   /// function objects that refer to the same function.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The name of this function.
   final String name;
 

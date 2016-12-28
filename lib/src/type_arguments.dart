@@ -28,6 +28,8 @@ class VMTypeArgumentsRef implements VMObjectRef {
   /// arguments objects that refer to the same type arguments.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// A name for this type argument list.
   final String name;
 
