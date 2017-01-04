@@ -1,3 +1,8 @@
+## 0.2.3
+
+* Add `VMIsolate.observatoryUrl` and `VMObjectRef.observatoryUrl` getters that
+  provide access to human-friendly relative Observatory URLs for VM service objects.
+
 ## 0.2.2+4
 
 * Fix a bug where `Isolate.invokeExtension()` would fail if the extension method

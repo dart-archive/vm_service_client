@@ -167,6 +167,8 @@ class VMInstanceRef implements VMObjectRef {
   /// instance objects that refer to the same instance.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   final VMClassRef klass;
 
   VMInstanceRef._(Scope scope, Map json)

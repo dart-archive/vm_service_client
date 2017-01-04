@@ -25,6 +25,8 @@ class VMCodeRef implements VMObjectRef {
   /// objects that refer to the same code.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// This code's name.
   final String name;
 

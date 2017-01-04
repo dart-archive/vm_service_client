@@ -26,6 +26,8 @@ class VMContextRef implements VMObjectRef {
   /// context objects that refer to the same context.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The number of variables in this context.
   final int length;
 

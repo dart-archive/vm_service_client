@@ -34,6 +34,8 @@ class VMErrorRef implements VMObjectRef {
   /// objects that refer to the same error.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The kind of error this is.
   final VMErrorKind kind;
 

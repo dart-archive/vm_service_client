@@ -50,6 +50,15 @@ class VMIsolateRef {
   /// This isn't guaranteed to be unique. It can be set using [setName].
   final String name;
 
+  /// A *relative* URL for humans to inspect and interact with this isolate in
+  /// the Observatory UI.
+  ///
+  /// Because the VM service client doesn't always know the full location of the
+  /// Observatory UI, this needs to be resolved against the absolute URL of the
+  /// Observatory UI in order to be usable.
+  Uri get observatoryUrl => Uri.parse(
+      "#/inspect?isolateId=${Uri.encodeQueryComponent(_scope.isolateId)}");
+
   /// A broadcast stream that emits a `null` value every time a garbage
   /// collection occurs in this isolate.
   Stream get onGC => _onGC;

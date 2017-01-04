@@ -16,6 +16,17 @@ import 'class.dart';
 /// Most objects will have only a subset of their information available as a
 /// reference, and must be [load]ed to retrieve their full information.
 abstract class VMObjectRef {
+  /// A *relative* URL for humans to inspect and possibly interact with this
+  /// object in the Observatory UI.
+  ///
+  /// Because the VM service client doesn't always know the full location of the
+  /// Observatory UI, this needs to be resolved against the absolute URL of the
+  /// Observatory UI in order to be usable.
+  ///
+  /// Note that the Observatory may not have useful UI components for all
+  /// possible object types.
+  Uri get observatoryUrl;
+
   /// Loads a full version of this object.
   ///
   /// This will throw a [VMSentinelException] if this object is no longer

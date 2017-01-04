@@ -28,6 +28,12 @@ class Scope {
 
   Scope(this.peer, this.streams, this.isolateId);
 
+  /// Returns the [VMObjectRef.observatoryUrl] for an object with the given
+  /// [id].
+  Uri observatoryUrlFor(String id) => Uri.parse(
+      "#/inspect?isolateId=${Uri.encodeQueryComponent(isolateId)}&"
+        "objectId=${Uri.encodeQueryComponent(id)}");
+
   /// Given the ID for a [VMObjectRef], loads the JSON for its corresponding
   /// [VMObject].
   ///

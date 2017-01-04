@@ -28,6 +28,8 @@ class VMFieldRef implements VMObjectRef {
   /// objects that refer to the same field.
   final bool _fixedId;
 
+  Uri get observatoryUrl => _scope.observatoryUrlFor(_id);
+
   /// The name of this field.
   final String name;
 
