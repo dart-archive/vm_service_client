@@ -15,6 +15,7 @@ import 'error.dart';
 import 'exceptions.dart';
 import 'library.dart';
 import 'pause_event.dart';
+import 'reload_report.dart';
 import 'scope.dart';
 import 'sentinel.dart';
 import 'source_report.dart';
@@ -68,6 +69,11 @@ class VMIsolateRef {
   /// its metadata changes.
   Stream<VMIsolateRef> get onUpdate => _onUpdate;
   Stream<VMIsolateRef> _onUpdate;
+
+  /// A broadcast stream that emits a new reference to this isolate every time
+  /// it has been reloaded.
+  Stream<VMIsolateRef> get onReload => _onReload;
+  Stream<VMIsolateRef> _onReload;
 
   /// A broadcast stream that emits a [VMPauseEvent] whenever this isolate is
   /// paused or resumed.
@@ -150,6 +156,11 @@ class VMIsolateRef {
 
     _onUpdate = _transform(_scope.streams.isolate, (json, sink) {
       if (json["kind"] != "IsolateUpdate") return;
+      sink.add(new VMIsolateRef._(_scope, json["isolate"]));
+    });
+
+    _onReload = _transform(_scope.streams.isolate, (json, sink) {
+      if (json["kind"] != "IsolateReload") return;
       sink.add(new VMIsolateRef._(_scope, json["isolate"]));
     });
 
@@ -316,6 +327,35 @@ class VMIsolateRef {
       if (error.code == 102) return null;
       rethrow;
     }
+  }
+
+  Future<VMReloadReport> reloadSources(
+      {bool force, bool pause, rootLibUri, packagesUri}) async {
+    if (rootLibUri != null && rootLibUri is! String && rootLibUri is! Uri) {
+      throw new ArgumentError(
+          "Invalid uri '$rootLibUri', must be a Uri or a String.");
+    }
+    if (packagesUri != null && packagesUri is! String && packagesUri is! Uri) {
+      throw new ArgumentError(
+          "Invalid uri '$packagesUri', must be a Uri or a String.");
+    }
+
+    var params = <String, dynamic>{};
+    if (force != null) {
+      params["force"] = force;
+    }
+    if (pause != null) {
+      params["pause"] = pause;
+    }
+    if (rootLibUri != null) {
+      params["rootLibUri"] = rootLibUri.toString();
+    }
+    if (packagesUri != null) {
+      params["packagesUri"] = packagesUri.toString();
+    }
+
+    var response = await _scope.sendRequest("reloadSources", params);
+    return newVMReloadReport(response);
   }
 
   /// Returns a future that completes once the VM service extension RPC with the

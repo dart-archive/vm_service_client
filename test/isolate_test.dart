@@ -67,6 +67,14 @@ void main() {
       await main.setName('fblthp');
     });
 
+    test("reloadSources can succeed", () async {
+      var client = await runAndConnect();
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+
+      final report = await isolate.reloadSources(force: true);
+      expect(report.status, true);
+    }, tags: ["reload"]);
+
     test("onPauseOrResume fires when the isolate pauses or resumes", () async {
       var isolates = await _twoIsolates();
       var main = await isolates.first.loadRunnable();
