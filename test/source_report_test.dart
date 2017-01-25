@@ -81,7 +81,7 @@ void main() {
       var hitLines =
           range.hits.map((token) => script.sourceLocation(token).line).toSet();
       expect(hitLines, [
-        6, //  new ReceivePort();
+        5, //  preamble
         7, //  print("one");
         8, //  print("two");
         15, // Isolate.current.kill();
@@ -112,7 +112,7 @@ void main() {
           .toSet();
       expect(breakPointLines, [
         4, //  main entry point
-        6, //  new ReceivePort();
+        5, //  preamble
         7, //  print("one");
         8, //  print("two");
         11, // print("three");
