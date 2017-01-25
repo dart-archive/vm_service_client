@@ -13,6 +13,7 @@ class _V1CompatibilityTransformer implements StreamTransformer {
     return stream.map((event) {
       // The V1 protocol didn't support batching.
       if (event is! Map) return event;
+      print(event);
 
       // The V1 protocol never included the proper "jsonrpc" key.
       if (event.containsKey("jsonrpc")) return event;
