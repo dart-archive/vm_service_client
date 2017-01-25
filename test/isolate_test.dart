@@ -164,7 +164,7 @@ void main() {
         }
 
         expect(other.onExit, completes);
-      });
+      }, skip: "broken by sdk#28505");
     });
 
     test("onExtensionAdded fires when an extension is added", () async {

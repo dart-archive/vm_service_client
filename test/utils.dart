@@ -29,14 +29,25 @@ Future<VMServiceClient> runAndConnect({String topLevel, String main,
     'dart:mirrors'
   ].map((uri) => 'import "$uri"').join('; ');
 
+  // Similarly, put the preamble on one line so we can modify it without
+  // breaking tests.
+  var preamble = """
+    /* Wait for a line so the test doesn't print something that could be emitted
+     * before "Observatory listening on". */
+    stdin.readLineSync();
+
+    /* Don't let the isolate close on its own. */
+    new ReceivePort();
+  """.replaceAll("\n", " ");
+
   var library = """
 $imports;
 
 $topLevel
 
 main() ${sync ? '' : 'async'} {
-  // Don't let the isolate close on its own.
-  new ReceivePort();
+  $preamble
+
   $main
 }
 """;
@@ -49,6 +60,10 @@ main() ${sync ? '' : 'async'} {
 
   var stdout = new StreamQueue(process.stdout.transform(lines));
   var line = await stdout.next;
+
+  // Start executing main().
+  process.stdin.writeln();
+
   var match = new RegExp('Observatory listening on (.*)').firstMatch(line);
   var client = new VMServiceClient.connect(match[1]);
   client.done.then((_) => process.kill());
