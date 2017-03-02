@@ -1,3 +1,8 @@
+## 0.2.4
+
+* Add `VMIsolateRef.onReload`, `VMIsolateRef.reloadSources`, and `VMReloadReport`
+  to support reloading sources via the VM service.
+
 ## 0.2.3
 
 * Add `VMIsolate.observatoryUrl` and `VMObjectRef.observatoryUrl` getters that

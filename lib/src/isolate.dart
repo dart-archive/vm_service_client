@@ -70,10 +70,10 @@ class VMIsolateRef {
   Stream<VMIsolateRef> get onUpdate => _onUpdate;
   Stream<VMIsolateRef> _onUpdate;
 
-  /// A broadcast stream that emits a new reference to this isolate every time
-  /// it has been reloaded.
-  Stream<VMIsolateRef> get onReload => _onReload;
-  Stream<VMIsolateRef> _onReload;
+  /// A broadcast stream that fires when an isolate has been reloaded due to a
+  /// reload request (added in Service Protocol 3.6).
+  Stream<Null> get onReload => _onReload;
+  Stream<Null> _onReload;
 
   /// A broadcast stream that emits a [VMPauseEvent] whenever this isolate is
   /// paused or resumed.
@@ -161,7 +161,7 @@ class VMIsolateRef {
 
     _onReload = _transform(_scope.streams.isolate, (json, sink) {
       if (json["kind"] != "IsolateReload") return;
-      sink.add(new VMIsolateRef._(_scope, json["isolate"]));
+      sink.add(null);
     });
 
     _onExtensionAdded = _transform(_scope.streams.isolate, (json, sink) {
@@ -329,15 +329,30 @@ class VMIsolateRef {
     }
   }
 
+  /// Reloads sources and returns a future with a reload report once finished.
+  ///
+  /// If the [force] parameter is provided, it indicates that all of the
+  /// Isolate's sources should be reloaded regardless of modification time.
+  ///
+  /// If the [pause] parameter is provided, the isolate will pause immediately
+  /// after the reload.
+  ///
+  /// If the [rootLibUrl] parameter is provided, it indicates the new uri to the
+  /// Isolate's root library.
+  ///
+  /// If the [packagesUrl] parameter is provided, it indicates the new uri to
+  /// the Isolate's package map (.packages) file.
+  ///
+  /// This was added in the Service Protocol 3.6.
   Future<VMReloadReport> reloadSources(
-      {bool force, bool pause, rootLibUri, packagesUri}) async {
-    if (rootLibUri != null && rootLibUri is! String && rootLibUri is! Uri) {
-      throw new ArgumentError(
-          "Invalid uri '$rootLibUri', must be a Uri or a String.");
+      {bool force, bool pause, rootLibUrl, packagesUrl}) async {
+    if (rootLibUrl != null && rootLibUrl is! String && rootLibUrl is! Uri) {
+      throw new ArgumentError.value(rootLibUrl, "rootLibUrl",
+          "must be a Uri or a String.");
     }
-    if (packagesUri != null && packagesUri is! String && packagesUri is! Uri) {
-      throw new ArgumentError(
-          "Invalid uri '$packagesUri', must be a Uri or a String.");
+    if (packagesUrl != null && packagesUrl is! String && packagesUrl is! Uri) {
+      throw new ArgumentError.value(packagesUrl, "packagesUrl",
+          "must be a Uri or a String.");
     }
 
     var params = <String, dynamic>{};
@@ -347,11 +362,11 @@ class VMIsolateRef {
     if (pause != null) {
       params["pause"] = pause;
     }
-    if (rootLibUri != null) {
-      params["rootLibUri"] = rootLibUri.toString();
+    if (rootLibUrl != null) {
+      params["rootLibUri"] = rootLibUrl.toString();
     }
-    if (packagesUri != null) {
-      params["packagesUri"] = packagesUri.toString();
+    if (packagesUrl != null) {
+      params["packagesUri"] = packagesUrl.toString();
     }
 
     var response = await _scope.sendRequest("reloadSources", params);

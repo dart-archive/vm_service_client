@@ -103,13 +103,6 @@ class VMPauseExceptionEvent extends VMPauseEvent {
   String toString() => "pause on exception";
 }
 
-/// An event indicating that an isolate was paused after a service request.
-class VMPausePostRequestEvent extends VMPauseEvent {
-  VMPausePostRequestEvent._(Scope scope, Map json) : super._(scope, json);
-
-  String toString() => "pause after a service request";
-}
-
 /// An event indicating that an isolate was unpaused.
 class VMResumeEvent extends VMPauseEvent {
   VMResumeEvent._(Scope scope, Map json)

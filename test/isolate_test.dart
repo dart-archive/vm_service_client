@@ -67,13 +67,30 @@ void main() {
       await main.setName('fblthp');
     });
 
-    test("reloadSources can succeed", () async {
+    test("reloadSources succeeds", () async {
       var client = await runAndConnect();
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
 
+      // TODO(blackhc): isolate.onReload to be checked too. It is not firing
+      // right now, issue tracked at:
+      // https://github.com/dart-lang/sdk/issues/28960
       final report = await isolate.reloadSources(force: true);
       expect(report.status, true);
-    }, tags: ["reload"]);
+    });
+
+    test("reloadSources fails on syntax errors", () async {
+      var client = await runAndConnect();
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+
+      // TODO(blackhc): IsolateReload provides more information which we do
+      // not surface currently. We should verify the error type, too.
+      expect(isolate.onReload.first, completion(isNull));
+      var reloadUri = "data:application/dart;charset=utf-8,"
+          "${Uri.encodeFull("syntax error")}";
+      final report =
+          await isolate.reloadSources(force: true, rootLibUrl: reloadUri);
+      expect(report.status, false);
+    });
 
     test("onPauseOrResume fires when the isolate pauses or resumes", () async {
       var isolates = await _twoIsolates();
@@ -89,8 +106,8 @@ void main() {
       """);
 
       var queue = new StreamQueue(main.onPauseOrResume);
-      expect(queue.next,
-          completion(new isInstanceOf<VMPauseInterruptedEvent>()));
+      expect(
+          queue.next, completion(new isInstanceOf<VMPauseInterruptedEvent>()));
       expect(queue.next, completion(new isInstanceOf<VMResumeEvent>()));
 
       // We should be properly filtering events to the right isolate.
@@ -102,9 +119,11 @@ void main() {
     });
 
     test("onBreakpointAdded fires when a breakpoint is added", () async {
-      client = await runAndConnect(main: """
+      client = await runAndConnect(
+          main: """
         print('here'); // line 8
-      """, flags: ["--pause-isolates-on-start", "--pause-isolates-on-exit"]);
+      """,
+          flags: ["--pause-isolates-on-start", "--pause-isolates-on-exit"]);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
       await isolate.waitUntilPaused();
@@ -176,9 +195,11 @@ void main() {
     });
 
     test("onExtensionAdded fires when an extension is added", () async {
-      client = await runAndConnect(main: """
+      client = await runAndConnect(
+          main: """
         registerExtension('ext.test', (_, __) {});
-      """, flags: ["--pause-isolates-on-start"]);
+      """,
+          flags: ["--pause-isolates-on-start"]);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
       await isolate.waitUntilPaused();
@@ -189,9 +210,11 @@ void main() {
 
     group("onExtensionEvent", () {
       test("emits extension events", () async {
-        client = await runAndConnect(main: """
+        client = await runAndConnect(
+            main: """
           postEvent('foo', {'bar': 'baz'});
-        """, flags: ["--pause-isolates-on-start"]);
+        """,
+            flags: ["--pause-isolates-on-start"]);
 
         var isolate = await (await client.getVM()).isolates.first.load();
         await isolate.waitUntilPaused();
@@ -206,11 +229,13 @@ void main() {
 
     group("selectExtensionEvents", () {
       test("chooses by extension kind", () async {
-        client = await runAndConnect(main: """
+        client = await runAndConnect(
+            main: """
           postEvent('foo', {'prefixed': false});
           postEvent('bar.baz', {'prefixed': true});
           postEvent('not.captured', {});
-        """, flags: ["--pause-isolates-on-start"]);
+        """,
+            flags: ["--pause-isolates-on-start"]);
 
         var isolate = await (await client.getVM()).isolates.first.load();
 
@@ -229,10 +254,12 @@ void main() {
 
   group("waitForExtension", () {
     test("notifies when the extension is already registered", () async {
-      client = await runAndConnect(main: """
+      client = await runAndConnect(
+          main: """
         registerExtension('ext.test', (_, __) {});
         postEvent('registered', {});
-      """, flags: ["--pause-isolates-on-start"]);
+      """,
+          flags: ["--pause-isolates-on-start"]);
 
       var isolate = await (await client.getVM()).isolates.first.load();
       await isolate.waitUntilPaused();
@@ -243,7 +270,8 @@ void main() {
     });
 
     test("notifies when the extension is registered later", () async {
-      client = await runAndConnect(main: """
+      client = await runAndConnect(
+          main: """
         registerExtension('ext.one', (_, __) {
           registerExtension('ext.two', (_, __) {
             return new ServiceExtensionResponse.result('''{
@@ -266,7 +294,8 @@ void main() {
 
   group("load", () {
     test("loads extensionRpcs", () async {
-      client = await runAndConnect(main: """
+      client = await runAndConnect(
+          main: """
         registerExtension('ext.foo', (_, __) {});
         registerExtension('ext.bar', (_, __) {});
       """);
@@ -308,13 +337,16 @@ void main() {
 
   group("waitUntilPaused", () {
     test("for an unpaused isolate", () async {
-      client = await runAndConnect(topLevel: r"""
+      client = await runAndConnect(
+          topLevel: r"""
         var stop = false;
-      """, main: r"""
+      """,
+          main: r"""
         print('looping');
         while (!stop) {}
         debugger();
-      """, flags: ['--pause-isolates-on-start']);
+      """,
+          flags: ['--pause-isolates-on-start']);
 
       var isolate = (await client.getVM()).isolates.first;
       isolate.resume();
@@ -326,10 +358,12 @@ void main() {
     });
 
     test("for a paused isolate", () async {
-      client = await runAndConnect(main: r"""
+      client = await runAndConnect(
+          main: r"""
         print('pausing');
         debugger();
-      """, flags: ['--pause-isolates-on-start']);
+      """,
+          flags: ['--pause-isolates-on-start']);
 
       var isolate = (await client.getVM()).isolates.first;
       isolate.resume();
@@ -343,19 +377,22 @@ void main() {
   });
 
   test("pause() pauses the isolate", () async {
-    client = await runAndConnect(topLevel: r"""
+    client = await runAndConnect(
+        topLevel: r"""
       var stop = false;
-    """, main: r"""
+    """,
+        main: r"""
       print('looping');
       while (!stop) {}
-    """, flags: ['--pause-isolates-on-start']);
+    """,
+        flags: ['--pause-isolates-on-start']);
 
     var isolate = (await client.getVM()).isolates.first;
     isolate.resume();
     expect(await isolate.stdout.transform(lines).first, equals("looping"));
 
-    var onPaused = isolate.onPauseOrResume
-        .firstWhere((event) => event is! VMResumeEvent);
+    var onPaused =
+        isolate.onPauseOrResume.firstWhere((event) => event is! VMResumeEvent);
     expect(isolate.pause(), completes);
     await onPaused;
 
@@ -367,7 +404,8 @@ void main() {
     var isolate;
     var stdout;
     setUp(() async {
-      client = await runAndConnect(topLevel: r"""
+      client = await runAndConnect(
+          topLevel: r"""
         inner() { // line 3
           print("in inner");
         }
@@ -377,7 +415,8 @@ void main() {
           inner();
           print("after inner"); // line 10
         }
-      """, main: r"""
+      """,
+          main: r"""
         outer();
         print("after outer"); // line 18
       """);
@@ -437,10 +476,12 @@ void main() {
 
   group("addBreakpoint", () {
     test("adds a breakpoint at the given line", () async {
-      var client = await runAndConnect(main: r"""
+      var client = await runAndConnect(
+          main: r"""
         print("one");
         print("two"); // line 9
-      """, flags: ["--pause-isolates-on-start"]);
+      """,
+          flags: ["--pause-isolates-on-start"]);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
       var breakpoint = await isolate.addBreakpoint(isolate.rootLibrary.uri, 9);
@@ -454,13 +495,15 @@ void main() {
     });
 
     test("adds a breakpoint at the given column", () async {
-      var client = await runAndConnect(main: r"""
+      var client = await runAndConnect(
+          main: r"""
         print("one"); /* line 8, column 21+ */ print("two");
-      """, flags: ["--pause-isolates-on-start"]);
+      """,
+          flags: ["--pause-isolates-on-start"]);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      var breakpoint = await isolate.addBreakpoint(
-          isolate.rootLibrary.uri, 8, column: 22);
+      var breakpoint =
+          await isolate.addBreakpoint(isolate.rootLibrary.uri, 8, column: 22);
       expect(breakpoint.number, equals(1));
 
       await isolate.resume();
@@ -493,19 +536,21 @@ void main() {
     });
 
     test("invokes extension", () async {
-      var client = await runAndConnect(main: r"""
+      var client = await runAndConnect(
+          main: r"""
         registerExtension('ext.ping', (_, __) async {
           return new ServiceExtensionResponse.result('{"type": "pong"}');
         });
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      expect(await isolate.invokeExtension('ext.ping'),
-          equals({'type': 'pong'}));
+      expect(
+          await isolate.invokeExtension('ext.ping'), equals({'type': 'pong'}));
     });
 
     test("supports non-map return values", () async {
-      var client = await runAndConnect(main: r"""
+      var client = await runAndConnect(
+          main: r"""
         registerExtension('ext.ping', (_, __) async {
           return new ServiceExtensionResponse.result('"pong"');
         });
@@ -516,7 +561,8 @@ void main() {
     });
 
     test("passes parameters", () async {
-      var client = await runAndConnect(main: r"""
+      var client = await runAndConnect(
+          main: r"""
         registerExtension('ext.params', (_, params) async {
           return new ServiceExtensionResponse.result('''{
             "foo": "${params['foo']}"
@@ -525,13 +571,14 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      var response = await isolate.invokeExtension(
-          'ext.params', {'foo': 'bar'});
+      var response =
+          await isolate.invokeExtension('ext.params', {'foo': 'bar'});
       expect(response, equals({'foo': 'bar'}));
     });
 
     test("returns errors", () async {
-      var client = await runAndConnect(main: r"""
+      var client = await runAndConnect(
+          main: r"""
         registerExtension('ext.error', (_, __) async {
           return new ServiceExtensionResponse.error(-32013, 'some error');
         });
@@ -551,11 +598,14 @@ void main() {
 
 /// Starts a client with two unpaused empty isolates.
 Future<List<VMRunnableIsolate>> _twoIsolates() async {
-  client = await runAndConnect(topLevel: r"""
+  client = await runAndConnect(
+      topLevel: r"""
     void otherIsolate(_) {}
-  """, main: r"""
+  """,
+      main: r"""
     Isolate.spawn(otherIsolate, null);
-  """, flags: ["--pause-isolates-on-start", "--pause-isolates-on-exit"]);
+  """,
+      flags: ["--pause-isolates-on-start", "--pause-isolates-on-exit"]);
 
   var vm = await client.getVM();
   var main = vm.isolates.first;
