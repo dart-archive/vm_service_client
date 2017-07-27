@@ -103,7 +103,7 @@ class Scope {
   /// This returns the value returned by [immediate] if it's not `null` or
   /// `false`, or else the first non-`null`, non-`false` value returned by
   /// [onEvent].
-  Future/*<T>*/ getInState/*<T>*/(Stream<Map> stream, Future/*<T>*/ immediate(),
+  Future<T> getInState<T>(Stream<Map> stream, Future<T> immediate(),
       onEvent(Map json)) async {
     var completer = new Completer.sync();
 
