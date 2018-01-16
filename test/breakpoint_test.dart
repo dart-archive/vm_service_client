@@ -30,7 +30,7 @@ void main() {
     var line2 = new ResultFuture(stdout.next.catchError((_) {}));
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint.number, equals(1));
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
@@ -69,7 +69,7 @@ void main() {
     expect(stdout.next, completion(equals("two")));
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint.number, equals(1));
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
@@ -81,7 +81,7 @@ void main() {
     await breakpoint.remove();
 
     // Only a single resume event should fire.
-    isolate.onPauseOrResume.listen(expectAsync((event) {
+    isolate.onPauseOrResume.listen(expectAsync1((event) {
       expect(event, new isInstanceOf<VMResumeEvent>());
     }));
 
@@ -103,14 +103,14 @@ void main() {
         .transform(const SingleSubscriptionTransformer()));
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(10);
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
     expect(breakpoint.location,
         new isInstanceOf<VMUnresolvedSourceLocation>());
 
     var times = 0;
-    breakpoint.onPause.listen(expectAsync((eventBreakpoint) async {
+    breakpoint.onPause.listen(expectAsync1((eventBreakpoint) async {
       expect(eventBreakpoint.number, equals(breakpoint.number));
       var i = (await isolate.getStack()).frames.first.variables['i'].value;
       expect(i, new isInstanceOf<VMIntInstanceRef>());
@@ -135,13 +135,12 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
 
     var onRemoveFuture = breakpoint.onRemove;
 
-    isolate = await isolate.load();
-    isolate.breakpoints.first.remove();
+    (await isolate.load()).breakpoints.first.remove();
 
     await onRemoveFuture;
   });
@@ -155,11 +154,10 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
 
-    isolate = await isolate.load();
-    await isolate.breakpoints.first.remove();
+    (await isolate.load()).breakpoints.first.remove();
 
     await breakpoint.onRemove;
   });
@@ -174,7 +172,7 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
     expect(breakpoint.location,
@@ -196,7 +194,7 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
 
     await isolate.waitUntilPaused();
-    var library = await (await isolate.load()).rootLibrary.load();
+    var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
     expect(breakpoint.location,

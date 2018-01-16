@@ -25,11 +25,11 @@ void main() {
       class Bar extends Foo {}
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
-    var klass = (await isolate.rootLibrary.load()).classes["Foo"];
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+    var klassRef = (await isolate.rootLibrary.load()).classes["Foo"];
 
-    expect(klass.name, equals("Foo"));
-    klass = await klass.load();
+    expect(klassRef.name, equals("Foo"));
+    var klass = await klassRef.load();
 
     expect(klass.error, isNull);
     expect(klass.isAbstract, isFalse);
@@ -50,10 +50,9 @@ void main() {
       }
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
     var klass = (await isolate.rootLibrary.load()).classes["Foo"];
-    var value = await klass.evaluate("foo(6)");
-    expect(value, new isInstanceOf<VMIntInstanceRef>());
+    var value = await klass.evaluate("foo(6)") as VMIntInstanceRef;
     expect(value.value, equals(18));
   });
 }

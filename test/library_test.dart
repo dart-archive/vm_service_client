@@ -26,11 +26,11 @@ void main() {
       class Baz {}
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
-    var library = isolate.rootLibrary;
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+    var libraryRef = isolate.rootLibrary;
 
-    expect(library.uri.scheme, equals("data"));
-    library = await library.load();
+    expect(libraryRef.uri.scheme, equals("data"));
+    var library = await libraryRef.load();
 
     expect(library.isDebuggable, isTrue);
 
@@ -57,7 +57,7 @@ void main() {
       print('here'); // line 8
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
     var library = await isolate.rootLibrary.load();
 
     await library.setNotDebuggable();
@@ -72,9 +72,9 @@ void main() {
       int foo(int value) => value + 12;
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
-    var value = await isolate.rootLibrary.evaluate("foo(6)");
-    expect(value, new isInstanceOf<VMIntInstanceRef>());
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+    var value = await isolate.rootLibrary.evaluate("foo(6)")
+        as VMIntInstanceRef;
     expect(value.value, equals(18));
   });
 }

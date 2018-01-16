@@ -161,13 +161,13 @@ class VMScript extends VMScriptRef implements VMObject {
   /// this script.
   ///
   /// This is generally less efficient than calling [sourceSpan] and
-  /// [sourceLocation] directly, and should only be used when you don't
+  /// [sourceLocation] directly, and should only be used when you don't have
   /// [VMSourceLocation] or [VMScriptToken] objects.
   ///
   /// Note that [SourceFile] uses 0-based lines and columns, whereas the rest of
   /// this package uses 1-based lines and columns.
   SourceFile get sourceFile {
-    if (_sourceFile == null) _sourceFile = new SourceFile(source, url: uri);
+    _sourceFile ??= new SourceFile.fromString(source, url: uri);
     return _sourceFile;
   }
   SourceFile _sourceFile;

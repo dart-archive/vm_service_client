@@ -20,17 +20,16 @@ void main() {
         void foo(int arg) {}
       """, flags: ["--pause-isolates-on-start"]);
 
-      var isolate = await (await client.getVM()).isolates.first.load();
-      var function = (await isolate.rootLibrary.load()).functions["foo"];
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+      var functionRef = (await isolate.rootLibrary.load()).functions["foo"];
 
-      expect(function.name, equals("foo"));
-      expect(function.owner, new isInstanceOf<VMLibraryRef>());
-      expect(function.owner.uri.scheme, equals("data"));
-      expect(function.isStatic, isTrue);
-      expect(function.isConst, isFalse);
-      expect(function.toString(), equals("foo"));
+      expect(functionRef.name, equals("foo"));
+      expect((functionRef.owner as VMLibraryRef).uri.scheme, equals("data"));
+      expect(functionRef.isStatic, isTrue);
+      expect(functionRef.isConst, isFalse);
+      expect(functionRef.toString(), equals("foo"));
 
-      function = await function.load();
+      var function = await functionRef.load();
       expect(function.code.kind, equals(VMCodeKind.stub));
       expect(await sourceLine(function.location), equals(2));
     });
@@ -42,18 +41,17 @@ void main() {
         }
       """, flags: ["--pause-isolates-on-start"]);
 
-      var isolate = await (await client.getVM()).isolates.first.load();
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
       var klass = (await isolate.rootLibrary.load()).classes["Foo"];
-      var function = (await klass.load()).functions["foo"];
+      var functionRef = (await klass.load()).functions["foo"];
 
-      expect(function.name, equals("foo"));
-      expect(function.owner, new isInstanceOf<VMClassRef>());
-      expect(function.owner.name, equals("Foo"));
-      expect(function.isStatic, isTrue);
-      expect(function.isConst, isFalse);
-      expect(function.toString(), equals("static foo"));
+      expect(functionRef.name, equals("foo"));
+      expect((functionRef.owner as VMClassRef).name, equals("Foo"));
+      expect(functionRef.isStatic, isTrue);
+      expect(functionRef.isConst, isFalse);
+      expect(functionRef.toString(), equals("static foo"));
 
-      function = await function.load();
+      var function = await functionRef.load();
       expect(function.code.kind, equals(VMCodeKind.stub));
       expect(await sourceLine(function.location), equals(3));
     });
@@ -65,18 +63,17 @@ void main() {
         }
       """, flags: ["--pause-isolates-on-start"]);
 
-      var isolate = await (await client.getVM()).isolates.first.load();
+      var isolate = await (await client.getVM()).isolates.first.loadRunnable();
       var klass = (await isolate.rootLibrary.load()).classes["Foo"];
-      var function = (await klass.load()).functions["foo"];
+      var functionRef = (await klass.load()).functions["foo"];
 
-      expect(function.name, equals("foo"));
-      expect(function.owner, new isInstanceOf<VMClassRef>());
-      expect(function.owner.name, equals("Foo"));
-      expect(function.isStatic, isFalse);
-      expect(function.isConst, isFalse);
-      expect(function.toString(), equals("foo"));
+      expect(functionRef.name, equals("foo"));
+      expect((functionRef.owner as VMClassRef).name, equals("Foo"));
+      expect(functionRef.isStatic, isFalse);
+      expect(functionRef.isConst, isFalse);
+      expect(functionRef.toString(), equals("foo"));
 
-      function = await function.load();
+      var function = await functionRef.load();
       expect(function.code.kind, equals(VMCodeKind.stub));
       expect(await sourceLine(function.location), equals(3));
     });
@@ -89,7 +86,7 @@ void main() {
       }
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
     var function = (await isolate.rootLibrary.load()).functions["foo"];
 
     await function.addBreakpoint();

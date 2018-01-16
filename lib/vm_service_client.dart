@@ -3,9 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:async/async.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:stream_channel/stream_channel.dart';
 import 'package:web_socket_channel/io.dart';
@@ -48,14 +46,6 @@ export 'src/stack.dart' hide newVMStack;
 export 'src/type_arguments.dart' hide newVMTypeArgumentsRef;
 export 'src/unresolved_source_location.dart' hide newVMUnresolvedSourceLocation;
 export 'src/vm.dart' hide newVM;
-
-/// A [StreamSinkTransformer] that converts encodes JSON messages.
-///
-/// We can't use fromStreamTransformer with JSON.encoder because it isn't
-/// guaranteed to emit the entire object as a single message, and the WebSocket
-/// protocol cares about that.
-final _jsonSinkEncoder = new StreamSinkTransformer.fromHandlers(
-    handleData: (data, sink) => sink.add(JSON.encode(data)));
 
 /// A client for the [Dart VM service protocol][service api].
 ///

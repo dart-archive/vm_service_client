@@ -21,7 +21,7 @@ void main() {
       }
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
     var function = (await isolate.rootLibrary.load()).functions["foo"];
     var code = (await function.load()).code;
 
@@ -29,7 +29,7 @@ void main() {
     expect(code.kind, equals(VMCodeKind.stub));
     expect(code.toString(), equals("[Stub] LazyCompile"));
 
-    await function.owner.evaluate("foo()");
+    await (function.owner as VMLibraryRef).evaluate("foo()");
     code = (await function.load()).code;
     expect(code.name, equals("foo"));
     expect(code.kind, equals(VMCodeKind.dart));

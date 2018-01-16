@@ -75,7 +75,7 @@ void main() {
       });
 
       test("works with foreign locations", () {
-        var file = new SourceFile(script.source, url: script.uri);
+        var file = new SourceFile.fromString(script.source, url: script.uri);
 
         expect(barLocation.compareTo(file.location(fooLocation.offset)),
             greaterThan(0));
@@ -94,7 +94,8 @@ void main() {
       });
 
       test("throws for non-matching URLs on foreign locations", () {
-        var file = new SourceFile(script.source, url: Uri.parse("other.dart"));
+        var file = new SourceFile.fromString(script.source,
+            url: Uri.parse("other.dart"));
         expect(() => fooLocation.compareTo(file.location(fooLocation.offset)),
             throwsArgumentError);
       });
@@ -106,12 +107,13 @@ void main() {
       });
 
       test("returns true for matching foreign locations", () {
-        var file = new SourceFile(script.source, url: script.uri);
+        var file = new SourceFile.fromString(script.source, url: script.uri);
         expect(fooLocation, equals(file.location(fooLocation.offset)));
       });
 
       test("returns false for non-matching URLs on foreign locations", () {
-        var file = new SourceFile(script.source, url: Uri.parse("other.dart"));
+        var file = new SourceFile.fromString(script.source,
+            url: Uri.parse("other.dart"));
         expect(fooLocation, isNot(equals(file.location(fooLocation.offset))));
       });
     });
@@ -184,7 +186,7 @@ void main() {
       });
 
       test("works with foreign spans", () {
-        var file = new SourceFile(script.source, url: script.uri);
+        var file = new SourceFile.fromString(script.source, url: script.uri);
 
         expect(
             barSpan.compareTo(
@@ -209,7 +211,8 @@ void main() {
       });
 
       test("throws for non-matching URLs on foreign spans", () {
-        var file = new SourceFile(script.source, url: Uri.parse("other.dart"));
+        var file = new SourceFile.fromString(script.source,
+            url: Uri.parse("other.dart"));
         var span = file.span(fooSpan.start.offset, fooSpan.end.offset);
         expect(() => fooSpan.compareTo(span), throwsArgumentError);
       });
@@ -221,13 +224,14 @@ void main() {
       });
 
       test("returns true for matching foreign spans", () {
-        var file = new SourceFile(script.source, url: script.uri);
+        var file = new SourceFile.fromString(script.source, url: script.uri);
         expect(fooSpan,
             equals(file.span(fooSpan.start.offset, fooSpan.end.offset)));
       });
 
       test("returns false for non-matching URLs on foreign spans", () {
-        var file = new SourceFile(script.source, url: Uri.parse("other.dart"));
+        var file = new SourceFile.fromString(script.source,
+            url: Uri.parse("other.dart"));
         var span = file.span(fooSpan.start.offset, fooSpan.end.offset);
         expect(fooSpan, isNot(equals(span)));
       });
@@ -248,7 +252,7 @@ void main() {
       });
 
       test("unions a script span with a foreign span", () {
-        var file = new SourceFile(script.source, url: script.uri);
+        var file = new SourceFile.fromString(script.source, url: script.uri);
         var shiftedSpan = file.span(
             barSpan.start.offset + 1, barSpan.end.offset + 1);
 
@@ -270,7 +274,8 @@ void main() {
       });
 
       test("throws for non-matching URLs on foreign spans", () {
-        var file = new SourceFile(script.source, url: Uri.parse("other.dart"));
+        var file = new SourceFile.fromString(script.source,
+            url: Uri.parse("other.dart"));
         var span = file.span(fooSpan.start.offset, fooSpan.end.offset);
         expect(() => fooSpan.union(span), throwsArgumentError);
       });
@@ -284,7 +289,7 @@ void main() {
       });
 
       test("expands to cover a foreign span", () {
-        var file = new SourceFile(script.source, url: script.uri);
+        var file = new SourceFile.fromString(script.source, url: script.uri);
         var span = file.span(barSpan.start.offset, barSpan.end.offset);
 
         var expanded = fooSpan.expand(span);
@@ -301,7 +306,8 @@ void main() {
       });
 
       test("throws for non-matching URLs on foreign spans", () {
-        var file = new SourceFile(script.source, url: Uri.parse("other.dart"));
+        var file = new SourceFile.fromString(script.source,
+            url: Uri.parse("other.dart"));
         var span = file.span(barSpan.start.offset, barSpan.end.offset);
         expect(() => fooSpan.expand(span), throwsArgumentError);
       });

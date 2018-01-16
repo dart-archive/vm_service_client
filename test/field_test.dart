@@ -19,23 +19,20 @@ void main() {
       const String value = 'foo';
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
-    var field = (await isolate.rootLibrary.load()).fields["value"];
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
+    var fieldRef = (await isolate.rootLibrary.load()).fields["value"];
 
-    expect(field.name, equals("value"));
-    expect(field.owner, new isInstanceOf<VMLibraryRef>());
-    expect(field.owner.uri, equals(isolate.rootLibrary.uri));
-    expect(field.declaredType, new isInstanceOf<VMTypeInstanceRef>());
-    expect(field.declaredType.name, equals("String"));
-    expect(field.isConst, isTrue);
-    expect(field.isFinal, isTrue);
-    expect(field.isStatic, isTrue);
-    expect(field.description, equals("const String value"));
-    expect(field.toString(), equals("const String value = ..."));
+    expect(fieldRef.name, equals("value"));
+    expect((fieldRef.owner as VMLibraryRef).uri, equals(isolate.rootLibrary.uri));
+    expect((fieldRef.declaredType as VMTypeInstanceRef).name, equals("String"));
+    expect(fieldRef.isConst, isTrue);
+    expect(fieldRef.isFinal, isTrue);
+    expect(fieldRef.isStatic, isTrue);
+    expect(fieldRef.description, equals("const String value"));
+    expect(fieldRef.toString(), equals("const String value = ..."));
 
-    field = await field.load();
-    expect(field.value, new isInstanceOf<VMStringInstanceRef>());
-    expect(field.value.value, equals("foo"));
+    var field = await fieldRef.load();
+    expect((field.value as VMStringInstanceRef).value, equals("foo"));
     expect(field.location.script.uri, equals(isolate.rootLibrary.uri));
     expect(field.toString(), equals('const String value = "foo"'));
   });
@@ -47,23 +44,21 @@ void main() {
       }
     """, flags: ["--pause-isolates-on-start"]);
 
-    var isolate = await (await client.getVM()).isolates.first.load();
+    var isolate = await (await client.getVM()).isolates.first.loadRunnable();
     var klass = (await isolate.rootLibrary.load()).classes["Foo"];
     var instance = await (await klass.evaluate("new Foo()")).load();
-    var field = instance.fields["value"].declaration;
+    var fieldRef = instance.fields["value"].declaration;
 
-    expect(field.name, equals("value"));
-    expect(field.owner, new isInstanceOf<VMClassRef>());
-    expect(field.owner.name, equals("Foo"));
-    expect(field.declaredType, new isInstanceOf<VMTypeInstanceRef>());
-    expect(field.declaredType.name, equals("dynamic"));
-    expect(field.isConst, isFalse);
-    expect(field.isFinal, isFalse);
-    expect(field.isStatic, isFalse);
-    expect(field.description, equals("var value"));
-    expect(field.toString(), equals("var value = ..."));
+    expect(fieldRef.name, equals("value"));
+    expect((fieldRef.owner as VMClassRef).name, equals("Foo"));
+    expect((fieldRef.declaredType as VMTypeInstanceRef).name, equals("dynamic"));
+    expect(fieldRef.isConst, isFalse);
+    expect(fieldRef.isFinal, isFalse);
+    expect(fieldRef.isStatic, isFalse);
+    expect(fieldRef.description, equals("var value"));
+    expect(fieldRef.toString(), equals("var value = ..."));
 
-    field = await field.load();
+    var field = await fieldRef.load();
     expect(field.value, isNull);
     expect(field.location.script.uri, equals(isolate.rootLibrary.uri));
     expect(field.toString(), equals('var value = ...'));

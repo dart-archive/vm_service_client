@@ -22,10 +22,10 @@ void main() {
     var start = new DateTime.now();
     client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
 
-    var isolate = (await client.getVM()).isolates.first;
-    expect(isolate.name, endsWith(r'$main'));
+    var isolateRef = (await client.getVM()).isolates.first;
+    expect(isolateRef.name, endsWith(r'$main'));
 
-    isolate = await isolate.loadRunnable();
+    var isolate = await isolateRef.loadRunnable();
     expect(start.difference(isolate.startTime).inMinutes, equals(0));
     expect(isolate.livePorts, equals(1));
     expect(isolate.pauseEvent, new isInstanceOf<VMPauseStartEvent>());
@@ -42,7 +42,7 @@ void main() {
       var other = isolates.last;
 
       // We should be properly filtering events to the right isolate.
-      other.onGC.listen(expectAsync((_) {}, count: 0));
+      other.onGC.listen(neverCalled);
 
       // Allocate a bunch of data, which should eventually trigger a GC.
       var onGC = new ResultFuture(main.onGC.first);
@@ -62,7 +62,7 @@ void main() {
           completion(equals('fblthp')));
 
       // We should be properly filtering events to the right isolate.
-      other.onUpdate.listen(expectAsync((_) {}, count: 0));
+      other.onUpdate.listen(neverCalled);
 
       await main.setName('fblthp');
     });
@@ -86,7 +86,7 @@ void main() {
       expect(queue.next, completion(new isInstanceOf<VMResumeEvent>()));
 
       // We should be properly filtering events to the right isolate.
-      other.onPauseOrResume.listen(expectAsync((_) {}, count: 0));
+      other.onPauseOrResume.listen(neverCalled);
 
       await main.pause();
       await main.waitUntilPaused();
@@ -117,8 +117,8 @@ void main() {
       var other = isolates.last;
 
       // We should be properly filtering events to the right isolate.
-      other.stdout.listen(expectAsync((_) {}, count: 0));
-      other.stderr.listen(expectAsync((_) {}, count: 0));
+      other.stdout.listen(neverCalled);
+      other.stderr.listen(neverCalled);
 
       var stdout = new StreamQueue(main.stdout.transform(lines));
       expect(stdout.next, completion(equals("out")));
@@ -163,6 +163,7 @@ void main() {
           }
         }
 
+        // Note: this produces a bogus dead code warning (sdk#30243).
         expect(other.onExit, completes);
       }, skip: "broken by sdk#28505");
     });
@@ -246,7 +247,7 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.load();
-      isolate.waitForExtension('ext.two').then(expectAsync((_) async {
+      isolate.waitForExtension('ext.two').then(expectAsync1((_) async {
         expect(await isolate.invokeExtension('ext.two'),
             equals({'ext.two': 'is ok'}));
       }));
@@ -272,18 +273,18 @@ void main() {
     test("for an unrunnable isolate", () async {
       client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
 
-      var isolate = (await client.getVM()).isolates.first;
-      expect(isolate, isNot(new isInstanceOf<VMRunnableIsolate>()));
+      var isolateRef = (await client.getVM()).isolates.first;
+      expect(isolateRef, isNot(new isInstanceOf<VMRunnableIsolate>()));
 
-      isolate = await isolate.loadRunnable();
+      var isolate = await isolateRef.loadRunnable();
       expect(isolate.rootLibrary, isNotNull);
     });
 
     test("for a runnable isolate", () async {
       client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
 
-      var isolate = (await client.getVM()).isolates.first;
-      isolate = await isolate.loadRunnable();
+      var isolateRef = (await client.getVM()).isolates.first;
+      var isolate = await isolateRef.loadRunnable();
       isolate = await isolate.loadRunnable();
       expect(isolate.rootLibrary, isNotNull);
     });
@@ -291,9 +292,9 @@ void main() {
     test("for an unrunnable reference to a runnable isolate", () async {
       client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
 
-      var isolate = (await client.getVM()).isolates.first;
-      await isolate.loadRunnable();
-      isolate = await isolate.loadRunnable();
+      var isolateRef = (await client.getVM()).isolates.first;
+      await isolateRef.loadRunnable();
+      var isolate = await isolateRef.loadRunnable();
       expect(isolate.rootLibrary, isNotNull);
     });
   });
@@ -397,7 +398,7 @@ void main() {
 
     test("steps over the next function with VMStep.over", () async {
       expect(stdout.next, completion(equals("in inner")));
-      stdout.next.then(expectAsync((_) {}, count: 0)).catchError((_) {});
+      stdout.next.then(neverCalled).catchError((_) {});
 
       await isolate.resume(step: VMStep.over);
       await isolate.waitUntilPaused();
@@ -409,7 +410,7 @@ void main() {
     test("steps out of the current function with VMStep.out", () async {
       expect(stdout.next, completion(equals("in inner")));
       expect(stdout.next, completion(equals("after inner")));
-      stdout.next.then(expectAsync((_) {}, count: 0)).catchError((_) {});
+      stdout.next.then(neverCalled).catchError((_) {});
 
       await isolate.resume(step: VMStep.out);
       await isolate.waitUntilPaused();
