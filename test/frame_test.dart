@@ -40,8 +40,7 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
     await isolate.waitUntilPaused();
     var frame = (await isolate.getStack()).frames.first;
-    var value = await frame.evaluate("foo + ' world'");
-    expect(value, new isInstanceOf<VMStringInstanceRef>());
+    var value = await frame.evaluate("foo + ' world'") as VMStringInstanceRef;
     expect(value.value, equals("hello! world"));
   });
 

@@ -34,8 +34,7 @@ void main() {
     expect(message.handler, isNotNull);
     expect(message.location, isNotNull);
 
-    var value = await message.loadValue();
-    expect(value, new isInstanceOf<VMStringInstanceRef>());
+    var value = await message.loadValue() as VMStringInstanceRef;
     expect(value.value, equals("hi!"));
   });
 }

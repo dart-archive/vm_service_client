@@ -10,7 +10,10 @@ import 'package:async/async.dart';
 import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
 
-final lines = UTF8.decoder.fuse(const LineSplitter());
+final lines = new StreamTransformer((stream, cancelOnError) =>
+    const LineSplitter()
+        .bind(UTF8.decoder.bind(stream))
+        .listen(null, cancelOnError: cancelOnError));
 
 Future<VMServiceClient> runAndConnect({String topLevel, String main,
     List<String> flags, bool sync: false}) async {
@@ -84,7 +87,7 @@ Future<int> sourceLine(VMBreakpointLocation location) async {
 /// until it closes.
 Future onlyEvent(Stream stream) {
   var completer = new Completer.sync();
-  stream.listen(expectAsync(completer.complete, count: 1),
+  stream.listen(expectAsync1(completer.complete, count: 1),
       onError: registerException,
       onDone: () {
         if (completer.isCompleted) return;

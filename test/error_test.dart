@@ -36,7 +36,7 @@ void main() {
 
     test("parses the stack trace", () async {
       var trace = await error.getTrace();
-      expect(trace.frames.first.member, equals('main.<async>'));
+      expect(trace.frames.first.member, equals('main'));
     });
   });
 

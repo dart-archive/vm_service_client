@@ -60,7 +60,12 @@ void main() {
     });
 
     var isolate = await (await client.onIsolateStart.first).load();
-    expect(isolate.pauseEvent, new isInstanceOf<VMNoneEvent>());
+    // If [isolate] is runnable by the time this fires, this will be a
+    // VMPauseStartEvent. If it's not runnable yet, it'll be a VMNoneEvent.
+    expect(isolate.pauseEvent, anyOf([
+      new isInstanceOf<VMPauseStartEvent>(),
+      new isInstanceOf<VMNoneEvent>()
+    ]));
     expect(isolate.error, isNull);
 
     isolate = await isolate.loadRunnable();

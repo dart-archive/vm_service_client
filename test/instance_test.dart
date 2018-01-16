@@ -10,8 +10,6 @@ import 'package:test/test.dart';
 
 import 'utils.dart';
 
-Function get _neverCalled => expectAsync((_, __) {}, count: 0);
-
 VMServiceClient client;
 
 void main() {
@@ -37,14 +35,13 @@ void main() {
     });
 
     test("evaluate() runs in the context of the instance", () async {
-      var result = await value.evaluate("this._value + 1");
-      expect(result, new isInstanceOf<VMIntInstanceRef>());
+      var result = await value.evaluate("this._value + 1") as VMIntInstanceRef;
       expect(result.value, equals(13));
     });
 
     test("getValue() runs onUnknownValue", () async {
       var result = await value.getValue(
-          onUnknownValue: expectAsync((innerValue) {
+          onUnknownValue: expectAsync1((innerValue) {
         expect(innerValue, same(value));
         return 123;
       }));
@@ -60,75 +57,71 @@ void main() {
     tearDown(() => client.close());
 
     test("a null", () async {
-      var value = await _evaluate("null");
+      var value = await _evaluate("null") as VMNullInstanceRef;
 
-      expect(value, new isInstanceOf<VMNullInstanceRef>());
       expect(value.value, isNull);
       expect((await value.load()).value, isNull);
-      expect(await value.getValue(onUnknownValue: _neverCalled), isNull);
+      expect(await value.getValue(onUnknownValue: neverCalled), isNull);
     });
 
     test("a bool", () async {
-      var value = await _evaluate("true");
+      var value = await _evaluate("true") as VMBoolInstanceRef;
 
-      expect(value, new isInstanceOf<VMBoolInstanceRef>());
       expect(value.value, isTrue);
       expect((await value.load()).value, isTrue);
-      expect(await value.getValue(onUnknownValue: _neverCalled), isTrue);
+      expect(await value.getValue(onUnknownValue: neverCalled), isTrue);
     });
 
     test("a double", () async {
-      var value = await _evaluate("12.3");
+      var value = await _evaluate("12.3") as VMDoubleInstanceRef;
 
-      expect(value, new isInstanceOf<VMDoubleInstanceRef>());
       expect(value.value, equals(12.3));
       expect((await value.load()).value, equals(12.3));
-      expect(await value.getValue(onUnknownValue: _neverCalled), equals(12.3));
+      expect(await value.getValue(onUnknownValue: neverCalled), equals(12.3));
     });
 
     test("an int", () async {
-      var value = await _evaluate("12");
+      var value = await _evaluate("12") as VMIntInstanceRef;
 
-      expect(value, new isInstanceOf<VMIntInstanceRef>());
       expect(value.value, equals(12));
       expect((await value.load()).value, equals(12));
-      expect(await value.getValue(onUnknownValue: _neverCalled), equals(12));
+      expect(await value.getValue(onUnknownValue: neverCalled), equals(12));
     });
 
     test("a Float32x4", () async {
-      var value = await _evaluate("new Float32x4(1.23, 2.34, 3.45, 4.56)");
+      var value = await _evaluate("new Float32x4(1.23, 2.34, 3.45, 4.56)")
+          as VMFloat32x4InstanceRef;
 
-      expect(value, new isInstanceOf<VMFloat32x4InstanceRef>());
       expect(value.value.x, closeTo(1.23, 0.00001));
       expect(value.value.y, closeTo(2.34, 0.00001));
       expect(value.value.z, closeTo(3.45, 0.00001));
       expect(value.value.w, closeTo(4.56, 0.00001));
       expect((await value.load()).toString(), equals(value.value.toString()));
-      expect((await value.getValue(onUnknownValue: _neverCalled)).toString(),
+      expect((await value.getValue(onUnknownValue: neverCalled)).toString(),
           equals(value.value.toString()));
     });
 
     test("a Float64x2", () async {
-      var value = await _evaluate("new Float64x2(1.23, 2.34)");
+      var value = await _evaluate("new Float64x2(1.23, 2.34)")
+          as VMFloat64x2InstanceRef;
 
-      expect(value, new isInstanceOf<VMFloat64x2InstanceRef>());
       expect(value.value.x, closeTo(1.23, 0.00001));
       expect(value.value.y, closeTo(2.34, 0.00001));
       expect((await value.load()).toString(), equals(value.value.toString()));
-      expect((await value.getValue(onUnknownValue: _neverCalled)).toString(),
+      expect((await value.getValue(onUnknownValue: neverCalled)).toString(),
           equals(value.value.toString()));
     });
 
     test("an Int32x4", () async {
-      var value = await _evaluate("new Int32x4(123, 234, 345, 456)");
+      var value = await _evaluate("new Int32x4(123, 234, 345, 456)")
+          as VMInt32x4InstanceRef;
 
-      expect(value, new isInstanceOf<VMInt32x4InstanceRef>());
       expect(value.value.x, equals(123));
       expect(value.value.y, equals(234));
       expect(value.value.z, equals(345));
       expect(value.value.w, equals(456));
       expect((await value.load()).toString(), equals(value.value.toString()));
-      expect((await value.getValue(onUnknownValue: _neverCalled)).toString(),
+      expect((await value.getValue(onUnknownValue: neverCalled)).toString(),
           equals(value.value.toString()));
     });
 
@@ -141,24 +134,22 @@ void main() {
             return stackTrace;
           }
         })()
-      """);
+      """) as VMStackTraceInstanceRef;
 
-      expect(value, new isInstanceOf<VMStackTraceInstanceRef>());
       expect(value.value.frames.first.uri.scheme, equals("evaluate"));
-      expect(await value.getValue(onUnknownValue: _neverCalled),
+      expect(await value.getValue(onUnknownValue: neverCalled),
           equals(value.value));
       expect((await value.load()).value.toString(),
           equals(value.value.toString()));
     });
 
     test("a short String", () async {
-      var value = await _evaluate(r"""'f\'\"oo'""");
+      var value = await _evaluate(r"""'f\'\"oo'""") as VMStringInstanceRef;
 
-      expect(value, new isInstanceOf<VMStringInstanceRef>());
       expect(value.value, equals("f'\"oo"));
       expect(value.isValueTruncated, isFalse);
       expect(value.toString(), equals('"f\'\\"oo"'));
-      expect(await value.getValue(onUnknownValue: _neverCalled),
+      expect(await value.getValue(onUnknownValue: neverCalled),
           equals("f'\"oo"));
       expect((await value.load()).value, equals("f'\"oo"));
     });
@@ -166,11 +157,10 @@ void main() {
     test("a long String", () async {
       var value = await _evaluate(r"""'foo' * 10000""") as VMStringInstanceRef;
 
-      expect(value, new isInstanceOf<VMStringInstanceRef>());
       expect(value.value, startsWith("foo"));
       expect(value.isValueTruncated, isTrue);
       expect(value.toString(), endsWith('..."'));
-      expect(await value.getValue(onUnknownValue: _neverCalled),
+      expect(await value.getValue(onUnknownValue: neverCalled),
           equals("foo" * 10000));
 
       value = await value.load();
@@ -180,14 +170,13 @@ void main() {
     });
 
     test("a List", () async {
-      var value = await _evaluate("[1, 2, 3, 4]");
+      var valueRef = await _evaluate("[1, 2, 3, 4]") as VMListInstanceRef;
 
-      expect(value, new isInstanceOf<VMListInstanceRef>());
-      expect(value.length, equals(4));
-      expect(value.toString(), equals("[...]"));
-      expect(await value.getValue(), equals([1, 2, 3, 4]));
+      expect(valueRef.length, equals(4));
+      expect(valueRef.toString(), equals("[...]"));
+      expect(await valueRef.getValue(), equals([1, 2, 3, 4]));
 
-      value = await value.load();
+      var value = await valueRef.load();
       expect(value.elements, allOf([
         hasLength(4),
         everyElement(new isInstanceOf<VMIntInstanceRef>())
@@ -200,21 +189,20 @@ void main() {
       var value = await _evaluate("[() {}]");
 
       expect(value.getValue(), throwsUnsupportedError);
-      expect(await value.getValue(onUnknownValue: expectAsync((value) {
+      expect(await value.getValue(onUnknownValue: expectAsync1((value) {
         expect(value, new isInstanceOf<VMClosureInstanceRef>());
         return null;
       })), equals([null]));
     });
 
     test("a Map", () async {
-      var value = await _evaluate("{1: 2, 3: 4}");
+      var valueRef = await _evaluate("{1: 2, 3: 4}") as VMMapInstanceRef;
 
-      expect(value, new isInstanceOf<VMMapInstanceRef>());
-      expect(value.length, equals(2));
-      expect(value.toString(), equals("{...}"));
-      expect(await value.getValue(), equals({1: 2, 3: 4}));
+      expect(valueRef.length, equals(2));
+      expect(valueRef.toString(), equals("{...}"));
+      expect(await valueRef.getValue(), equals({1: 2, 3: 4}));
 
-      value = await value.load();
+      var value = await valueRef.load();
       expect(value.associations, hasLength(2));
       expect(value.associations.first.key,
           new isInstanceOf<VMIntInstanceRef>());
@@ -232,24 +220,24 @@ void main() {
       var value = await _evaluate("{1: () {}}");
 
       expect(value.getValue(), throwsUnsupportedError);
-      expect(await value.getValue(onUnknownValue: expectAsync((value) {
+      expect(await value.getValue(onUnknownValue: expectAsync1((value) {
         expect(value, new isInstanceOf<VMClosureInstanceRef>());
         return null;
       })), equals({1: null}));
     });
 
     test("a TypedData", () async {
-      var value = await _evaluate("new Uint8List.fromList([1, 2, 3, 4])");
+      var valueRef = await _evaluate("new Uint8List.fromList([1, 2, 3, 4])")
+          as VMTypedDataInstanceRef;
 
-      expect(value, new isInstanceOf<VMTypedDataInstanceRef>());
-      expect(value.length, equals(4));
-      expect(value.toString(), equals("[...]"));
-      expect(await value.getValue(), allOf([
+      expect(valueRef.length, equals(4));
+      expect(valueRef.toString(), equals("[...]"));
+      expect(await valueRef.getValue(), allOf([
         new isInstanceOf<Uint8List>(),
         equals([1, 2, 3, 4])
       ]));
 
-      value = await value.load();
+      var value = await valueRef.load();
       expect(value.value, allOf([
         new isInstanceOf<Uint8List>(),
         equals([1, 2, 3, 4])
@@ -262,19 +250,16 @@ void main() {
     });
 
     test("a RegExp", () async {
-      var value = await _evaluate("new RegExp('foo', caseSensitive: false)")
+      var valueRef = await _evaluate("new RegExp('foo', caseSensitive: false)")
           as VMRegExpInstanceRef;
 
-      expect(value, new isInstanceOf<VMRegExpInstanceRef>());
-      expect(value.pattern, new isInstanceOf<VMStringInstanceRef>());
-      expect(value.pattern.isValueTruncated, isFalse);
-      expect(value.pattern.value, equals("foo"));
-      expect(value.toString(), equals('"foo"'));
-      expect(await value.getValue(),
+      expect(valueRef.pattern.isValueTruncated, isFalse);
+      expect(valueRef.pattern.value, equals("foo"));
+      expect(valueRef.toString(), equals('"foo"'));
+      expect(await valueRef.getValue(),
           equals(new RegExp('foo', caseSensitive: false)));
 
-      value = await value.load();
-      expect(value.pattern, new isInstanceOf<VMStringInstanceRef>());
+      var value = await valueRef.load();
       expect(value.pattern.isValueTruncated, isFalse);
       expect(value.pattern.value, equals("foo"));
       expect(value.isCaseSensitive, isFalse);
@@ -284,19 +269,17 @@ void main() {
     });
 
     test("a RegExp with a long pattern", () async {
-      var value = await _evaluate("new RegExp('foo' * 10000, multiLine: true)")
-          as VMRegExpInstanceRef;
+      var valueRef =
+          await _evaluate("new RegExp('foo' * 10000, multiLine: true)")
+              as VMRegExpInstanceRef;
 
-      expect(value, new isInstanceOf<VMRegExpInstanceRef>());
-      expect(value.pattern, new isInstanceOf<VMStringInstanceRef>());
-      expect(value.pattern.isValueTruncated, isTrue);
-      expect(value.pattern.value, startsWith("foo"));
-      expect(value.toString(), endsWith('..."'));
-      expect(await value.getValue(),
+      expect(valueRef.pattern.isValueTruncated, isTrue);
+      expect(valueRef.pattern.value, startsWith("foo"));
+      expect(valueRef.toString(), endsWith('..."'));
+      expect(await valueRef.getValue(),
           equals(new RegExp('foo' * 10000, multiLine: true)));
 
-      value = await value.load();
-      expect(value.pattern, new isInstanceOf<VMStringInstanceRef>());
+      var value = await valueRef.load();
       expect(value.pattern.isValueTruncated, isTrue);
       expect(value.pattern.value, startsWith("foo"));
       expect(value.isCaseSensitive, isTrue);
@@ -306,46 +289,43 @@ void main() {
     });
 
     test("a function", () async {
-      var value = await _evaluate("""
+      var valueRef = await _evaluate("""
         (() {
           var i = 0;
           myFunction() => i;
           return myFunction;
         })()
-      """);
+      """) as VMClosureInstanceRef;
 
-      expect(value, new isInstanceOf<VMClosureInstanceRef>());
-
-      value = await value.load();
+      var value = await valueRef.load();
       expect(value.function.name, equals("myFunction"));
       expect(value.context.length, equals(1));
 
       var context = await value.context.load();
       expect(context.variables, hasLength(1));
       expect(context.variables.first, new isInstanceOf<VMIntInstanceRef>());
-      expect(context.parent.length, equals(0));
+      expect(context.parent, isNull);
     });
 
     test("a type", () async {
-      var value = await _evaluate("<int>[].runtimeType");
+      var valueRef = await _evaluate("<int>[].runtimeType") as VMTypeInstanceRef;
 
-      expect(value, new isInstanceOf<VMTypeInstanceRef>());
-      expect(value.name, equals("List<int>"));
-      expect(value.typeClass.name, equals("_GrowableList"));
+      expect(valueRef.name, equals("List<int>"));
+      expect(valueRef.typeClass.name, equals("_GrowableList"));
 
-      value = await value.load();
-      var arguments = value.arguments;
-      expect(arguments.name, equals("<int>"));
+      var value = await valueRef.load();
+      var argumentsRef = value.arguments;
+      expect(argumentsRef.name, equals("<int>"));
 
-      arguments = await arguments.load();
+      var arguments = await argumentsRef.load();
       expect(arguments.types, hasLength(1));
-      expect(arguments.types.first, new isInstanceOf<VMTypeInstanceRef>());
-      expect(arguments.types.first.name, equals("int"));
+      var argument = arguments.types.first as VMTypeInstanceRef;
+      expect(argument.name, equals("int"));
     });
   });
 }
 
 Future<VMInstanceRef> _evaluate(String expression) async {
-  var isolate = await (await client.getVM()).isolates.first.load();
+  var isolate = await (await client.getVM()).isolates.first.loadRunnable();
   return await isolate.rootLibrary.evaluate(expression);
 }
