@@ -1,0 +1,3 @@
+# The VM service itself is a little flaky, so we retry failing tests a few times
+# to work around it.
+retry: 3
