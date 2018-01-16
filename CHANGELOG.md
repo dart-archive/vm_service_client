@@ -1,3 +1,7 @@
+## 0.2.4
+
+* Internal changes only.
+
 ## 0.2.3
 
 * Add `VMIsolate.observatoryUrl` and `VMObjectRef.observatoryUrl` getters that
