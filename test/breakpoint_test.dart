@@ -140,7 +140,7 @@ void main() {
 
     var onRemoveFuture = breakpoint.onRemove;
 
-    (await isolate.load()).breakpoints.first.remove();
+    expect((await isolate.load()).breakpoints.first.remove(), completes);
 
     await onRemoveFuture;
   });

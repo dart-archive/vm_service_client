@@ -23,7 +23,7 @@ void main() {
     client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
 
     var isolateRef = (await client.getVM()).isolates.first;
-    expect(isolateRef.name, endsWith(r'$main'));
+    expect(isolateRef.name, contains('main'));
 
     var isolate = await isolateRef.loadRunnable();
     expect(start.difference(isolate.startTime).inMinutes, equals(0));
@@ -78,7 +78,10 @@ void main() {
         (() {
           while (true) {}
         })()
-      """);
+      """).catchError((_) {
+        // This will throw an error when the client closes, since the evaluate
+        // request never got a response.
+      });
 
       var queue = new StreamQueue(main.onPauseOrResume);
       expect(queue.next,
@@ -86,11 +89,16 @@ void main() {
       expect(queue.next, completion(new isInstanceOf<VMResumeEvent>()));
 
       // We should be properly filtering events to the right isolate.
-      other.onPauseOrResume.listen(neverCalled);
+      var subscription = other.onPauseOrResume.listen(neverCalled);
 
       await main.pause();
       await main.waitUntilPaused();
       await main.resume();
+
+      await pumpEventQueue();
+
+      // Cancel this so that it doesn't fire due to --pause-isolates-on-exit.
+      subscription.cancel();
     });
 
     test("onBreakpointAdded fires when a breakpoint is added", () async {
@@ -237,23 +245,25 @@ void main() {
 
     test("notifies when the extension is registered later", () async {
       client = await runAndConnect(main: """
-        registerExtension('ext.one', (_, __) {
-          registerExtension('ext.two', (_, __) {
+        registerExtension('ext.one', (_, __) async {
+          registerExtension('ext.two', (_, __) async {
             return new ServiceExtensionResponse.result('''{
               "ext.two": "is ok"
             }''');
           });
+
+          return new ServiceExtensionResponse.result('null');
         });
       """);
 
       var isolate = await (await client.getVM()).isolates.first.load();
-      isolate.waitForExtension('ext.two').then(expectAsync1((_) async {
-        expect(await isolate.invokeExtension('ext.two'),
-            equals({'ext.two': 'is ok'}));
+      isolate.waitForExtension('ext.two').then(expectAsync1((_) {
+        expect(isolate.invokeExtension('ext.two'),
+            completion(equals({'ext.two': 'is ok'})));
       }));
 
       await isolate.waitForExtension('ext.one');
-      isolate.invokeExtension('ext.one');
+      expect(isolate.invokeExtension('ext.one'), completion(isNull));
     });
   });
 

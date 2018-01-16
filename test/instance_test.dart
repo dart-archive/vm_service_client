@@ -304,7 +304,7 @@ void main() {
       var context = await value.context.load();
       expect(context.variables, hasLength(1));
       expect(context.variables.first, new isInstanceOf<VMIntInstanceRef>());
-      expect(context.parent.length, equals(0));
+      expect(context.parent, isNull);
     });
 
     test("a type", () async {

@@ -81,11 +81,10 @@ void main() {
       var hitLines =
           range.hits.map((token) => script.sourceLocation(token).line).toSet();
       expect(hitLines, [
-        5, //  preamble
-        7, //  print("one");
-        8, //  print("two");
-        15, // Isolate.current.kill();
-        17 //  VM inserts an extra hit on the last line of an async function
+        4, 5, // preamble
+        7, //    print("one");
+        8, //    print("two");
+        15, //   Isolate.current.kill();
       ]);
 
       // The line that are not executed – two within the `if (false)` block
