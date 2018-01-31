@@ -1,5 +1,5 @@
 name: vm_service_client
-version: 0.2.5
+version: 0.2.4+1
 description: A client for the Dart VM service.
 author: Dart Team <misc@dartlang.org>
 homepage: https://github.com/dart-lang/vm_service_client
