@@ -6,7 +6,7 @@ import 'dart:async';
 
 const v1CompatibilityTransformer = const _V1CompatibilityTransformer();
 
-class _V1CompatibilityTransformer implements StreamTransformer {
+class _V1CompatibilityTransformer extends StreamTransformerBase {
   const _V1CompatibilityTransformer();
 
   Stream bind(Stream stream) {
