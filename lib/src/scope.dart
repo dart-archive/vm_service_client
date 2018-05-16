@@ -59,7 +59,8 @@ class Scope {
   /// Like [sendRequest], but doesn't assert that the result is a Map.
   Future<Object> sendRequestRaw(String method,
       [Map<String, Object> params]) async {
-    var allParams = {"isolateId": isolateId}..addAll(params ?? {});
+    var allParams = <String, Object>{"isolateId": isolateId}
+      ..addAll(params ?? {});
     return await peer.sendRequest(method, allParams);
   }
 

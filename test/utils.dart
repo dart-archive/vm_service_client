@@ -10,8 +10,8 @@ import 'package:async/async.dart';
 import 'package:test/test.dart';
 import 'package:vm_service_client/vm_service_client.dart';
 
-final lines = new StreamTransformer((stream, cancelOnError) =>
-    const LineSplitter()
+final lines = new StreamTransformer(
+    (Stream<List<int>> stream, bool cancelOnError) => const LineSplitter()
         .bind(UTF8.decoder.bind(stream))
         .listen(null, cancelOnError: cancelOnError));
 
@@ -61,7 +61,7 @@ main() ${sync ? '' : 'async'} {
     ..addAll(['--pause-isolates-on-exit', '--enable-vm-service=0', uri]);
   var process = await Process.start(Platform.resolvedExecutable, args);
 
-  var stdout = new StreamQueue(process.stdout.transform(lines));
+  var stdout = new StreamQueue(process.stdout.transform<String>(lines));
   var line = await stdout.next;
 
   // Start executing main().
