@@ -1,3 +1,7 @@
+## 0.2.4+2
+
+* Fix type issues with Dart 2 runtime.
+
 ## 0.2.4+1
 
 * Updates to support Dart 2.0 core library changes (wave
