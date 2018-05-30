@@ -9,6 +9,7 @@ import 'package:stack_trace/stack_trace.dart';
 import 'class.dart';
 import 'frame.dart';
 import 'function.dart';
+import 'object.dart';
 import 'script.dart';
 
 /// A [Map] between whitespace characters and their escape sequences.
@@ -41,10 +42,11 @@ Stream<T> transform<S, T>(Stream<S> stream,
 Future<Frame> frameToFrame(VMFrame frame, [Map<String, VMScript> scripts])
     async {
   var scopes = [];
-  var scope = frame.function;
+  VMObjectRef scope = frame.function;
   while (scope is VMFunctionRef) {
-    scopes.add(scope.name.replaceAll(_asyncBody, "<fn>"));
-    scope = scope.owner;
+    var function = scope as VMFunctionRef;
+    scopes.add(function.name.replaceAll(_asyncBody, "<fn>"));
+    scope = function.owner;
   }
   if (scope is VMClassRef) scopes.add(scope.name);
   var member = scopes.reversed.join(".");
