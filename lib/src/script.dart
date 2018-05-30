@@ -177,7 +177,9 @@ class VMScript extends VMScriptRef implements VMObject {
         size = json["size"],
         library = newVMLibraryRef(scope, json["library"]),
         source = json["source"],
-        _tokenPositions = DelegatingList.typed(json["tokenPosTable"]),
+        _tokenPositions = (json["tokenPosTable"] as List)
+            .map((sublist) => (sublist as List).cast<int>())
+            .toList(),
         super._(scope, json);
 
   /// Returns a [FileSpan] representing the source covered by [location].

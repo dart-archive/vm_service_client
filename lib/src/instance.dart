@@ -7,6 +7,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import 'bound_field.dart';
@@ -262,7 +263,7 @@ abstract class VMValueInstanceRef<T> extends VMInstanceRef {
   Future<VMValueInstance<T>> load();
 
   Future<T> getValue({onUnknownValue(value)}) =>
-      super.getValue(onUnknownValue: onUnknownValue);
+      DelegatingFuture.typed(super.getValue(onUnknownValue: onUnknownValue));
 
   Future<T> _getValue(onUnknownValue(value)) async => value;
 

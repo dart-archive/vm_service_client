@@ -553,7 +553,7 @@ void main() {
 }
 
 /// Starts a client with two unpaused empty isolates.
-Future<List<VMRunnableIsolate>> _twoIsolates() async {
+Future<List<VMIsolateRef>> _twoIsolates() async {
   client = await runAndConnect(topLevel: r"""
     void otherIsolate(_) {}
   """, main: r"""
@@ -561,7 +561,7 @@ Future<List<VMRunnableIsolate>> _twoIsolates() async {
   """, flags: ["--pause-isolates-on-start", "--pause-isolates-on-exit"]);
 
   var vm = await client.getVM();
-  var main = vm.isolates.first;
+  var main = await vm.isolates.first;
 
   var otherFuture = client.onIsolateRunnable.first;
   await main.resume();
