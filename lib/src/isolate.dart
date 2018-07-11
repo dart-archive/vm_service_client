@@ -492,6 +492,9 @@ class VMStep {
   /// The isolate takes a single step, skipping over function calls.
   static const over = const VMStep._("Over");
 
+  /// The isolate continues until the Future being awaited completes.
+  static const overAsyncSuspension = const VMStep._("OverAsyncSuspension");
+
   /// The isolate continues until it exits the current function.
   static const out = const VMStep._("Out");
 
