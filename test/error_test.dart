@@ -30,7 +30,7 @@ void main() {
       expect(error.kind, equals(VMErrorKind.unhandledException));
       expect(error.message, startsWith("Unhandled exception:\noh no"));
 
-      expect(error.exception, new isInstanceOf<VMStringInstanceRef>());
+      expect(error.exception, new TypeMatcher<VMStringInstanceRef>());
       expect(error.exception.value, equals("oh no"));
     });
 
@@ -56,7 +56,7 @@ void main() {
       expect(error.kind, equals(VMErrorKind.unhandledException));
       expect(error.message, startsWith("Unhandled exception:\noh no"));
 
-      expect(error.exception, new isInstanceOf<VMStringInstanceRef>());
+      expect(error.exception, new TypeMatcher<VMStringInstanceRef>());
       expect(error.exception.value, equals("oh no"));
     });
 

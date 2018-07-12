@@ -181,7 +181,7 @@ void main() {
           value.elements,
           allOf([
             hasLength(4),
-            everyElement(new isInstanceOf<VMIntInstanceRef>())
+            everyElement(new TypeMatcher<VMIntInstanceRef>())
           ]));
       expect(value.toString(), equals("[1, 2, 3, 4]"));
       expect(await value.getValue(), equals([1, 2, 3, 4]));
@@ -193,7 +193,7 @@ void main() {
       expect(value.getValue(), throwsUnsupportedError);
       expect(
           await value.getValue(onUnknownValue: expectAsync1((value) {
-            expect(value, new isInstanceOf<VMClosureInstanceRef>());
+            expect(value, new TypeMatcher<VMClosureInstanceRef>());
             return null;
           })),
           equals([null]));
@@ -208,13 +208,12 @@ void main() {
 
       var value = await valueRef.load();
       expect(value.associations, hasLength(2));
+      expect(value.associations.first.key, new TypeMatcher<VMIntInstanceRef>());
       expect(
-          value.associations.first.key, new isInstanceOf<VMIntInstanceRef>());
+          value.associations.first.value, new TypeMatcher<VMIntInstanceRef>());
+      expect(value.associations.last.key, new TypeMatcher<VMIntInstanceRef>());
       expect(
-          value.associations.first.value, new isInstanceOf<VMIntInstanceRef>());
-      expect(value.associations.last.key, new isInstanceOf<VMIntInstanceRef>());
-      expect(
-          value.associations.last.value, new isInstanceOf<VMIntInstanceRef>());
+          value.associations.last.value, new TypeMatcher<VMIntInstanceRef>());
       expect(value.toString(), equals("{1: 2, 3: 4}"));
       expect(await value.getValue(), equals({1: 2, 3: 4}));
     });
@@ -225,7 +224,7 @@ void main() {
       expect(value.getValue(), throwsUnsupportedError);
       expect(
           await value.getValue(onUnknownValue: expectAsync1((value) {
-            expect(value, new isInstanceOf<VMClosureInstanceRef>());
+            expect(value, new TypeMatcher<VMClosureInstanceRef>());
             return null;
           })),
           equals({1: null}));
@@ -240,7 +239,7 @@ void main() {
       expect(
           await valueRef.getValue(),
           allOf([
-            new isInstanceOf<Uint8List>(),
+            new TypeMatcher<Uint8List>(),
             equals([1, 2, 3, 4])
           ]));
 
@@ -248,14 +247,14 @@ void main() {
       expect(
           value.value,
           allOf([
-            new isInstanceOf<Uint8List>(),
+            new TypeMatcher<Uint8List>(),
             equals([1, 2, 3, 4])
           ]));
       expect(value.toString(), equals("[1, 2, 3, 4]"));
       expect(
           await value.getValue(),
           allOf([
-            new isInstanceOf<Uint8List>(),
+            new TypeMatcher<Uint8List>(),
             equals([1, 2, 3, 4])
           ]));
     });
@@ -314,7 +313,7 @@ void main() {
 
       var context = await value.context.load();
       expect(context.variables, hasLength(1));
-      expect(context.variables.first, new isInstanceOf<VMIntInstanceRef>());
+      expect(context.variables.first, new TypeMatcher<VMIntInstanceRef>());
       expect(context.parent, isNull);
     });
 

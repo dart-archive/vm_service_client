@@ -31,7 +31,7 @@ void main() {
     var field = foo.fields["val"];
     expect(field.declaration.name, equals("val"));
     expect(field.declaration.isFinal, isTrue);
-    expect(field.value, new isInstanceOf<VMIntInstanceRef>());
+    expect(field.value, new TypeMatcher<VMIntInstanceRef>());
     expect(field.value.value, equals(10));
     expect(field.toString(), equals("final int val = 10"));
   });

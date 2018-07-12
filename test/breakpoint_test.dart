@@ -33,8 +33,8 @@ void main() {
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint.number, equals(1));
-    expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint, isNot(new TypeMatcher<VMResolvedBreakpoint>()));
+    expect(breakpoint.location, new TypeMatcher<VMUnresolvedSourceLocation>());
     expect(breakpoint.location.uri.scheme, equals('data'));
     expect(breakpoint.toString(), startsWith("breakpoint #1 in data:"));
 
@@ -48,8 +48,8 @@ void main() {
 
     breakpoint = await breakpoint.load();
     expect(breakpoint.number, equals(1));
-    expect(breakpoint, new isInstanceOf<VMResolvedBreakpoint>());
-    expect(breakpoint.location, new isInstanceOf<VMSourceLocation>());
+    expect(breakpoint, new TypeMatcher<VMResolvedBreakpoint>());
+    expect(breakpoint.location, new TypeMatcher<VMSourceLocation>());
     expect(breakpoint.location.uri.scheme, equals('data'));
 
     expect(await sourceLine(breakpoint.location), equals(8));
@@ -71,8 +71,8 @@ void main() {
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint.number, equals(1));
-    expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint, isNot(new TypeMatcher<VMResolvedBreakpoint>()));
+    expect(breakpoint.location, new TypeMatcher<VMUnresolvedSourceLocation>());
     expect(breakpoint.location.uri.scheme, equals('data'));
     expect(breakpoint.toString(), startsWith("breakpoint #1 in data:"));
 
@@ -80,7 +80,7 @@ void main() {
 
     // Only a single resume event should fire.
     isolate.onPauseOrResume.listen(expectAsync1((event) {
-      expect(event, new isInstanceOf<VMResumeEvent>());
+      expect(event, new TypeMatcher<VMResumeEvent>());
     }));
 
     await isolate.resume();
@@ -103,14 +103,14 @@ void main() {
     await isolate.waitUntilPaused();
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(10);
-    expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint, isNot(new TypeMatcher<VMResolvedBreakpoint>()));
+    expect(breakpoint.location, new TypeMatcher<VMUnresolvedSourceLocation>());
 
     var times = 0;
     breakpoint.onPause.listen(expectAsync1((eventBreakpoint) async {
       expect(eventBreakpoint.number, equals(breakpoint.number));
       var i = (await isolate.getStack()).frames.first.variables['i'].value;
-      expect(i, new isInstanceOf<VMIntInstanceRef>());
+      expect(i, new TypeMatcher<VMIntInstanceRef>());
       expect(i.value, equals(times));
       times++;
       isolate.resume();
@@ -171,14 +171,14 @@ void main() {
     await isolate.waitUntilPaused();
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
-    expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint, isNot(new TypeMatcher<VMResolvedBreakpoint>()));
+    expect(breakpoint.location, new TypeMatcher<VMUnresolvedSourceLocation>());
 
     var resolvedFuture = breakpoint.loadResolved();
     await isolate.resume();
     breakpoint = await resolvedFuture;
-    expect(breakpoint, new isInstanceOf<VMResolvedBreakpoint>());
-    expect(breakpoint.location, new isInstanceOf<VMSourceLocation>());
+    expect(breakpoint, new TypeMatcher<VMResolvedBreakpoint>());
+    expect(breakpoint.location, new TypeMatcher<VMSourceLocation>());
   });
 
   test("loadResolved returns an already-resolved breakpoint", () async {
@@ -192,13 +192,13 @@ void main() {
     await isolate.waitUntilPaused();
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
-    expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint, isNot(new TypeMatcher<VMResolvedBreakpoint>()));
+    expect(breakpoint.location, new TypeMatcher<VMUnresolvedSourceLocation>());
 
     await isolate.resume();
     await isolate.waitUntilPaused();
     var resolved = await breakpoint.loadResolved();
-    expect(resolved, new isInstanceOf<VMResolvedBreakpoint>());
-    expect(resolved.location, new isInstanceOf<VMSourceLocation>());
+    expect(resolved, new TypeMatcher<VMResolvedBreakpoint>());
+    expect(resolved.location, new TypeMatcher<VMSourceLocation>());
   });
 }
