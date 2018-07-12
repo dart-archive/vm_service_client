@@ -795,7 +795,7 @@ class VMTypedDataInstance<T extends TypedData> extends VMTypedDataInstanceRef<T>
         super._(scope, json);
 
   static TypedData _value(Map json) {
-    List<int> byteList = BASE64.decode(json["bytes"]);
+    List<int> byteList = base64Decode(json["bytes"]);
     var bytes = new Uint8List.fromList(byteList);
 
     switch (json["kind"]) {

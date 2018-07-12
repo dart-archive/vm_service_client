@@ -170,13 +170,13 @@ class VMIsolateRef {
 
     _stdout = _transform(_scope.streams.stdout, (json, sink) {
       if (json["kind"] != "WriteEvent") return;
-      var bytes = BASE64.decode(json["bytes"]);
+      var bytes = base64Decode(json["bytes"]);
       sink.add(bytes);
     });
 
     _stderr = _transform(_scope.streams.stderr, (json, sink) {
       if (json["kind"] != "WriteEvent") return;
-      sink.add(BASE64.decode(json["bytes"]));
+      sink.add(base64Decode(json["bytes"]));
     });
 
     _onExtensionEvent = _transform(_scope.streams.extension, (json, sink) {

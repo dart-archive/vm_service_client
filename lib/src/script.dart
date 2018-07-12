@@ -5,7 +5,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:collection/collection.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:source_span/source_span.dart';
 

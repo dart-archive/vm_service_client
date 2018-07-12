@@ -31,7 +31,7 @@ void main() {
 
   test("validateVersion() respects a custom timeout", () async {
     client = await runAndConnect();
-    expect(client.validateVersion(timeout: Duration.ZERO),
+    expect(client.validateVersion(timeout: Duration.zero),
         throwsA(new isInstanceOf<VMUnsupportedVersionException>()));
   });
 
