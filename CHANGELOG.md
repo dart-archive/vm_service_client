@@ -1,3 +1,9 @@
+## 0.2.5
+
+* Update usage of SDK constants.
+
+* Increase minimum Dart SDK to `2.0.0-dev.58.0`.
+
 ## 0.2.4+3
 
 * Fix more Dart 2 runtime issues.

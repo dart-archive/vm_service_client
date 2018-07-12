@@ -12,7 +12,7 @@ import 'package:vm_service_client/vm_service_client.dart';
 
 final lines = new StreamTransformer(
     (Stream<List<int>> stream, bool cancelOnError) => const LineSplitter()
-        .bind(UTF8.decoder.bind(stream))
+        .bind(utf8.decoder.bind(stream))
         .listen(null, cancelOnError: cancelOnError));
 
 Future<VMServiceClient> runAndConnect({String topLevel, String main,

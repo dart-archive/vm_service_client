@@ -43,7 +43,7 @@ void main() {
     await isolate.waitUntilPaused();
 
     // Wait long enough for the print to propagate to the future.
-    await new Future.delayed(Duration.ZERO);
+    await new Future.delayed(Duration.zero);
     expect(line1.result.asValue.value, equals("one"));
     expect(line2.result, isNull);
 
