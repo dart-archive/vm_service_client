@@ -28,7 +28,7 @@ void main() {
     var isolate = await isolateRef.loadRunnable();
     expect(start.difference(isolate.startTime).inMinutes, equals(0));
     expect(isolate.livePorts, equals(1));
-    expect(isolate.pauseEvent, new isInstanceOf<VMPauseStartEvent>());
+    expect(isolate.pauseEvent, new TypeMatcher<VMPauseStartEvent>());
     expect(isolate.error, isNull);
     expect(isolate.breakpoints, isEmpty);
     expect(isolate.rootLibrary.uri.scheme, equals('data'));
@@ -85,8 +85,8 @@ void main() {
 
       var queue = new StreamQueue(main.onPauseOrResume);
       expect(
-          queue.next, completion(new isInstanceOf<VMPauseInterruptedEvent>()));
-      expect(queue.next, completion(new isInstanceOf<VMResumeEvent>()));
+          queue.next, completion(new TypeMatcher<VMPauseInterruptedEvent>()));
+      expect(queue.next, completion(new TypeMatcher<VMResumeEvent>()));
 
       // We should be properly filtering events to the right isolate.
       var subscription = other.onPauseOrResume.listen(neverCalled);
@@ -110,7 +110,7 @@ void main() {
       await isolate.waitUntilPaused();
 
       expect(isolate.onBreakpointAdded.first,
-          completion(new isInstanceOf<VMBreakpoint>()));
+          completion(new TypeMatcher<VMBreakpoint>()));
 
       var library = await isolate.rootLibrary.load();
       var breakpoint = await library.scripts.single.addBreakpoint(8);
@@ -284,7 +284,7 @@ void main() {
       client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
 
       var isolateRef = (await client.getVM()).isolates.first;
-      expect(isolateRef, isNot(new isInstanceOf<VMRunnableIsolate>()));
+      expect(isolateRef, isNot(new TypeMatcher<VMRunnableIsolate>()));
 
       var isolate = await isolateRef.loadRunnable();
       expect(isolate.rootLibrary, isNotNull);
@@ -363,7 +363,7 @@ void main() {
     await onPaused;
 
     expect((await isolate.load()).pauseEvent,
-        new isInstanceOf<VMPauseInterruptedEvent>());
+        new TypeMatcher<VMPauseInterruptedEvent>());
   });
 
   group("resume()", () {
@@ -543,7 +543,7 @@ void main() {
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
 
       expect(isolate.invokeExtension('ext.error'), throwsA(predicate((error) {
-        expect(error, new isInstanceOf<rpc.RpcException>());
+        expect(error, new TypeMatcher<rpc.RpcException>());
         expect(error.code, equals(-32013));
         expect(error.data, equals({'details': 'some error'}));
         return true;

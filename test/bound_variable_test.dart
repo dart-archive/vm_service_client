@@ -25,7 +25,7 @@ void main() {
     var stack = await isolate.getStack();
     var variable = stack.frames.first.variables["foo"];
     expect(variable.name, equals('foo'));
-    expect(variable.value, new isInstanceOf<VMStringInstanceRef>());
+    expect(variable.value, new TypeMatcher<VMStringInstanceRef>());
     expect(variable.value.value, equals('hello!'));
     expect(variable.toString(), equals('var foo = "hello!"'));
   });

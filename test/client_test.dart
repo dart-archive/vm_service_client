@@ -21,7 +21,7 @@ void main() {
     client = await runAndConnect();
     var version = await client.getVersion();
     expect(version.major, equals(3));
-    expect(version.minor, new isInstanceOf<int>());
+    expect(version.minor, new TypeMatcher<int>());
   });
 
   test("considers the VM service version valid", () async {
@@ -32,7 +32,7 @@ void main() {
   test("validateVersion() respects a custom timeout", () async {
     client = await runAndConnect();
     expect(client.validateVersion(timeout: Duration.zero),
-        throwsA(new isInstanceOf<VMUnsupportedVersionException>()));
+        throwsA(new TypeMatcher<VMUnsupportedVersionException>()));
   });
 
   test("returns the flags passed to the VM", () async {
@@ -65,18 +65,18 @@ void main() {
     expect(
         isolate.pauseEvent,
         anyOf([
-          new isInstanceOf<VMPauseStartEvent>(),
-          new isInstanceOf<VMNoneEvent>()
+          new TypeMatcher<VMPauseStartEvent>(),
+          new TypeMatcher<VMNoneEvent>()
         ]));
     expect(isolate.error, isNull);
 
     isolate = await isolate.loadRunnable();
-    expect(isolate.pauseEvent, new isInstanceOf<VMPauseStartEvent>());
+    expect(isolate.pauseEvent, new TypeMatcher<VMPauseStartEvent>());
     expect(isolate.error, isNull);
   });
 
   test("with an invalid URL", () {
     var client = new VMServiceClient.connect("ws://example.org/not-a-ws");
-    expect(client.done, throwsA(new isInstanceOf<WebSocketChannelException>()));
+    expect(client.done, throwsA(new TypeMatcher<WebSocketChannelException>()));
   });
 }
