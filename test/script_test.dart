@@ -159,14 +159,16 @@ void main() {
 
       // Bizarrely, the VM doesn't seem to include the final "}" in the source
       // location.
-      expect(bazSpan.text, equals(
-          "int baz() { // line 6\n"
-          "        return 1;\n"
-          "      "));
-      expect(bazSpan.context, equals(
-          "      int baz() { // line 6\n"
-          "        return 1;\n"
-          "      }\n"));
+      expect(
+          bazSpan.text,
+          equals("int baz() { // line 6\n"
+              "        return 1;\n"
+              "      "));
+      expect(
+          bazSpan.context,
+          equals("      int baz() { // line 6\n"
+              "        return 1;\n"
+              "      }\n"));
 
       expect(bazSpan.start.line, equals(6));
       expect(bazSpan.start.column, equals(6));
@@ -176,7 +178,6 @@ void main() {
       expect(bazSpan.end.column, equals(6));
       expect(bazSpan.end.offset, equals(254));
     });
-
 
     group("compareTo()", () {
       test("is ordered by start location", () {
@@ -189,16 +190,16 @@ void main() {
         var file = new SourceFile.fromString(script.source, url: script.uri);
 
         expect(
-            barSpan.compareTo(
-                file.span(fooSpan.start.offset, fooSpan.end.offset)),
+            barSpan
+                .compareTo(file.span(fooSpan.start.offset, fooSpan.end.offset)),
             greaterThan(0));
         expect(
-            barSpan.compareTo(
-                file.span(barSpan.start.offset, barSpan.end.offset)),
+            barSpan
+                .compareTo(file.span(barSpan.start.offset, barSpan.end.offset)),
             equals(0));
         expect(
-            barSpan.compareTo(
-                file.span(bazSpan.start.offset, bazSpan.end.offset)),
+            barSpan
+                .compareTo(file.span(bazSpan.start.offset, bazSpan.end.offset)),
             lessThan(0));
       });
 
@@ -253,8 +254,8 @@ void main() {
 
       test("unions a script span with a foreign span", () {
         var file = new SourceFile.fromString(script.source, url: script.uri);
-        var shiftedSpan = file.span(
-            barSpan.start.offset + 1, barSpan.end.offset + 1);
+        var shiftedSpan =
+            file.span(barSpan.start.offset + 1, barSpan.end.offset + 1);
 
         var unioned = barSpan.union(shiftedSpan);
         expect(unioned.start, equals(barSpan.start));

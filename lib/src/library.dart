@@ -49,18 +49,14 @@ class VMLibraryRef implements VMObjectRef {
 
   /// Enables breakpoints and stepping for this library.
   Future setDebuggable() async {
-    await _scope.sendRequest("setLibraryDebuggable", {
-      "libraryId": _id,
-      "isDebuggable": true
-    });
+    await _scope.sendRequest(
+        "setLibraryDebuggable", {"libraryId": _id, "isDebuggable": true});
   }
 
   /// Disables breakpoints and stepping for this library.
   Future setNotDebuggable() async {
-    await _scope.sendRequest("setLibraryDebuggable", {
-      "libraryId": _id,
-      "isDebuggable": false
-    });
+    await _scope.sendRequest(
+        "setLibraryDebuggable", {"libraryId": _id, "isDebuggable": false});
   }
 
   /// Evaluates [expression] in the context of this library.
@@ -69,8 +65,8 @@ class VMLibraryRef implements VMObjectRef {
   Future<VMInstanceRef> evaluate(String expression) =>
       _scope.evaluate(_id, expression);
 
-  bool operator ==(other) => other is VMLibraryRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMLibraryRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -110,15 +106,15 @@ class VMLibrary extends VMLibraryRef implements VMObject {
         isDebuggable = json["debuggable"],
         dependencies = new List.unmodifiable(json["dependencies"]
             .map((dependency) => new VMLibraryDependency._(scope, dependency))),
-        scripts = new List.unmodifiable(json["scripts"]
-            .map((script) => newVMScriptRef(scope, script))),
+        scripts = new List.unmodifiable(
+            json["scripts"].map((script) => newVMScriptRef(scope, script))),
         fields = new UnmodifiableMapView(new Map.fromIterable(json["variables"],
             key: (field) => field["name"],
             value: (field) => newVMFieldRef(scope, field))),
-        functions = new UnmodifiableMapView(
-            new Map.fromIterable(json["functions"],
-                key: (function) => function["name"],
-                value: (function) => newVMFunctionRef(scope, function))),
+        functions = new UnmodifiableMapView(new Map.fromIterable(
+            json["functions"],
+            key: (function) => function["name"],
+            value: (function) => newVMFunctionRef(scope, function))),
         classes = new UnmodifiableMapView(new Map.fromIterable(json["classes"],
             key: (klass) => klass["name"],
             value: (klass) => newVMClassRef(scope, klass))),

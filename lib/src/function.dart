@@ -61,10 +61,14 @@ class VMFunctionRef implements VMObjectRef {
   static VMObjectRef _owner(Scope scope, Map json) {
     if (json == null) return null;
     switch (json["type"]) {
-      case "@Library": return newVMLibraryRef(scope, json);
-      case "@Class": return newVMClassRef(scope, json);
-      case "@Function": return newVMFunctionRef(scope, json);
-      default: throw new StateError('Unknown owner type "${json["type"]}".');
+      case "@Library":
+        return newVMLibraryRef(scope, json);
+      case "@Class":
+        return newVMClassRef(scope, json);
+      case "@Function":
+        return newVMFunctionRef(scope, json);
+      default:
+        throw new StateError('Unknown owner type "${json["type"]}".');
     }
   }
 
@@ -77,8 +81,8 @@ class VMFunctionRef implements VMObjectRef {
   /// [rpc.RpcException] with code `102`.
   Future<VMBreakpoint> addBreakpoint() async {
     try {
-      var response = await _scope.sendRequest(
-          "addBreakpointAtEntry", {"functionId": _id});
+      var response =
+          await _scope.sendRequest("addBreakpointAtEntry", {"functionId": _id});
       return newVMBreakpoint(_scope, response);
     } on rpc.RpcException catch (error) {
       // Error 102 indicates that the breakpoint couldn't be created.
@@ -87,8 +91,8 @@ class VMFunctionRef implements VMObjectRef {
     }
   }
 
-  bool operator ==(other) => other is VMFunctionRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMFunctionRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 

@@ -29,18 +29,18 @@ final _asyncBody = new RegExp(r'<(<anonymous closure>|[^>]+)_async_body>');
 
 /// Transforms [stream] with a [StreamTransformer] that transforms data events
 /// using [handleData].
-Stream<T> transform<S, T>(Stream<S> stream,
-        void handleData(S data, EventSink<T> sink)) =>
-    stream.transform(
-        new StreamTransformer.fromHandlers(handleData: handleData));
+Stream<T> transform<S, T>(
+        Stream<S> stream, void handleData(S data, EventSink<T> sink)) =>
+    stream
+        .transform(new StreamTransformer.fromHandlers(handleData: handleData));
 
 /// Loads a `stack_trace` [Frame] for [frame].
 ///
 /// If [scripts] is passed, it should be a map of [VMScript]s that have already
 /// been loaded, indexed by [name]. This function modifys the map so that it can
 /// be passed in to future invocations to avoid unnecessary loads.
-Future<Frame> frameToFrame(VMFrame frame, [Map<String, VMScript> scripts])
-    async {
+Future<Frame> frameToFrame(VMFrame frame,
+    [Map<String, VMScript> scripts]) async {
   var scopes = [];
   VMObjectRef scope = frame.function;
   while (scope is VMFunctionRef) {
@@ -59,7 +59,8 @@ Future<Frame> frameToFrame(VMFrame frame, [Map<String, VMScript> scripts])
     // The special "evaluate" scheme is used for evaluating code with the VM
     // service. Different scripts can have the same "evalute" scheme, so we
     // don't record them.
-    if (scripts != null && uri.scheme != 'evaluate') scripts[uri.toString()] = script;
+    if (scripts != null && uri.scheme != 'evaluate')
+      scripts[uri.toString()] = script;
   }
   var location = await script.sourceLocation(frame.location.token);
 

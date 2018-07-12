@@ -5,13 +5,20 @@
 VMSentinel newVMSentinel(Map json) {
   assert(json["type"] == "Sentinel");
   switch (json["kind"]) {
-    case "Collected": return VMSentinel.collected;
-    case "Expired": return VMSentinel.expired;
-    case "NotInitialized": return VMSentinel.notInitialized;
-    case "BeingInitialized": return VMSentinel.beingInitialized;
-    case "OptimizedOut": return VMSentinel.optimizedOut;
-    case "Free": return VMSentinel.free;
-    default: throw new StateError('Unknown Sentinel kind "${json["kind"]}".');
+    case "Collected":
+      return VMSentinel.collected;
+    case "Expired":
+      return VMSentinel.expired;
+    case "NotInitialized":
+      return VMSentinel.notInitialized;
+    case "BeingInitialized":
+      return VMSentinel.beingInitialized;
+    case "OptimizedOut":
+      return VMSentinel.optimizedOut;
+    case "Free":
+      return VMSentinel.free;
+    default:
+      throw new StateError('Unknown Sentinel kind "${json["kind"]}".');
   }
 }
 

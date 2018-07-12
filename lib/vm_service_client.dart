@@ -28,19 +28,24 @@ export 'src/field.dart' hide newVMFieldRef;
 export 'src/flag.dart' hide newVMFlagList;
 export 'src/frame.dart' hide newVMFrame;
 export 'src/function.dart' hide newVMFunctionRef;
-export 'src/instance.dart' hide newVMInstanceRef, newVMInstance,
-    newVMTypeLikeInstanceRef, newVMTypeInstanceRef, newVMInstanceRefOrSentinel;
+export 'src/instance.dart'
+    hide
+        newVMInstanceRef,
+        newVMInstance,
+        newVMTypeLikeInstanceRef,
+        newVMTypeInstanceRef,
+        newVMInstanceRefOrSentinel;
 export 'src/isolate.dart' hide newVMIsolateRef;
 export 'src/library.dart' hide newVMLibraryRef;
 export 'src/message.dart' hide newVMMessage;
 export 'src/object.dart';
 export 'src/pause_event.dart' hide newVMPauseEvent;
-export 'src/script.dart' hide newVMScriptRef, newVMScriptToken,
-    newVMScriptTokenFromPosition;
+export 'src/script.dart'
+    hide newVMScriptRef, newVMScriptToken, newVMScriptTokenFromPosition;
 export 'src/sentinel.dart' hide newVMSentinel;
 export 'src/service_version.dart' hide newVMServiceVersion;
-export 'src/source_location.dart' hide newVMSourceLocation,
-    newVMSourceLocationFromPosition;
+export 'src/source_location.dart'
+    hide newVMSourceLocation, newVMSourceLocationFromPosition;
 export 'src/source_report.dart' hide newSourceReport;
 export 'src/stack.dart' hide newVMStack;
 export 'src/type_arguments.dart' hide newVMTypeArgumentsRef;

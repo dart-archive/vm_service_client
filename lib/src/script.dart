@@ -22,8 +22,8 @@ VMScriptRef newVMScriptRef(Scope scope, Map json) {
   return new VMScriptRef._(scope, json);
 }
 
-VMScriptToken newVMScriptToken(String isolateId, String scriptId,
-        int position) {
+VMScriptToken newVMScriptToken(
+    String isolateId, String scriptId, int position) {
   if (position == null) return null;
   return new VMScriptToken._(isolateId, scriptId, position);
 }
@@ -122,8 +122,8 @@ class VMScriptRef implements VMObjectRef {
     return newSourceReport(_scope, json);
   }
 
-  bool operator ==(other) => other is VMScriptRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMScriptRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -169,6 +169,7 @@ class VMScript extends VMScriptRef implements VMObject {
     _sourceFile ??= new SourceFile.fromString(source, url: uri);
     return _sourceFile;
   }
+
   SourceFile _sourceFile;
 
   VMScript._(Scope scope, Map json)
@@ -283,6 +284,7 @@ class _ScriptLocation extends SourceLocationMixin implements FileLocation {
     _offset ??= _script.sourceFile.getOffset(line, column);
     return _offset;
   }
+
   int _offset;
 
   SourceFile get file => _script.sourceFile;
@@ -293,12 +295,14 @@ class _ScriptLocation extends SourceLocationMixin implements FileLocation {
     _ensureLineAndColumn();
     return _line;
   }
+
   int _line;
 
   int get column {
     _ensureLineAndColumn();
     return _column;
   }
+
   int _column;
 
   _ScriptLocation(this._script, this._position);
@@ -354,18 +358,20 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
     _start ??= new _ScriptLocation(_script, _startPosition);
     return _start;
   }
+
   FileLocation _start;
 
   FileLocation get end {
     _end ??= new _ScriptLocation(_script, _endPosition);
     return _end;
   }
+
   FileLocation _end;
 
   String get text => _script.source.substring(start.offset, end.offset);
 
   String get context => file.getText(file.getOffset(start.line),
-      end.line == file.lines - 1 ? null : file.getOffset(end.line + 1));  
+      end.line == file.lines - 1 ? null : file.getOffset(end.line + 1));
 
   _ScriptSpan(this._script, this._startPosition, this._endPosition,
       [this._start, this._end]);
@@ -377,8 +383,8 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
 
     _ScriptSpan otherFile = other;
     var result = _startPosition.compareTo(otherFile._startPosition);
-    return result == 0 ?
-        _endPosition.compareTo(otherFile._endPosition)
+    return result == 0
+        ? _endPosition.compareTo(otherFile._endPosition)
         : result;
   }
 
@@ -399,8 +405,8 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
 
   bool operator ==(other) => other is _ScriptSpan
       ? _startPosition == other._startPosition &&
-            _endPosition == other._endPosition &&
-            sourceUrl == other.sourceUrl
+          _endPosition == other._endPosition &&
+          sourceUrl == other.sourceUrl
       : super == other;
 
   FileSpan expand(FileSpan other) {
@@ -412,7 +418,10 @@ class _ScriptSpan extends SourceSpanMixin implements FileSpan {
     if (other is _ScriptSpan) {
       var startPosition = math.min(this._startPosition, other._startPosition);
       var endPosition = math.max(this._endPosition, other._endPosition);
-      return new _ScriptSpan(_script, startPosition, endPosition,
+      return new _ScriptSpan(
+          _script,
+          startPosition,
+          endPosition,
           startPosition == this._startPosition ? this._start : other._start,
           endPosition == this._endPosition ? this._end : other._end);
     } else {

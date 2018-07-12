@@ -103,36 +103,37 @@ class StreamManager {
   /// unsubscribes once it has no listeners.
   StreamController<Map> _controller(String streamID) {
     StreamController<Map> controller;
-    controller = new StreamController.broadcast(sync: true, onListen: () {
-      // Work around sdk#24350.
-      if ((streamID == "Stdout" || streamID == "Stderr") &&
-          _debugSubscription == null) {
-        _debugSubscription = debug.listen(null);
-      }
+    controller = new StreamController.broadcast(
+        sync: true,
+        onListen: () {
+          // Work around sdk#24350.
+          if ((streamID == "Stdout" || streamID == "Stderr") &&
+              _debugSubscription == null) {
+            _debugSubscription = debug.listen(null);
+          }
 
-      _peer.sendRequest("streamListen", {
-        "streamId": streamID
-      }).catchError((error, stackTrace) {
-        controller.addError(error, stackTrace);
-      });
-    }, onCancel: () {
-      if (_peer.isClosed) return;
+          _peer.sendRequest("streamListen", {"streamId": streamID}).catchError(
+              (error, stackTrace) {
+            controller.addError(error, stackTrace);
+          });
+        },
+        onCancel: () {
+          if (_peer.isClosed) return;
 
-      // Work around sdk#24350.
-      if (_debugSubscription != null &&
-          !_stdoutController.hasListener &&
-          !_stderrController.hasListener) {
-        _debugSubscription.cancel();
-        _debugSubscription = null;
-      }
+          // Work around sdk#24350.
+          if (_debugSubscription != null &&
+              !_stdoutController.hasListener &&
+              !_stderrController.hasListener) {
+            _debugSubscription.cancel();
+            _debugSubscription = null;
+          }
 
-      _peer.sendRequest("streamCancel", {
-        "streamId": streamID
-      }).catchError((_) {
-        // Do nothing if canceling the stream failed, since no one's listening
-        // to it anyway.
-      });
-    });
+          _peer.sendRequest("streamCancel", {"streamId": streamID}).catchError(
+              (_) {
+            // Do nothing if canceling the stream failed, since no one's listening
+            // to it anyway.
+          });
+        });
     return controller;
   }
 }

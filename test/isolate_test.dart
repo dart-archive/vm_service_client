@@ -84,8 +84,8 @@ void main() {
       });
 
       var queue = new StreamQueue(main.onPauseOrResume);
-      expect(queue.next,
-          completion(new isInstanceOf<VMPauseInterruptedEvent>()));
+      expect(
+          queue.next, completion(new isInstanceOf<VMPauseInterruptedEvent>()));
       expect(queue.next, completion(new isInstanceOf<VMResumeEvent>()));
 
       // We should be properly filtering events to the right isolate.
@@ -357,8 +357,8 @@ void main() {
     isolate.resume();
     expect(await isolate.stdout.transform(lines).first, equals("looping"));
 
-    var onPaused = isolate.onPauseOrResume
-        .firstWhere((event) => event is! VMResumeEvent);
+    var onPaused =
+        isolate.onPauseOrResume.firstWhere((event) => event is! VMResumeEvent);
     expect(isolate.pause(), completes);
     await onPaused;
 
@@ -462,8 +462,8 @@ void main() {
       """, flags: ["--pause-isolates-on-start"]);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      var breakpoint = await isolate.addBreakpoint(
-          isolate.rootLibrary.uri, 8, column: 22);
+      var breakpoint =
+          await isolate.addBreakpoint(isolate.rootLibrary.uri, 8, column: 22);
       expect(breakpoint.number, equals(1));
 
       await isolate.resume();
@@ -503,8 +503,8 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      expect(await isolate.invokeExtension('ext.ping'),
-          equals({'type': 'pong'}));
+      expect(
+          await isolate.invokeExtension('ext.ping'), equals({'type': 'pong'}));
     });
 
     test("supports non-map return values", () async {
@@ -528,8 +528,8 @@ void main() {
       """);
 
       var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-      var response = await isolate.invokeExtension(
-          'ext.params', {'foo': 'bar'});
+      var response =
+          await isolate.invokeExtension('ext.params', {'foo': 'bar'});
       expect(response, equals({'foo': 'bar'}));
     });
 

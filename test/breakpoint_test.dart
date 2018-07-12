@@ -34,8 +34,7 @@ void main() {
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint.number, equals(1));
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location,
-        new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
     expect(breakpoint.location.uri.scheme, equals('data'));
     expect(breakpoint.toString(), startsWith("breakpoint #1 in data:"));
 
@@ -73,8 +72,7 @@ void main() {
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint.number, equals(1));
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location,
-        new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
     expect(breakpoint.location.uri.scheme, equals('data'));
     expect(breakpoint.toString(), startsWith("breakpoint #1 in data:"));
 
@@ -106,8 +104,7 @@ void main() {
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(10);
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location,
-        new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
 
     var times = 0;
     breakpoint.onPause.listen(expectAsync1((eventBreakpoint) async {
@@ -175,8 +172,7 @@ void main() {
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location,
-        new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
 
     var resolvedFuture = breakpoint.loadResolved();
     await isolate.resume();
@@ -197,8 +193,7 @@ void main() {
     var library = await (await isolate.loadRunnable()).rootLibrary.load();
     var breakpoint = await library.scripts.single.addBreakpoint(9);
     expect(breakpoint, isNot(new isInstanceOf<VMResolvedBreakpoint>()));
-    expect(breakpoint.location,
-        new isInstanceOf<VMUnresolvedSourceLocation>());
+    expect(breakpoint.location, new isInstanceOf<VMUnresolvedSourceLocation>());
 
     await isolate.resume();
     await isolate.waitUntilPaused();

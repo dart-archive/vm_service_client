@@ -142,8 +142,7 @@ void main() {
     VMSourceLocation unusedFieldLocation;
 
     setUp(() async {
-      client = await runAndConnect(
-          topLevel: r'''final unusedField = 5;
+      client = await runAndConnect(topLevel: r'''final unusedField = 5;
 
 int unusedFunction(a, b) {
   return a + b;
@@ -151,8 +150,7 @@ int unusedFunction(a, b) {
 
 void unusedFunction2(value) {
   print(value);
-}''',
-          main: _mainContent);
+}''', main: _mainContent);
 
       isolate = (await client.getVM()).isolates.single;
 

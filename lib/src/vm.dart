@@ -54,8 +54,7 @@ class VMRef {
   ///
   /// Note that since this object is immutable, it needs to be reloaded to see
   /// the new name.
-  Future setName(String name) =>
-      _peer.sendRequest("setVMName", {"name": name});
+  Future setName(String name) => _peer.sendRequest("setVMName", {"name": name});
 
   /// Loads the full representation of the VM.
   Future<VM> load() async =>

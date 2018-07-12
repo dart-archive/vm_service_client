@@ -42,8 +42,8 @@ class VMCodeRef implements VMObjectRef {
   Future<VMCode> load() async =>
       new VMCode._(_scope, await _scope.loadObject(_id));
 
-  bool operator ==(other) => other is VMCodeRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMCodeRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -87,12 +87,18 @@ class VMCodeKind {
 
   factory VMCodeKind._parse(String name) {
     switch (name) {
-      case "Dart": return VMCodeKind.dart;
-      case "Native": return VMCodeKind.native;
-      case "Stub": return VMCodeKind.stub;
-      case "Tag": return VMCodeKind.tag;
-      case "Collected": return VMCodeKind.collected;
-      default: throw new StateError("Unknown VM code kind \"$name\".");
+      case "Dart":
+        return VMCodeKind.dart;
+      case "Native":
+        return VMCodeKind.native;
+      case "Stub":
+        return VMCodeKind.stub;
+      case "Tag":
+        return VMCodeKind.tag;
+      case "Collected":
+        return VMCodeKind.collected;
+      default:
+        throw new StateError("Unknown VM code kind \"$name\".");
     }
   }
 

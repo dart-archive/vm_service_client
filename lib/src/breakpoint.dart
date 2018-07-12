@@ -77,18 +77,18 @@ class VMBreakpoint extends VMObject {
   ///
   /// If the breakpoint is already removed, this will complete immediately.
   Future get onRemove => _onRemoveMemo.runOnce(() async {
-    await _scope.getInState(_scope.streams.debug, () async {
-      try {
-        await load();
-        return false;
-      } on VMSentinelException catch (_) {
-        return true;
-      }
-    }, (json) {
-      return json["kind"] == "BreakpointRemoved" &&
-          json["breakpoint"]["id"] == _id;
-    });
-  });
+        await _scope.getInState(_scope.streams.debug, () async {
+          try {
+            await load();
+            return false;
+          } on VMSentinelException catch (_) {
+            return true;
+          }
+        }, (json) {
+          return json["kind"] == "BreakpointRemoved" &&
+              json["breakpoint"]["id"] == _id;
+        });
+      });
   final _onRemoveMemo = new AsyncMemoizer();
 
   VMBreakpoint._(Scope scope, Map json)
@@ -114,7 +114,8 @@ class VMBreakpoint extends VMObject {
   static VMBreakpointLocation _newVMBreakpointLocation(Scope scope, Map json) {
     if (json == null) return null;
     switch (json["type"]) {
-      case "SourceLocation": return newVMSourceLocation(scope, json);
+      case "SourceLocation":
+        return newVMSourceLocation(scope, json);
       case "UnresolvedSourceLocation":
         return newVMUnresolvedSourceLocation(scope, json);
       default:
@@ -153,8 +154,8 @@ class VMBreakpoint extends VMObject {
   Future remove() =>
       _scope.sendRequest("removeBreakpoint", {"breakpointId": _id});
 
-  bool operator ==(other) => other is VMBreakpoint &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMBreakpoint && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -165,8 +166,7 @@ class VMBreakpoint extends VMObject {
 class VMResolvedBreakpoint extends VMBreakpoint {
   VMSourceLocation get location => super.location as VMSourceLocation;
 
-  VMResolvedBreakpoint._(Scope scope, Map json)
-      : super._(scope, json) {
+  VMResolvedBreakpoint._(Scope scope, Map json) : super._(scope, json) {
     assert(super.location is VMSourceLocation);
   }
 

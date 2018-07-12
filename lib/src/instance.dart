@@ -25,17 +25,28 @@ VMInstanceRef newVMInstanceRef(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "@Instance" || json["type"] == "Instance");
   switch (json["kind"]) {
-    case "Null": return new VMNullInstanceRef._(scope, json);
-    case "Bool": return new VMBoolInstanceRef._(scope, json);
-    case "Double": return new VMDoubleInstanceRef._(scope, json);
-    case "Int": return new VMIntInstanceRef._(scope, json);
-    case "String": return new VMStringInstanceRef._(scope, json);
-    case "Float32x4": return new VMFloat32x4InstanceRef._(scope, json);
-    case "Float64x2": return new VMFloat64x2InstanceRef._(scope, json);
-    case "Int32x4": return new VMInt32x4InstanceRef._(scope, json);
-    case "StackTrace": return new VMStackTraceInstanceRef._(scope, json);
-    case "List": return new VMListInstanceRef._(scope, json);
-    case "Map": return new VMMapInstanceRef._(scope, json);
+    case "Null":
+      return new VMNullInstanceRef._(scope, json);
+    case "Bool":
+      return new VMBoolInstanceRef._(scope, json);
+    case "Double":
+      return new VMDoubleInstanceRef._(scope, json);
+    case "Int":
+      return new VMIntInstanceRef._(scope, json);
+    case "String":
+      return new VMStringInstanceRef._(scope, json);
+    case "Float32x4":
+      return new VMFloat32x4InstanceRef._(scope, json);
+    case "Float64x2":
+      return new VMFloat64x2InstanceRef._(scope, json);
+    case "Int32x4":
+      return new VMInt32x4InstanceRef._(scope, json);
+    case "StackTrace":
+      return new VMStackTraceInstanceRef._(scope, json);
+    case "List":
+      return new VMListInstanceRef._(scope, json);
+    case "Map":
+      return new VMMapInstanceRef._(scope, json);
     case "Uint8ClampedList":
       return new VMTypedDataInstanceRef<Uint8ClampedList>._(scope, json);
     case "Uint8List":
@@ -64,15 +75,22 @@ VMInstanceRef newVMInstanceRef(Scope scope, Map json) {
       return new VMTypedDataInstanceRef<Float32x4List>._(scope, json);
     case "Float64x2List":
       return new VMTypedDataInstanceRef<Float64x2List>._(scope, json);
-    case "Closure": return new VMClosureInstanceRef._(scope, json);
+    case "Closure":
+      return new VMClosureInstanceRef._(scope, json);
     case "MirrorReference":
       return new VMMirrorReferenceInstanceRef._(scope, json);
-    case "RegExp": return new VMRegExpInstanceRef._(scope, json);
-    case "WeakProperty": return new VMWeakPropertyInstanceRef._(scope, json);
-    case "Type": return new VMTypeInstanceRef._(scope, json);
-    case "TypeParameter": return new VMTypeParameterInstanceRef._(scope, json);
-    case "TypeRef": return new VMTypeRefInstanceRef._(scope, json);
-    case "BoundedType": return new VMBoundedTypeInstanceRef._(scope, json);
+    case "RegExp":
+      return new VMRegExpInstanceRef._(scope, json);
+    case "WeakProperty":
+      return new VMWeakPropertyInstanceRef._(scope, json);
+    case "Type":
+      return new VMTypeInstanceRef._(scope, json);
+    case "TypeParameter":
+      return new VMTypeParameterInstanceRef._(scope, json);
+    case "TypeRef":
+      return new VMTypeRefInstanceRef._(scope, json);
+    case "BoundedType":
+      return new VMBoundedTypeInstanceRef._(scope, json);
     default:
       // The VM service protocol specifies that unknown instance kinds are to be
       // treated as plain instances.
@@ -84,17 +102,28 @@ VMInstanceRef newVMInstance(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "Instance");
   switch (json["kind"]) {
-    case "Null": return new VMNullInstance._(scope, json);
-    case "Bool": return new VMBoolInstance._(scope, json);
-    case "Double": return new VMDoubleInstance._(scope, json);
-    case "Int": return new VMIntInstance._(scope, json);
-    case "String": return new VMStringInstance._(scope, json);
-    case "Float32x4": return new VMFloat32x4Instance._(scope, json);
-    case "Float64x2": return new VMFloat64x2Instance._(scope, json);
-    case "Int32x4": return new VMInt32x4Instance._(scope, json);
-    case "StackTrace": return new VMStackTraceInstance._(scope, json);
-    case "List": return new VMListInstance._(scope, json);
-    case "Map": return new VMMapInstance._(scope, json);
+    case "Null":
+      return new VMNullInstance._(scope, json);
+    case "Bool":
+      return new VMBoolInstance._(scope, json);
+    case "Double":
+      return new VMDoubleInstance._(scope, json);
+    case "Int":
+      return new VMIntInstance._(scope, json);
+    case "String":
+      return new VMStringInstance._(scope, json);
+    case "Float32x4":
+      return new VMFloat32x4Instance._(scope, json);
+    case "Float64x2":
+      return new VMFloat64x2Instance._(scope, json);
+    case "Int32x4":
+      return new VMInt32x4Instance._(scope, json);
+    case "StackTrace":
+      return new VMStackTraceInstance._(scope, json);
+    case "List":
+      return new VMListInstance._(scope, json);
+    case "Map":
+      return new VMMapInstance._(scope, json);
     case "Uint8ClampedList":
     case "Uint8List":
     case "Uint16List":
@@ -110,15 +139,22 @@ VMInstanceRef newVMInstance(Scope scope, Map json) {
     case "Float32x4List":
     case "Float64x2List":
       return new VMTypedDataInstance._(scope, json);
-    case "Closure": return new VMClosureInstance._(scope, json);
+    case "Closure":
+      return new VMClosureInstance._(scope, json);
     case "MirrorReference":
       return new VMMirrorReferenceInstance._(scope, json);
-    case "RegExp": return new VMRegExpInstance._(scope, json);
-    case "WeakProperty": return new VMWeakPropertyInstance._(scope, json);
-    case "Type": return new VMTypeInstance._(scope, json);
-    case "TypeParameter": return new VMTypeParameterInstance._(scope, json);
-    case "TypeRef": return new VMTypeRefInstance._(scope, json);
-    case "BoundedType": return new VMBoundedTypeInstance._(scope, json);
+    case "RegExp":
+      return new VMRegExpInstance._(scope, json);
+    case "WeakProperty":
+      return new VMWeakPropertyInstance._(scope, json);
+    case "Type":
+      return new VMTypeInstance._(scope, json);
+    case "TypeParameter":
+      return new VMTypeParameterInstance._(scope, json);
+    case "TypeRef":
+      return new VMTypeRefInstance._(scope, json);
+    case "BoundedType":
+      return new VMBoundedTypeInstance._(scope, json);
     default:
       // The VM service protocol specifies that unknown instance kinds are to be
       // treated as plain instances.
@@ -130,17 +166,20 @@ VMTypeLikeInstanceRef newVMTypeLikeInstanceRef(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "@Instance" || json["type"] == "Instance");
   switch (json["kind"]) {
-    case "Type": return new VMTypeInstanceRef._(scope, json);
-    case "TypeParameter": return new VMTypeParameterInstanceRef._(scope, json);
-    case "TypeRef": return new VMTypeRefInstanceRef._(scope, json);
-    case "BoundedType": return new VMBoundedTypeInstanceRef._(scope, json);
+    case "Type":
+      return new VMTypeInstanceRef._(scope, json);
+    case "TypeParameter":
+      return new VMTypeParameterInstanceRef._(scope, json);
+    case "TypeRef":
+      return new VMTypeRefInstanceRef._(scope, json);
+    case "BoundedType":
+      return new VMBoundedTypeInstanceRef._(scope, json);
     default:
       throw new StateError('Unknown Type-like kind "${json["kind"]}".');
   }
 }
 
-VMTypeInstanceRef newVMTypeInstanceRef(Scope scope,
-    Map json) {
+VMTypeInstanceRef newVMTypeInstanceRef(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "@Instance" || json["type"] == "Instance");
   assert(json["kind"] == "Type");
@@ -196,8 +235,7 @@ class VMInstanceRef implements VMObjectRef {
   /// instance will return identical Dart objects.
   Future<Object> getValue({onUnknownValue(value)}) async {
     if (Zone.current[#_cache] != null) return _getValue(onUnknownValue);
-    return runZoned(() => _getValue(onUnknownValue),
-        zoneValues: {#_cache: {}});
+    return runZoned(() => _getValue(onUnknownValue), zoneValues: {#_cache: {}});
   }
 
   /// A helper method for [getValue] that doesn't try to create a new cache.
@@ -216,8 +254,7 @@ class VMInstanceRef implements VMObjectRef {
     return cache[this];
   }
 
-  Future<VMInstance> load() async =>
-      new VMInstance._(_scope, await _load());
+  Future<VMInstance> load() async => new VMInstance._(_scope, await _load());
 
   /// Evaluates [expression] in the context of this instance.
   ///
@@ -228,8 +265,8 @@ class VMInstanceRef implements VMObjectRef {
 
   Future<Map> _load() => _scope.loadObject(_id);
 
-  bool operator ==(other) => other is VMInstanceRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMInstanceRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -257,8 +294,7 @@ abstract class VMValueInstanceRef<T> extends VMInstanceRef {
   /// The value as a local Dart instance.
   T get value;
 
-  VMValueInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMValueInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMValueInstance<T>> load();
 
@@ -271,16 +307,14 @@ abstract class VMValueInstanceRef<T> extends VMInstanceRef {
 }
 
 /// An instance whose value is synchronously accessible via the reference.
-abstract class VMValueInstance<T>
-    implements VMValueInstanceRef<T>, VMInstance {
+abstract class VMValueInstance<T> implements VMValueInstanceRef<T>, VMInstance {
 }
 
 /// A reference to a `null` instance.
 class VMNullInstanceRef extends VMValueInstanceRef<Null> {
   Null get value => null;
 
-  VMNullInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMNullInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMNullInstance> load() async =>
       new VMNullInstance._(_scope, await _load());
@@ -395,7 +429,7 @@ class VMFloat32x4InstanceRef extends VMValueInstanceRef<Float32x4> {
   /// of the form "[W, X, Y, Z]" where W, X, Y, and Z are floats.
   static Float32x4 _parse(String value) {
     var lanes = value
-         // Substring to get rid of the surrounding [ and ].
+        // Substring to get rid of the surrounding [ and ].
         .substring(1, value.length - 1)
         .split(",")
         .map(double.parse)
@@ -434,7 +468,7 @@ class VMFloat64x2InstanceRef extends VMValueInstanceRef<Float64x2> {
   /// of the form "[X, Y]" where X and Y are floats.
   static Float64x2 _parse(String value) {
     var lanes = value
-         // Substring to get rid of the surrounding [ and ].
+        // Substring to get rid of the surrounding [ and ].
         .substring(1, value.length - 1)
         .split(",")
         .map(double.parse)
@@ -471,7 +505,7 @@ class VMInt32x4InstanceRef extends VMValueInstanceRef<Int32x4> {
   /// of the form "[M, N, P, Q]" where N, M, P, and Q are integers.
   static Int32x4 _parse(String value) {
     var lanes = value
-         // Substring to get rid of the surrounding [ and ].
+        // Substring to get rid of the surrounding [ and ].
         .substring(1, value.length - 1)
         .split(",")
         .map((lane) => int.parse(lane, radix: 16))
@@ -684,14 +718,15 @@ class VMMapInstance extends VMMapInstanceRef implements VMInstance {
     await Future.wait(associations.map((association) async {
       var results = await Future.wait(
           [association.key, association.value].map((value) {
-        if (value is VMInstanceRef) {
-          return value._getValue(onUnknownValue);
-        } else if (onUnknownValue != null) {
-          return onUnknownValue(value);
-        } else {
-          throw new VMSentinelException(value);
-        }
-      }), eagerError: true);
+            if (value is VMInstanceRef) {
+              return value._getValue(onUnknownValue);
+            } else if (onUnknownValue != null) {
+              return onUnknownValue(value);
+            } else {
+              throw new VMSentinelException(value);
+            }
+          }),
+          eagerError: true);
       map[results.first] = results.last;
     }), eagerError: true);
 
@@ -799,20 +834,34 @@ class VMTypedDataInstance<T extends TypedData> extends VMTypedDataInstanceRef<T>
     var bytes = new Uint8List.fromList(byteList);
 
     switch (json["kind"]) {
-      case "Uint8ClampedList": return bytes.buffer.asUint8ClampedList();
-      case "Uint8List": return bytes.buffer.asUint8List();
-      case "Uint16List": return bytes.buffer.asUint16List();
-      case "Uint32List": return bytes.buffer.asUint32List();
-      case "Uint64List": return bytes.buffer.asUint64List();
-      case "Int8List": return bytes.buffer.asInt8List();
-      case "Int16List": return bytes.buffer.asInt16List();
-      case "Int32List": return bytes.buffer.asInt32List();
-      case "Int64List": return bytes.buffer.asInt64List();
-      case "Float32List": return bytes.buffer.asFloat32List();
-      case "Float64List": return bytes.buffer.asFloat64List();
-      case "Int32x4List": return bytes.buffer.asInt32x4List();
-      case "Float32x4List": return bytes.buffer.asFloat32x4List();
-      case "Float64x2List": return bytes.buffer.asFloat64x2List();
+      case "Uint8ClampedList":
+        return bytes.buffer.asUint8ClampedList();
+      case "Uint8List":
+        return bytes.buffer.asUint8List();
+      case "Uint16List":
+        return bytes.buffer.asUint16List();
+      case "Uint32List":
+        return bytes.buffer.asUint32List();
+      case "Uint64List":
+        return bytes.buffer.asUint64List();
+      case "Int8List":
+        return bytes.buffer.asInt8List();
+      case "Int16List":
+        return bytes.buffer.asInt16List();
+      case "Int32List":
+        return bytes.buffer.asInt32List();
+      case "Int64List":
+        return bytes.buffer.asInt64List();
+      case "Float32List":
+        return bytes.buffer.asFloat32List();
+      case "Float64List":
+        return bytes.buffer.asFloat64List();
+      case "Int32x4List":
+        return bytes.buffer.asInt32x4List();
+      case "Float32x4List":
+        return bytes.buffer.asFloat32x4List();
+      case "Float64x2List":
+        return bytes.buffer.asFloat64x2List();
       default:
         throw new StateError('Unknown TypedData kind "${json["kind"]}".');
     }
@@ -878,9 +927,8 @@ class VMRegExpInstance extends VMRegExpInstanceRef implements VMInstance {
         super._(scope, json);
 
   Future<RegExp> _getValue(onUnknownValue(value)) async {
-    var value = pattern.isValueTruncated
-        ? (await pattern.load()).value
-        : pattern.value;
+    var value =
+        pattern.isValueTruncated ? (await pattern.load()).value : pattern.value;
     return new RegExp(value,
         multiLine: isMultiLine, caseSensitive: isCaseSensitive);
   }
@@ -890,8 +938,7 @@ class VMRegExpInstance extends VMRegExpInstanceRef implements VMInstance {
 
 /// A reference to an instance of the built-in VM closure implementation.
 class VMClosureInstanceRef extends VMInstanceRef {
-  VMClosureInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMClosureInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMClosureInstance> load() async =>
       new VMClosureInstance._(_scope, await _load());
@@ -921,8 +968,7 @@ class VMClosureInstance extends VMClosureInstanceRef implements VMInstance {
 
 /// A reference to an instance of the VM-internal MirrorReference class.
 class VMMirrorReferenceInstanceRef extends VMInstanceRef {
-  VMMirrorReferenceInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMMirrorReferenceInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMMirrorReferenceInstance> load() async =>
       new VMMirrorReferenceInstance._(_scope, await _load());
@@ -946,8 +992,7 @@ class VMMirrorReferenceInstance extends VMMirrorReferenceInstanceRef
 
 /// A reference to an instance of the VM-internal WeakProperty class.
 class VMWeakPropertyInstanceRef extends VMInstanceRef {
-  VMWeakPropertyInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMWeakPropertyInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMWeakPropertyInstance> load() async =>
       new VMWeakPropertyInstance._(_scope, await _load());
@@ -973,15 +1018,14 @@ class VMWeakPropertyInstance extends VMWeakPropertyInstanceRef
 
 /// A reference to an instance that's used as a type.
 abstract class VMTypeLikeInstanceRef extends VMInstanceRef {
-  VMTypeLikeInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMTypeLikeInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMTypeLikeInstance> load();
 }
 
 /// An instance that's used as a type.
-abstract class VMTypeLikeInstance
-    implements VMTypeLikeInstanceRef, VMInstance {}
+abstract class VMTypeLikeInstance implements VMTypeLikeInstanceRef, VMInstance {
+}
 
 /// A reference to an instance of [Type].
 class VMTypeInstanceRef extends VMTypeLikeInstanceRef {
@@ -1050,8 +1094,7 @@ class VMTypeParameterInstance extends VMTypeParameterInstanceRef
 
 /// A reference to an instance of the VM-internal TypeRef class.
 class VMTypeRefInstanceRef extends VMTypeLikeInstanceRef {
-  VMTypeRefInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMTypeRefInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMTypeRefInstance> load() async =>
       new VMTypeRefInstance._(_scope, await _load());
@@ -1075,8 +1118,7 @@ class VMTypeRefInstance extends VMTypeRefInstanceRef
 
 /// A reference to an instance of the VM-internal BoundedType class.
 class VMBoundedTypeInstanceRef extends VMTypeLikeInstanceRef {
-  VMBoundedTypeInstanceRef._(Scope scope, Map json)
-      : super._(scope, json);
+  VMBoundedTypeInstanceRef._(Scope scope, Map json) : super._(scope, json);
 
   Future<VMBoundedTypeInstance> load() async =>
       new VMBoundedTypeInstance._(_scope, await _load());

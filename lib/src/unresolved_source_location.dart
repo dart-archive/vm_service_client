@@ -6,8 +6,8 @@ import 'breakpoint.dart';
 import 'scope.dart';
 import 'script.dart';
 
-VMUnresolvedSourceLocation newVMUnresolvedSourceLocation(Scope scope,
-    Map json) {
+VMUnresolvedSourceLocation newVMUnresolvedSourceLocation(
+    Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "UnresolvedSourceLocation");
   return new VMUnresolvedSourceLocation._(scope, json);
@@ -35,10 +35,9 @@ class VMUnresolvedSourceLocation implements VMBreakpointLocation {
 
   VMUnresolvedSourceLocation._(Scope scope, Map json)
       : script = newVMScriptRef(scope, json["script"]),
-        uri = Uri.parse(
-            json["scriptUri"] == null
-                ? json["script"]["uri"]
-                : json["scriptUri"]),
+        uri = Uri.parse(json["scriptUri"] == null
+            ? json["script"]["uri"]
+            : json["scriptUri"]),
         token = json["tokenPos"] == null
             ? null
             : newVMScriptToken(
