@@ -42,7 +42,7 @@ void main() {
   });
 
   test("includes the script's metadata", () {
-    expect(scriptRef.uri.scheme, equals("data"));
+    expect(scriptRef.uri.scheme, equals("file"));
     expect(script.library.uri, equals(script.uri));
     expect(script.source, contains("final foo = 1;"));
     expect(script.sourceFile.length, equals(script.source.length));

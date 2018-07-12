@@ -24,7 +24,7 @@ void main() {
     await isolate.waitUntilPaused();
     var frame = (await isolate.getStack()).frames.first;
     expect(frame.index, equals(0));
-    expect(frame.function.name, equals("<main_async_body>"));
+    expect(frame.function.name, equals("async_op"));
     expect(frame.code.kind, equals(VMCodeKind.dart));
     expect(frame.variables, contains("foo"));
     expect(frame.toString(), equals("#0 in <main_async_body>"));
@@ -52,9 +52,9 @@ void main() {
     var isolate = (await client.getVM()).isolates.first;
     await isolate.waitUntilPaused();
     var frame = await (await isolate.getStack()).frames.first.getFrame();
-    expect(frame.uri.scheme, equals('data'));
+    expect(frame.uri.scheme, equals('file'));
     expect(frame.line, equals(9));
     expect(frame.column, equals(0));
-    expect(frame.member, equals('main.<fn>'));
+    expect(frame.member, equals('main.async_op'));
   });
 }

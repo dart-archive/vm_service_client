@@ -24,7 +24,7 @@ void main() {
       var functionRef = (await isolate.rootLibrary.load()).functions["foo"];
 
       expect(functionRef.name, equals("foo"));
-      expect((functionRef.owner as VMLibraryRef).uri.scheme, equals("data"));
+      expect((functionRef.owner as VMLibraryRef).uri.scheme, equals("file"));
       expect(functionRef.isStatic, isTrue);
       expect(functionRef.isConst, isFalse);
       expect(functionRef.toString(), equals("foo"));

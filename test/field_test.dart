@@ -52,17 +52,16 @@ void main() {
 
     expect(fieldRef.name, equals("value"));
     expect((fieldRef.owner as VMClassRef).name, equals("Foo"));
-    expect(
-        (fieldRef.declaredType as VMTypeInstanceRef).name, equals("dynamic"));
+    expect((fieldRef.declaredType as VMTypeInstanceRef).name, equals("int"));
     expect(fieldRef.isConst, isFalse);
     expect(fieldRef.isFinal, isFalse);
     expect(fieldRef.isStatic, isFalse);
-    expect(fieldRef.description, equals("var value"));
-    expect(fieldRef.toString(), equals("var value = ..."));
+    expect(fieldRef.description, equals("int value"));
+    expect(fieldRef.toString(), equals("int value = ..."));
 
     var field = await fieldRef.load();
     expect(field.value, isNull);
     expect(field.location.script.uri, equals(isolate.rootLibrary.uri));
-    expect(field.toString(), equals('var value = ...'));
+    expect(field.toString(), equals('int value = ...'));
   });
 }

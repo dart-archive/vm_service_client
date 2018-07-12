@@ -7,7 +7,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
+import 'package:test_descriptor/test_descriptor.dart' as d;
 import 'package:vm_service_client/vm_service_client.dart';
 
 final lines = new StreamTransformer(
@@ -59,10 +61,14 @@ main() ${sync ? '' : 'async'} {
 }
 """;
 
-  var uri = "data:application/dart;charset=utf-8,${Uri.encodeFull(library)}";
+  await d.file('test_file.dart', library).create();
 
   var args = flags.toList()
-    ..addAll(['--pause-isolates-on-exit', '--enable-vm-service=0', uri]);
+    ..addAll([
+      '--pause-isolates-on-exit',
+      '--enable-vm-service=0',
+      p.join(d.sandbox, 'test_file.dart')
+    ]);
   var process = await Process.start(Platform.resolvedExecutable, args);
 
   var stdout = new StreamQueue(process.stdout.transform<String>(lines));
@@ -72,6 +78,9 @@ main() ${sync ? '' : 'async'} {
   process.stdin.writeln();
 
   var match = new RegExp('Observatory listening on (.*)').firstMatch(line);
+  if (match == null) {
+    fail('Problem connecting to observatory: $line');
+  }
   var client = new VMServiceClient.connect(match[1]);
   client.done.then((_) => process.kill());
 

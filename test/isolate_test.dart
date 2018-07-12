@@ -31,7 +31,7 @@ void main() {
     expect(isolate.pauseEvent, new TypeMatcher<VMPauseStartEvent>());
     expect(isolate.error, isNull);
     expect(isolate.breakpoints, isEmpty);
-    expect(isolate.rootLibrary.uri.scheme, equals('data'));
+    expect(isolate.rootLibrary.uri.scheme, equals('file'));
     expect(isolate.libraries, isNotEmpty);
   });
 

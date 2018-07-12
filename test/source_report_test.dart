@@ -43,8 +43,8 @@ void main() {
 
       expect(report.ranges, hasLength(greaterThan(1)));
 
-      var range = report.ranges.singleWhere((range) =>
-          range.script.uri.toString().startsWith('data:application/dart'));
+      var range = report.ranges
+          .singleWhere((range) => range.script.uri.isScheme('file'));
 
       expect(range.compiled, isTrue);
 
@@ -72,8 +72,8 @@ void main() {
       var report =
           await isolate.getSourceReport(includePossibleBreakpoints: false);
 
-      var range = report.ranges.singleWhere((range) =>
-          range.script.uri.toString().startsWith('data:application/dart'));
+      var range = report.ranges
+          .singleWhere((range) => range.script.uri.isScheme('file'));
       expect(range.possibleBreakpoints, isNull);
 
       var script = await range.script.load();
@@ -96,8 +96,8 @@ void main() {
     test("reports accurate breakpoint information", () async {
       var report = await isolate.getSourceReport(includeCoverageReport: false);
 
-      var range = report.ranges.singleWhere((range) =>
-          range.script.uri.toString().startsWith('data:application/dart'));
+      var range = report.ranges
+          .singleWhere((range) => range.script.uri.isScheme('file'));
 
       expect(range.hits, isNull);
       expect(range.misses, isNull);
@@ -125,8 +125,8 @@ void main() {
       var report = await isolate.getSourceReport(
           includeCoverageReport: true, includePossibleBreakpoints: true);
 
-      var range = report.ranges.singleWhere((range) =>
-          range.script.uri.toString().startsWith('data:application/dart'));
+      var range = report.ranges
+          .singleWhere((range) => range.script.uri.isScheme('file'));
 
       expect(range.hits, isNotEmpty);
       expect(range.misses, isNotEmpty);

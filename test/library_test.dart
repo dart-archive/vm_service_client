@@ -29,7 +29,7 @@ void main() {
     var isolate = await (await client.getVM()).isolates.first.loadRunnable();
     var libraryRef = isolate.rootLibrary;
 
-    expect(libraryRef.uri.scheme, equals("data"));
+    expect(libraryRef.uri.scheme, equals("file"));
     var library = await libraryRef.load();
 
     expect(library.isDebuggable, isTrue);

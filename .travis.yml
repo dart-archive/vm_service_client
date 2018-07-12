@@ -1,11 +1,12 @@
 language: dart
+sudo: true
 
 dart:
   - dev
 
 dart_task:
-  # Tests are not passing at the moment – investigating
-  #- test
+  - test: -j 1
+    xvfb: false
   - dartanalyzer
   - dartfmt
 
