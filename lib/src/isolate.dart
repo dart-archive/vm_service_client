@@ -443,7 +443,7 @@ class VMIsolate extends VMIsolateRef {
         breakpoints = new List.unmodifiable(json["breakpoints"]
             .map((breakpoint) => newVMBreakpoint(scope, breakpoint))),
         extensionRpcs = new UnmodifiableListView(
-            DelegatingList.typed(json["extensionRPCs"] ?? [])),
+            List.castFrom(json["extensionRPCs"] ?? [])),
         super._(scope, json);
 }
 
