@@ -41,8 +41,8 @@ class VMClassRef implements VMObjectRef {
         _fixedId = json["fixedId"] ?? false,
         name = json["name"];
 
-  Future<VMClass> load() async => new VMClass._(
-      _scope, await _scope.loadObject(_id));
+  Future<VMClass> load() async =>
+      new VMClass._(_scope, await _scope.loadObject(_id));
 
   /// Evaluates [expression] in the context of this class.
   ///
@@ -50,8 +50,8 @@ class VMClassRef implements VMObjectRef {
   Future<VMInstanceRef> evaluate(String expression) =>
       _scope.evaluate(_id, expression);
 
-  bool operator ==(other) => other is VMClassRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMClassRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -109,16 +109,15 @@ class VMClass extends VMClassRef implements VMObject {
         library = newVMLibraryRef(scope, json["library"]),
         location = newVMSourceLocation(scope, json["location"]),
         superclass = newVMClassRef(scope, json["super"]),
-        interfaces = new List.unmodifiable(json["interfaces"]
-            .map((interfaceJson) =>
-                newVMTypeInstanceRef(scope, interfaceJson))),
+        interfaces = new List.unmodifiable(json["interfaces"].map(
+            (interfaceJson) => newVMTypeInstanceRef(scope, interfaceJson))),
         fields = new UnmodifiableMapView(new Map.fromIterable(json["fields"],
             key: (field) => field["name"],
             value: (field) => newVMFieldRef(scope, field))),
-        functions = new UnmodifiableMapView(
-            new Map.fromIterable(json["functions"],
-                key: (function) => function["name"],
-                value: (function) => newVMFunctionRef(scope, function))),
+        functions = new UnmodifiableMapView(new Map.fromIterable(
+            json["functions"],
+            key: (function) => function["name"],
+            value: (function) => newVMFunctionRef(scope, function))),
         subclasses = new List.unmodifiable(json["subclasses"]
             .map((subclass) => newVMClassRef(scope, subclass))),
         super._(scope, json);

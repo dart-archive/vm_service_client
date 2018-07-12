@@ -54,8 +54,7 @@ void main() {
 
     test("includes error metadata", () async {
       expect(error.kind, equals(VMErrorKind.unhandledException));
-      expect(error.message,
-          startsWith("Unhandled exception:\noh no"));
+      expect(error.message, startsWith("Unhandled exception:\noh no"));
 
       expect(error.exception, new isInstanceOf<VMStringInstanceRef>());
       expect(error.exception.value, equals("oh no"));

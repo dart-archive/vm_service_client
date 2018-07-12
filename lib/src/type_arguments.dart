@@ -9,8 +9,7 @@ import 'instance.dart';
 import 'object.dart';
 import 'scope.dart';
 
-VMTypeArgumentsRef newVMTypeArgumentsRef(Scope scope,
-    Map json) {
+VMTypeArgumentsRef newVMTypeArgumentsRef(Scope scope, Map json) {
   if (json == null) return null;
   assert(json["type"] == "@TypeArguments" || json["type"] == "TypeArguments");
   return new VMTypeArgumentsRef._(scope, json);
@@ -41,7 +40,8 @@ class VMTypeArgumentsRef implements VMObjectRef {
   Future<VMTypeArguments> load() async =>
       new VMTypeArguments._(_scope, await _scope.loadObject(_id));
 
-  bool operator ==(other) => other is VMTypeArgumentsRef &&
+  bool operator ==(other) =>
+      other is VMTypeArgumentsRef &&
       (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
@@ -61,7 +61,7 @@ class VMTypeArguments extends VMTypeArgumentsRef implements VMObject {
   VMTypeArguments._(Scope scope, Map json)
       : klass = newVMClassRef(scope, json["class"]),
         size = json["size"],
-        types = new List.unmodifiable(json["types"]
-            .map((type) => newVMTypeLikeInstanceRef(scope, type))),
+        types = new List.unmodifiable(
+            json["types"].map((type) => newVMTypeLikeInstanceRef(scope, type))),
         super._(scope, json);
 }

@@ -15,8 +15,11 @@ final lines = new StreamTransformer(
         .bind(utf8.decoder.bind(stream))
         .listen(null, cancelOnError: cancelOnError));
 
-Future<VMServiceClient> runAndConnect({String topLevel, String main,
-    List<String> flags, bool sync: false}) async {
+Future<VMServiceClient> runAndConnect(
+    {String topLevel,
+    String main,
+    List<String> flags,
+    bool sync: false}) async {
   if (topLevel == null) topLevel = "";
   if (main == null) main = "";
   if (flags == null) flags = [];
@@ -41,7 +44,8 @@ Future<VMServiceClient> runAndConnect({String topLevel, String main,
 
     /* Don't let the isolate close on its own. */
     new ReceivePort();
-  """.replaceAll("\n", " ");
+  """
+      .replaceAll("\n", " ");
 
   var library = """
 $imports;
@@ -88,11 +92,10 @@ Future<int> sourceLine(VMBreakpointLocation location) async {
 Future onlyEvent(Stream stream) {
   var completer = new Completer.sync();
   stream.listen(expectAsync1(completer.complete, count: 1),
-      onError: registerException,
-      onDone: () {
-        if (completer.isCompleted) return;
-        throw "Expected an event.";
-      });
+      onError: registerException, onDone: () {
+    if (completer.isCompleted) return;
+    throw "Expected an event.";
+  });
 
   // Wait a bit to see if any further events are emitted.
   expect(new Future.delayed(new Duration(milliseconds: 200)), completes);

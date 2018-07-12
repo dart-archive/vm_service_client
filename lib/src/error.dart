@@ -51,8 +51,8 @@ class VMErrorRef implements VMObjectRef {
   Future<VMError> load() async =>
       new VMError._(_scope, await _scope.loadObject(_id));
 
-  bool operator ==(other) => other is VMErrorRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMErrorRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 
@@ -128,11 +128,16 @@ class VMErrorKind {
   /// Parses the error from its service protocol name.
   factory VMErrorKind._parse(String name) {
     switch (name) {
-      case "UnhandledException": return VMErrorKind.unhandledException;
-      case "LanguageError": return VMErrorKind.languageError;
-      case "InternalError": return VMErrorKind.internalError;
-      case "TerminationError": return VMErrorKind.terminationError;
-      default: throw new StateError("Unknown VM error kind \"$name\".");
+      case "UnhandledException":
+        return VMErrorKind.unhandledException;
+      case "LanguageError":
+        return VMErrorKind.languageError;
+      case "InternalError":
+        return VMErrorKind.internalError;
+      case "TerminationError":
+        return VMErrorKind.terminationError;
+      default:
+        throw new StateError("Unknown VM error kind \"$name\".");
     }
   }
 

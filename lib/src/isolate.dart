@@ -117,27 +117,27 @@ class VMIsolateRef {
   ///
   /// If the isolate has already exited, this will complete immediately.
   Future get onExit => _onExitMemo.runOnce(() async {
-    try {
-      await _scope.getInState(_scope.streams.isolate, () async {
         try {
-          await load();
-          return null;
-        } on VMSentinelException catch (_) {
-          // Return a non-null value to indicate that the breakpoint is in the
-          // expected state—that is, it no longer exists.
-          return true;
+          await _scope.getInState(_scope.streams.isolate, () async {
+            try {
+              await load();
+              return null;
+            } on VMSentinelException catch (_) {
+              // Return a non-null value to indicate that the breakpoint is in the
+              // expected state—that is, it no longer exists.
+              return true;
+            }
+          }, (json) {
+            if (json["isolate"]["id"] != _scope.isolateId) return null;
+            if (json["kind"] != "IsolateExit") return null;
+            return true;
+          });
+        } on StateError catch (_) {
+          // Ignore state errors. They indicate that the underlying stream closed
+          // before an exit event was fired, which means that the process and thus
+          // this isolate is dead.
         }
-      }, (json) {
-        if (json["isolate"]["id"] != _scope.isolateId) return null;
-        if (json["kind"] != "IsolateExit") return null;
-        return true;
       });
-    } on StateError catch (_) {
-      // Ignore state errors. They indicate that the underlying stream closed
-      // before an exit event was fired, which means that the process and thus
-      // this isolate is dead.
-    }
-  });
   final _onExitMemo = new AsyncMemoizer();
 
   VMIsolateRef._(this._scope, Map json)
@@ -223,8 +223,10 @@ class VMIsolateRef {
     return _scope.getInState(_scope.streams.debug, () async {
       return (await load()).isPaused;
     }, (json) {
-      return json["kind"] == "PauseStart" || json["kind"] == "PauseException" ||
-          json["kind"] == "PauseExit" || json["kind"] == "PauseInterrupted" ||
+      return json["kind"] == "PauseStart" ||
+          json["kind"] == "PauseException" ||
+          json["kind"] == "PauseExit" ||
+          json["kind"] == "PauseInterrupted" ||
           json["kind"] == "PauseBreakpoint";
     });
   }
@@ -242,8 +244,8 @@ class VMIsolateRef {
       throw new VMSentinelException(newVMSentinel(response));
     } else {
       return response["rootLib"] == null ||
-             // Work around sdk#24140
-             response["rootLib"]["type"] == "@Instance"
+              // Work around sdk#24140
+              response["rootLib"]["type"] == "@Instance"
           ? new VMIsolate._(_scope, response)
           : new VMRunnableIsolate._(_scope, response);
     }
@@ -258,7 +260,7 @@ class VMIsolateRef {
   ///
   /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
   Stream<VMExtensionEvent> selectExtensionEvents(String kind,
-          {bool prefix: false}) {
+      {bool prefix: false}) {
     return transform(_onExtensionEvent, (event, sink) {
       if (prefix == null ? event.kind == kind : event.kind.startsWith(kind)) {
         sink.add(event);
@@ -284,8 +286,8 @@ class VMIsolateRef {
   /// Throws an [rpc.RpcException] if the isolate isn't paused.
   Future resume({VMStep step}) {
     if (step == null) step = VMStep.resume;
-    return _scope.sendRequest("resume",
-        step == VMStep.resume ? {} : {"step": step._value});
+    return _scope.sendRequest(
+        "resume", step == VMStep.resume ? {} : {"step": step._value});
   }
 
   /// Sets the [name] of the isolate.
@@ -308,8 +310,8 @@ class VMIsolateRef {
     if (column != null) params["column"] = column;
 
     try {
-      var response = await _scope.sendRequest(
-          "addBreakpointWithScriptUri", params);
+      var response =
+          await _scope.sendRequest("addBreakpointWithScriptUri", params);
       return newVMBreakpoint(_scope, response);
     } on rpc.RpcException catch (error) {
       // Error 102 indicates that the breakpoint couldn't be created.
@@ -349,8 +351,8 @@ class VMIsolateRef {
   /// This is supported as of VM service version 3.1, or Dart SDK version 1.14.
   Future<Object> invokeExtension(String method, [Map<String, String> params]) {
     if (!method.startsWith('ext.')) {
-      throw new ArgumentError.value(method, 'method',
-          'must begin with "ext." prefix');
+      throw new ArgumentError.value(
+          method, 'method', 'must begin with "ext." prefix');
     }
     return _scope.sendRequestRaw(method, params);
   }
@@ -387,8 +389,8 @@ class VMIsolateRef {
     return newSourceReport(_scope, json);
   }
 
-  bool operator ==(other) => other is VMIsolateRef &&
-      other._scope.isolateId == _scope.isolateId;
+  bool operator ==(other) =>
+      other is VMIsolateRef && other._scope.isolateId == _scope.isolateId;
 
   int get hashCode => _scope.isolateId.hashCode;
 
@@ -465,10 +467,10 @@ class VMRunnableIsolate extends VMIsolate {
 
   VMRunnableIsolate._(Scope scope, Map json)
       : rootLibrary = newVMLibraryRef(scope, json["rootLib"]),
-        libraries = new UnmodifiableMapView(
-            new Map.fromIterable(json["libraries"],
-                key: (library) => Uri.parse(library["uri"]),
-                value: (library) => newVMLibraryRef(scope, library))),
+        libraries = new UnmodifiableMapView(new Map.fromIterable(
+            json["libraries"],
+            key: (library) => Uri.parse(library["uri"]),
+            value: (library) => newVMLibraryRef(scope, library))),
         super._(scope, json);
 
   Future<VMRunnableIsolate> loadRunnable() => load();

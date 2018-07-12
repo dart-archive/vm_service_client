@@ -40,8 +40,8 @@ void main() {
     });
 
     test("getValue() runs onUnknownValue", () async {
-      var result = await value.getValue(
-          onUnknownValue: expectAsync1((innerValue) {
+      var result =
+          await value.getValue(onUnknownValue: expectAsync1((innerValue) {
         expect(innerValue, same(value));
         return 123;
       }));
@@ -149,8 +149,8 @@ void main() {
       expect(value.value, equals("f'\"oo"));
       expect(value.isValueTruncated, isFalse);
       expect(value.toString(), equals('"f\'\\"oo"'));
-      expect(await value.getValue(onUnknownValue: neverCalled),
-          equals("f'\"oo"));
+      expect(
+          await value.getValue(onUnknownValue: neverCalled), equals("f'\"oo"));
       expect((await value.load()).value, equals("f'\"oo"));
     });
 
@@ -177,10 +177,12 @@ void main() {
       expect(await valueRef.getValue(), equals([1, 2, 3, 4]));
 
       var value = await valueRef.load();
-      expect(value.elements, allOf([
-        hasLength(4),
-        everyElement(new isInstanceOf<VMIntInstanceRef>())
-      ]));
+      expect(
+          value.elements,
+          allOf([
+            hasLength(4),
+            everyElement(new isInstanceOf<VMIntInstanceRef>())
+          ]));
       expect(value.toString(), equals("[1, 2, 3, 4]"));
       expect(await value.getValue(), equals([1, 2, 3, 4]));
     });
@@ -189,10 +191,12 @@ void main() {
       var value = await _evaluate("[() {}]");
 
       expect(value.getValue(), throwsUnsupportedError);
-      expect(await value.getValue(onUnknownValue: expectAsync1((value) {
-        expect(value, new isInstanceOf<VMClosureInstanceRef>());
-        return null;
-      })), equals([null]));
+      expect(
+          await value.getValue(onUnknownValue: expectAsync1((value) {
+            expect(value, new isInstanceOf<VMClosureInstanceRef>());
+            return null;
+          })),
+          equals([null]));
     });
 
     test("a Map", () async {
@@ -204,14 +208,13 @@ void main() {
 
       var value = await valueRef.load();
       expect(value.associations, hasLength(2));
-      expect(value.associations.first.key,
-          new isInstanceOf<VMIntInstanceRef>());
-      expect(value.associations.first.value,
-          new isInstanceOf<VMIntInstanceRef>());
-      expect(value.associations.last.key,
-          new isInstanceOf<VMIntInstanceRef>());
-      expect(value.associations.last.value,
-          new isInstanceOf<VMIntInstanceRef>());
+      expect(
+          value.associations.first.key, new isInstanceOf<VMIntInstanceRef>());
+      expect(
+          value.associations.first.value, new isInstanceOf<VMIntInstanceRef>());
+      expect(value.associations.last.key, new isInstanceOf<VMIntInstanceRef>());
+      expect(
+          value.associations.last.value, new isInstanceOf<VMIntInstanceRef>());
       expect(value.toString(), equals("{1: 2, 3: 4}"));
       expect(await value.getValue(), equals({1: 2, 3: 4}));
     });
@@ -220,10 +223,12 @@ void main() {
       var value = await _evaluate("{1: () {}}");
 
       expect(value.getValue(), throwsUnsupportedError);
-      expect(await value.getValue(onUnknownValue: expectAsync1((value) {
-        expect(value, new isInstanceOf<VMClosureInstanceRef>());
-        return null;
-      })), equals({1: null}));
+      expect(
+          await value.getValue(onUnknownValue: expectAsync1((value) {
+            expect(value, new isInstanceOf<VMClosureInstanceRef>());
+            return null;
+          })),
+          equals({1: null}));
     });
 
     test("a TypedData", () async {
@@ -232,21 +237,27 @@ void main() {
 
       expect(valueRef.length, equals(4));
       expect(valueRef.toString(), equals("[...]"));
-      expect(await valueRef.getValue(), allOf([
-        new isInstanceOf<Uint8List>(),
-        equals([1, 2, 3, 4])
-      ]));
+      expect(
+          await valueRef.getValue(),
+          allOf([
+            new isInstanceOf<Uint8List>(),
+            equals([1, 2, 3, 4])
+          ]));
 
       var value = await valueRef.load();
-      expect(value.value, allOf([
-        new isInstanceOf<Uint8List>(),
-        equals([1, 2, 3, 4])
-      ]));
+      expect(
+          value.value,
+          allOf([
+            new isInstanceOf<Uint8List>(),
+            equals([1, 2, 3, 4])
+          ]));
       expect(value.toString(), equals("[1, 2, 3, 4]"));
-      expect(await value.getValue(), allOf([
-        new isInstanceOf<Uint8List>(),
-        equals([1, 2, 3, 4])
-      ]));
+      expect(
+          await value.getValue(),
+          allOf([
+            new isInstanceOf<Uint8List>(),
+            equals([1, 2, 3, 4])
+          ]));
     });
 
     test("a RegExp", () async {
@@ -308,7 +319,8 @@ void main() {
     });
 
     test("a type", () async {
-      var valueRef = await _evaluate("<int>[].runtimeType") as VMTypeInstanceRef;
+      var valueRef =
+          await _evaluate("<int>[].runtimeType") as VMTypeInstanceRef;
 
       expect(valueRef.name, equals("List<int>"));
       expect(valueRef.typeClass.name, equals("_GrowableList"));

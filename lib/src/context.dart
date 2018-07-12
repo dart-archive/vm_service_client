@@ -40,8 +40,8 @@ class VMContextRef implements VMObjectRef {
   Future<VMContext> load() async =>
       new VMContext._(_scope, await _scope.loadObject(_id));
 
-  bool operator ==(other) => other is VMContextRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMContextRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 }
@@ -64,8 +64,7 @@ class VMContext extends VMContextRef implements VMObject {
       : size = json["size"],
         klass = newVMClassRef(scope, json["class"]),
         parent = newVMContextRef(scope, json["parent"]),
-        variables = new List.unmodifiable(json["variables"]
-            .map((variable) =>
-                newVMInstanceRefOrSentinel(scope, variable["value"]))),
+        variables = new List.unmodifiable(json["variables"].map((variable) =>
+            newVMInstanceRefOrSentinel(scope, variable["value"]))),
         super._(scope, json);
 }

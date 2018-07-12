@@ -59,14 +59,14 @@ class VMFrame {
   /// Throws a [VMErrorException] if evaluating the expression throws an error.
   /// Throws a [VMSentinelException] if this frame has expired.
   Future<VMInstanceRef> evaluate(String expression) async {
-    var result = await _scope.sendRequest("evaluateInFrame", {
-      "frameIndex": index,
-      "expression": expression
-    });
+    var result = await _scope.sendRequest(
+        "evaluateInFrame", {"frameIndex": index, "expression": expression});
 
     switch (result["type"]) {
-      case "@Error": throw new VMErrorException(newVMErrorRef(_scope, result));
-      case "@Instance": return newVMInstanceRef(_scope, result);
+      case "@Error":
+        throw new VMErrorException(newVMErrorRef(_scope, result));
+      case "@Instance":
+        return newVMInstanceRef(_scope, result);
       default:
         throw new StateError('Unexpected Object type "${result["type"]}".');
     }
@@ -97,4 +97,3 @@ class VMBoundVariable {
 
   String toString() => "var $name = $value";
 }
-

@@ -34,15 +34,15 @@ class VMStack {
   final List<VMMessage> messages;
 
   VMStack._(Scope scope, Map json)
-      : frames = new List.unmodifiable(json["frames"]
-            .map((frame) => newVMFrame(scope, frame))),
-        messages = new List.unmodifiable(json["messages"]
-            .map((message) => newVMMessage(scope, message)));
+      : frames = new List.unmodifiable(
+            json["frames"].map((frame) => newVMFrame(scope, frame))),
+        messages = new List.unmodifiable(
+            json["messages"].map((message) => newVMMessage(scope, message)));
 
   /// Returns the trace of this stack.
   Future<Trace> getTrace() async {
     var scripts = <String, VMScript>{};
-    return new Trace(await Future.wait(
-        frames.map((frame) => frameToFrame(frame, scripts))));
+    return new Trace(
+        await Future.wait(frames.map((frame) => frameToFrame(frame, scripts))));
   }
 }

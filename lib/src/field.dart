@@ -84,8 +84,10 @@ class VMFieldRef implements VMObjectRef {
   static VMObjectRef _newLibraryOrClassRef(Scope scope, Map json) {
     if (json == null) return null;
     switch (json["type"]) {
-      case "@Library": return newVMLibraryRef(scope, json);
-      case "@Class": return newVMClassRef(scope, json);
+      case "@Library":
+        return newVMLibraryRef(scope, json);
+      case "@Class":
+        return newVMClassRef(scope, json);
       default:
         throw new StateError('Unexpected Object type "${json["type"]}".');
     }
@@ -94,8 +96,8 @@ class VMFieldRef implements VMObjectRef {
   Future<VMField> load() async =>
       new VMField._(_scope, await _scope.loadObject(_id));
 
-  bool operator ==(other) => other is VMFieldRef &&
-      (_fixedId ? _id == other._id : super == other);
+  bool operator ==(other) =>
+      other is VMFieldRef && (_fixedId ? _id == other._id : super == other);
 
   int get hashCode => _fixedId ? _id.hashCode : super.hashCode;
 

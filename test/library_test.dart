@@ -34,15 +34,21 @@ void main() {
 
     expect(library.isDebuggable, isTrue);
 
-    expect(library.dependencies, contains(predicate((dependency) {
-      return dependency.isImport && dependency.prefix == 'convert' &&
-          dependency.target.uri.toString() == 'dart:convert';
-    }, "import 'dart:convert' as convert")));
+    expect(
+        library.dependencies,
+        contains(predicate((dependency) {
+          return dependency.isImport &&
+              dependency.prefix == 'convert' &&
+              dependency.target.uri.toString() == 'dart:convert';
+        }, "import 'dart:convert' as convert")));
 
-    expect(library.dependencies, contains(predicate((dependency) {
-      return !dependency.isImport && dependency.prefix == null &&
-          dependency.target.uri.toString() == 'dart:typed_data';
-    }, "export 'dart:typed_data'")));
+    expect(
+        library.dependencies,
+        contains(predicate((dependency) {
+          return !dependency.isImport &&
+              dependency.prefix == null &&
+              dependency.target.uri.toString() == 'dart:typed_data';
+        }, "export 'dart:typed_data'")));
 
     expect(library.scripts, hasLength(1));
     expect(library.scripts.single.uri, equals(library.uri));
@@ -73,8 +79,8 @@ void main() {
     """, flags: ["--pause-isolates-on-start"]);
 
     var isolate = await (await client.getVM()).isolates.first.loadRunnable();
-    var value = await isolate.rootLibrary.evaluate("foo(6)")
-        as VMIntInstanceRef;
+    var value =
+        await isolate.rootLibrary.evaluate("foo(6)") as VMIntInstanceRef;
     expect(value.value, equals(18));
   });
 }

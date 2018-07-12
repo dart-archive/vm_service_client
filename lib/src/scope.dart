@@ -30,9 +30,9 @@ class Scope {
 
   /// Returns the [VMObjectRef.observatoryUrl] for an object with the given
   /// [id].
-  Uri observatoryUrlFor(String id) => Uri.parse(
-      "#/inspect?isolateId=${Uri.encodeQueryComponent(isolateId)}&"
-        "objectId=${Uri.encodeQueryComponent(id)}");
+  Uri observatoryUrlFor(String id) =>
+      Uri.parse("#/inspect?isolateId=${Uri.encodeQueryComponent(isolateId)}&"
+          "objectId=${Uri.encodeQueryComponent(id)}");
 
   /// Given the ID for a [VMObjectRef], loads the JSON for its corresponding
   /// [VMObject].
@@ -69,15 +69,16 @@ class Scope {
   /// Throws a [VMErrorException] if evaluating the expression throws an error.
   /// Throws a [VMSentinelException] if the object has expired.
   Future<VMInstanceRef> evaluate(String id, String expression) async {
-    var result = await sendRequest("evaluate", {
-      "targetId": id,
-      "expression": expression
-    });
+    var result = await sendRequest(
+        "evaluate", {"targetId": id, "expression": expression});
 
     switch (result["type"]) {
-      case "Sentinel": throw new VMSentinelException(newVMSentinel(result));
-      case "@Error": throw new VMErrorException(newVMErrorRef(this, result));
-      case "@Instance": return newVMInstanceRef(this, result);
+      case "Sentinel":
+        throw new VMSentinelException(newVMSentinel(result));
+      case "@Error":
+        throw new VMErrorException(newVMErrorRef(this, result));
+      case "@Instance":
+        return newVMInstanceRef(this, result);
       default:
         throw new StateError('Unexpected Object type "${result["type"]}".');
     }
@@ -104,8 +105,8 @@ class Scope {
   /// This returns the value returned by [immediate] if it's not `null` or
   /// `false`, or else the first non-`null`, non-`false` value returned by
   /// [onEvent].
-  Future<T> getInState<T>(Stream<Map> stream, Future<T> immediate(),
-      onEvent(Map json)) async {
+  Future<T> getInState<T>(
+      Stream<Map> stream, Future<T> immediate(), onEvent(Map json)) async {
     var completer = new Completer.sync();
 
     // Don't top-level errors from the completer. These may come in from the

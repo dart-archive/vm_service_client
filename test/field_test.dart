@@ -23,7 +23,8 @@ void main() {
     var fieldRef = (await isolate.rootLibrary.load()).fields["value"];
 
     expect(fieldRef.name, equals("value"));
-    expect((fieldRef.owner as VMLibraryRef).uri, equals(isolate.rootLibrary.uri));
+    expect(
+        (fieldRef.owner as VMLibraryRef).uri, equals(isolate.rootLibrary.uri));
     expect((fieldRef.declaredType as VMTypeInstanceRef).name, equals("String"));
     expect(fieldRef.isConst, isTrue);
     expect(fieldRef.isFinal, isTrue);
@@ -51,7 +52,8 @@ void main() {
 
     expect(fieldRef.name, equals("value"));
     expect((fieldRef.owner as VMClassRef).name, equals("Foo"));
-    expect((fieldRef.declaredType as VMTypeInstanceRef).name, equals("dynamic"));
+    expect(
+        (fieldRef.declaredType as VMTypeInstanceRef).name, equals("dynamic"));
     expect(fieldRef.isConst, isFalse);
     expect(fieldRef.isFinal, isFalse);
     expect(fieldRef.isStatic, isFalse);

@@ -41,8 +41,8 @@ void main() {
     // TODO(nweiz): check flags we pass and verify VMFlag.modified when
     // sdk#24143 is fixed.
     var flags = await client.getFlags();
-    var flag = flags.firstWhere((flag) =>
-        flag.name == "optimization_counter_scale");
+    var flag =
+        flags.firstWhere((flag) => flag.name == "optimization_counter_scale");
     expect(flag.value, equals("2000"));
   });
 
@@ -62,10 +62,12 @@ void main() {
     var isolate = await (await client.onIsolateStart.first).load();
     // If [isolate] is runnable by the time this fires, this will be a
     // VMPauseStartEvent. If it's not runnable yet, it'll be a VMNoneEvent.
-    expect(isolate.pauseEvent, anyOf([
-      new isInstanceOf<VMPauseStartEvent>(),
-      new isInstanceOf<VMNoneEvent>()
-    ]));
+    expect(
+        isolate.pauseEvent,
+        anyOf([
+          new isInstanceOf<VMPauseStartEvent>(),
+          new isInstanceOf<VMNoneEvent>()
+        ]));
     expect(isolate.error, isNull);
 
     isolate = await isolate.loadRunnable();

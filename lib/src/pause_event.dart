@@ -12,14 +12,22 @@ VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
 
   assert(json["type"] == "Event");
   switch (json["kind"]) {
-    case "PauseStart": return new VMPauseStartEvent._(scope, json);
-    case "PauseExit": return new VMPauseExitEvent._(scope, json);
-    case "PauseBreakpoint": return new VMPauseBreakpointEvent._(scope, json);
-    case "PauseInterrupted": return new VMPauseInterruptedEvent._(scope, json);
-    case "PauseException": return new VMPauseExceptionEvent._(scope, json);
-    case "Resume": return new VMResumeEvent._(scope, json);
-    case "None": return new VMNoneEvent._(scope, json);
-    default: return null;
+    case "PauseStart":
+      return new VMPauseStartEvent._(scope, json);
+    case "PauseExit":
+      return new VMPauseExitEvent._(scope, json);
+    case "PauseBreakpoint":
+      return new VMPauseBreakpointEvent._(scope, json);
+    case "PauseInterrupted":
+      return new VMPauseInterruptedEvent._(scope, json);
+    case "PauseException":
+      return new VMPauseExceptionEvent._(scope, json);
+    case "Resume":
+      return new VMResumeEvent._(scope, json);
+    case "None":
+      return new VMNoneEvent._(scope, json);
+    default:
+      return null;
   }
 }
 
@@ -48,8 +56,7 @@ abstract class VMPauseEvent {
 /// An event indicating that an isolate was paused as it started, before it
 /// executed any code.
 class VMPauseStartEvent extends VMPauseEvent {
-  VMPauseStartEvent._(Scope scope, Map json)
-      : super._(scope, json);
+  VMPauseStartEvent._(Scope scope, Map json) : super._(scope, json);
 
   String toString() => "pause before start";
 }
@@ -57,8 +64,7 @@ class VMPauseStartEvent extends VMPauseEvent {
 /// An event indicating that an isolate was paused as it exited, before it
 /// terminated.
 class VMPauseExitEvent extends VMPauseEvent {
-  VMPauseExitEvent._(Scope scope, Map json)
-      : super._(scope, json);
+  VMPauseExitEvent._(Scope scope, Map json) : super._(scope, json);
 
   String toString() => "pause before exit";
 }
@@ -85,8 +91,7 @@ class VMPauseBreakpointEvent extends VMPauseEvent {
 ///
 /// This usually means its process received `SIGQUIT`.
 class VMPauseInterruptedEvent extends VMPauseEvent {
-  VMPauseInterruptedEvent._(Scope scope, Map json)
-      : super._(scope, json);
+  VMPauseInterruptedEvent._(Scope scope, Map json) : super._(scope, json);
 
   String toString() => "pause on interrupt";
 }
@@ -105,16 +110,14 @@ class VMPauseExceptionEvent extends VMPauseEvent {
 
 /// An event indicating that an isolate was unpaused.
 class VMResumeEvent extends VMPauseEvent {
-  VMResumeEvent._(Scope scope, Map json)
-      : super._(scope, json);
+  VMResumeEvent._(Scope scope, Map json) : super._(scope, json);
 
   String toString() => "resume";
 }
 
 /// An event indicating that an isolate was unpaused.
 class VMNoneEvent extends VMPauseEvent {
-  VMNoneEvent._(Scope scope, Map json)
-      : super._(scope, json);
+  VMNoneEvent._(Scope scope, Map json) : super._(scope, json);
 
   String toString() => "none";
 }
