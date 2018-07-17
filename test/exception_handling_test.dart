@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 // Copyright (c) 2018, the Dart project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
@@ -22,16 +21,14 @@ void main() {
       print('Done!');
     """, flags: ["--pause-isolates-on-start"]);
     final isolate = (await client.getVM()).isolates.first;
-    
+
     // Pauses-on-start.
     await isolate.waitUntilPaused();
 
     await isolate.resume();
     await isolate.waitUntilPaused();
-    expect(
-      (await isolate.load()).pauseEvent,
-      new isInstanceOf<VMPauseExitEvent>()
-    );
+    expect((await isolate.load()).pauseEvent,
+        new isInstanceOf<VMPauseExitEvent>());
   });
 
   test("unhandled pauses only on unhandled exceptions", () async {
@@ -47,7 +44,7 @@ void main() {
     """, flags: ["--pause-isolates-on-start"]);
 
     var isolate = (await client.getVM()).isolates.first;
-    
+
     // Pauses-on-start.
     await isolate.waitUntilPaused();
     await isolate.setExceptionPauseMode(VMExceptionPauseMode.unhandled);
@@ -61,10 +58,8 @@ void main() {
     // Resume and expect termination.
     await isolate.resume();
     await isolate.waitUntilPaused();
-    expect(
-      (await isolate.load()).pauseEvent,
-      new isInstanceOf<VMPauseExitEvent>()
-    );
+    expect((await isolate.load()).pauseEvent,
+        new isInstanceOf<VMPauseExitEvent>());
   });
 
   test("all pauses only on all exceptions", () async {
@@ -97,12 +92,10 @@ void main() {
     frame = (await isolate.getStack()).frames.first;
     expect(await sourceLine(frame.location), equals(12));
 
-     // Resume and expect termination.
+    // Resume and expect termination.
     await isolate.resume();
     await isolate.waitUntilPaused();
-    expect(
-      (await isolate.load()).pauseEvent,
-      new isInstanceOf<VMPauseExitEvent>()
-    );
+    expect((await isolate.load()).pauseEvent,
+        new isInstanceOf<VMPauseExitEvent>());
   });
 }
