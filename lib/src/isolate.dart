@@ -492,7 +492,8 @@ class VMStep {
   /// The isolate takes a single step, skipping over function calls.
   static const over = const VMStep._("Over");
 
-  /// The isolate continues until the Future being awaited completes.
+  /// The isolate continues until the execution returns from the an await, yield,
+  /// or yield* statement. Valid when [VMPauseEvent.atAsyncSuspension] is true.
   static const overAsyncSuspension = const VMStep._("OverAsyncSuspension");
 
   /// The isolate continues until it exits the current function.

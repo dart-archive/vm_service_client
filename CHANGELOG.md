@@ -1,3 +1,10 @@
+## 0.2.5+2
+
+* Add `VMPauseEvent.atAsyncSuspension` to indicate when an isolate is paused at an
+  await, yield, or yield* statement.
+* Add `VMStep.OverAsyncSuspension` to allow continuing until execution returns from
+  an await, yield, or yield* statement.
+
 ## 0.2.5+1
 
 * Support Dart 2 stable releases.

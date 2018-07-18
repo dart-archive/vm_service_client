@@ -33,7 +33,7 @@ VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
 
 /// An event indicating that an isolate has been paused or resumed.
 abstract class VMPauseEvent {
-  /// Is the isolate paused at an await, yield, or yield* statement?
+  /// Whether the isolate is paused at an await, yield, or yield* statement
   ///
   /// This is provided for the event kinds:
   ///   PauseBreakpoint
