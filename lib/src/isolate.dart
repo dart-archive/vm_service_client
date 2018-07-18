@@ -294,7 +294,6 @@ class VMIsolateRef {
   Future setExceptionPauseMode(VMExceptionPauseMode mode) =>
       _scope.sendRequest("setExceptionPauseMode", {"mode": mode._value});
 
-
   /// Sets the [name] of the isolate.
   ///
   /// Note that since this object is immutable, it needs to be reloaded to see
@@ -404,6 +403,9 @@ class VMIsolateRef {
 
 /// A full isolate on the remote VM.
 class VMIsolate extends VMIsolateRef {
+  /// The current pause on exception mode for this isolate.
+  final VMExceptionPauseMode exceptionPauseMode;
+
   /// The time that the isolate started running.
   final DateTime startTime;
 
@@ -438,7 +440,9 @@ class VMIsolate extends VMIsolateRef {
   final List<String> extensionRpcs;
 
   VMIsolate._(Scope scope, Map json)
-      : startTime = new DateTime.fromMillisecondsSinceEpoch(
+      : exceptionPauseMode =
+            new VMExceptionPauseMode._(json["exceptionPauseMode"]),
+        startTime = new DateTime.fromMillisecondsSinceEpoch(
             // Prior to v3.0, this was emitted as a double rather than an int.
             json["startTime"].round()),
         livePorts = json["livePorts"],
@@ -526,8 +530,7 @@ class VMExceptionPauseMode {
   /// The isolate will pause on all exceptions.
   static const all = const VMExceptionPauseMode._("All");
 
-
-  /// The string name of the step type.
+  /// The string name of the exception pause mode.
   final String _value;
 
   const VMExceptionPauseMode._(this._value);

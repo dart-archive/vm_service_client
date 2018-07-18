@@ -98,4 +98,28 @@ void main() {
     expect((await isolate.load()).pauseEvent,
         new isInstanceOf<VMPauseExitEvent>());
   });
+
+  test("exception mode can be read and set", () async {
+    client = await runAndConnect(flags: ["--pause-isolates-on-start"]);
+
+    var isolate = (await client.getVM()).isolates.first;
+
+    // Pauses-on-start.
+    await isolate.waitUntilPaused();
+
+    expect((await isolate.load()).exceptionPauseMode.toString(),
+        equals(VMExceptionPauseMode.none.toString()));
+
+    await isolate.setExceptionPauseMode(VMExceptionPauseMode.unhandled);
+    expect((await isolate.load()).exceptionPauseMode.toString(),
+        equals(VMExceptionPauseMode.unhandled.toString()));
+
+    await isolate.setExceptionPauseMode(VMExceptionPauseMode.all);
+    expect((await isolate.load()).exceptionPauseMode.toString(),
+        equals(VMExceptionPauseMode.all.toString()));
+
+    await isolate.setExceptionPauseMode(VMExceptionPauseMode.none);
+    expect((await isolate.load()).exceptionPauseMode.toString(),
+        equals(VMExceptionPauseMode.none.toString()));
+  });
 }
