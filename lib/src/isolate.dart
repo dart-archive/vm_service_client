@@ -493,7 +493,10 @@ class VMStep {
   static const over = const VMStep._("Over");
 
   /// The isolate continues until the execution returns from the an await, yield,
-  /// or yield* statement. Valid when [VMPauseEvent.atAsyncSuspension] is true.
+  /// or yield* statement.
+  ///
+  /// Note that this value is only valid from VM service version 3.3 and when
+  /// [VMPauseEvent.atAsyncSuspension] is true.
   static const overAsyncSuspension = const VMStep._("OverAsyncSuspension");
 
   /// The isolate continues until it exits the current function.

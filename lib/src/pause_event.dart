@@ -35,7 +35,8 @@ VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
 abstract class VMPauseEvent {
   /// Whether the isolate is paused at an await, yield, or yield* statement
   ///
-  /// This is provided for the event kinds:
+  /// This is only available from VM service version 3.3 and only provided for
+  /// the event kinds:
   ///   PauseBreakpoint
   ///   PauseInterrupted
   final bool atAsyncSuspension;
