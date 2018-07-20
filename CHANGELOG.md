@@ -1,3 +1,7 @@
+## 0.2.5+1
+
+* Support Dart 2 stable releases.
+
 ## 0.2.5
 
 * Update usage of SDK constants.
