@@ -33,6 +33,14 @@ VMPauseEvent newVMPauseEvent(Scope scope, Map json) {
 
 /// An event indicating that an isolate has been paused or resumed.
 abstract class VMPauseEvent {
+  /// Whether the isolate is paused at an await, yield, or yield* statement
+  ///
+  /// This is only available from VM service version 3.3 and only provided for
+  /// the event kinds:
+  ///   PauseBreakpoint
+  ///   PauseInterrupted
+  final bool atAsyncSuspension;
+
   /// The top stack frame associated with this event.
   ///
   /// This is `null` for [VMPauseInterruptedEvent]s when the interrupt arrived
@@ -47,7 +55,8 @@ abstract class VMPauseEvent {
   final DateTime time;
 
   VMPauseEvent._(Scope scope, Map json)
-      : topFrame = newVMFrame(scope, json["frame"]),
+      : atAsyncSuspension = json["atAsyncSuspension"],
+        topFrame = newVMFrame(scope, json["frame"]),
         time = json["timestamp"] == null
             ? null
             : new DateTime.fromMillisecondsSinceEpoch(json["timestamp"]);

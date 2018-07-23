@@ -430,6 +430,53 @@ void main() {
     });
   });
 
+  group("resume(overAsyncSuspension)", () {
+    var isolate;
+    var stdout;
+    setUp(() async {
+      client = await runAndConnect(topLevel: r"""
+        inner() {
+          print("in inner");
+          return new Future.delayed(const Duration(milliseconds: 1));
+        }
+
+        outer() async {
+          debugger();
+          await inner(); // line 9
+          print("after inner"); // line 10
+        }
+      """, main: r"""
+        await outer();
+        print("after outer");
+      """);
+
+      isolate = (await client.getVM()).isolates.first;
+      await isolate.waitUntilPaused();
+      stdout = new StreamQueue(isolate.stdout.transform(lines));
+    });
+
+    test("steps over the async suspension with VMStep.overAsyncSuspension",
+        () async {
+      // Step from the `debugger` statement to the await line.
+      await isolate.resume(step: VMStep.over);
+      await isolate.waitUntilPaused();
+
+      var frame = (await isolate.getStack()).frames.first;
+      expect(await sourceLine(frame.location), equals(9));
+
+      expect((await isolate.load()).pauseEvent.atAsyncSuspension, equals(true));
+
+      await isolate.resume(step: VMStep.overAsyncSuspension);
+      await isolate.waitUntilPaused();
+
+      frame = (await isolate.getStack()).frames.first;
+      expect(await sourceLine(frame.location), equals(10));
+
+      expect((await isolate.load()).pauseEvent.atAsyncSuspension,
+          isNot(equals(true)));
+    });
+  });
+
   test("setName() sets the isolate's name", () async {
     client = await runAndConnect(flags: ['--pause-isolates-on-start']);
 
