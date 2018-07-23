@@ -1,4 +1,4 @@
-## 0.2.5+2
+## 0.2.6
 
 * Add `VMPauseEvent.atAsyncSuspension` to indicate when an isolate is paused at an
   await, yield, or yield* statement (only available from VM service version 3.3).
