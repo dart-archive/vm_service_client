@@ -455,7 +455,8 @@ void main() {
       stdout = new StreamQueue(isolate.stdout.transform(lines));
     });
 
-    test("steps over the async suspension with VMStep.overAsyncSuspension", () async {
+    test("steps over the async suspension with VMStep.overAsyncSuspension",
+        () async {
       // Step from the `debugger` statement to the await line.
       await isolate.resume(step: VMStep.over);
       await isolate.waitUntilPaused();
@@ -471,7 +472,8 @@ void main() {
       frame = (await isolate.getStack()).frames.first;
       expect(await sourceLine(frame.location), equals(10));
 
-      expect((await isolate.load()).pauseEvent.atAsyncSuspension, isNot(equals(true)));
+      expect((await isolate.load()).pauseEvent.atAsyncSuspension,
+          isNot(equals(true)));
     });
   });
 
