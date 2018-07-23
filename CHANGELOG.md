@@ -5,6 +5,8 @@
 * Add `VMStep.OverAsyncSuspension` to allow continuing until execution returns from
   an await, yield, or yield* statement (only valid when
   `VMPauseEvent.atAsyncSuspension` is `true`).
+* Add `VMIsolate.setExceptionPauseMode` and `VMIsolate.exceptionPauseMode` to
+  return/set pause behaviour for exceptions.
 
 ## 0.2.5+1
 
