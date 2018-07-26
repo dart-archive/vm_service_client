@@ -172,7 +172,7 @@ void main() {
         }
 
         // Note: this produces a bogus dead code warning (sdk#30243).
-	// ignore: dead_code
+        // ignore: dead_code
         expect(other.onExit, completes);
       }, skip: "broken by sdk#28505");
     });
