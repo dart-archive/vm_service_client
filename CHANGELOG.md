@@ -1,3 +1,7 @@
+## 0.2.6+1
+
+* Allow `stream_channel` version 2.x
+
 ## 0.2.6
 
 * Add `VMPauseEvent.atAsyncSuspension` to indicate when an isolate is paused at an
