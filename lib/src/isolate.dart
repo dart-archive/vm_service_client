@@ -484,7 +484,8 @@ class VMRunnableIsolate extends VMIsolate {
 
   Future<VMRunnableIsolate> loadRunnable() => load();
 
-  Future<VMRunnableIsolate> load() => DelegatingFuture.typed(super.load());
+  Future<VMRunnableIsolate> load() =>
+      super.load().then((v) => v as VMRunnableIsolate);
 
   String toString() => "Isolate running $rootLibrary";
 }
