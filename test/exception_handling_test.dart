@@ -27,8 +27,7 @@ void main() {
 
     await isolate.resume();
     await isolate.waitUntilPaused();
-    expect((await isolate.load()).pauseEvent,
-        new isInstanceOf<VMPauseExitEvent>());
+    expect((await isolate.load()).pauseEvent, isA<VMPauseExitEvent>());
   });
 
   test("unhandled pauses only on unhandled exceptions", () async {
@@ -58,8 +57,7 @@ void main() {
     // Resume and expect termination.
     await isolate.resume();
     await isolate.waitUntilPaused();
-    expect((await isolate.load()).pauseEvent,
-        new isInstanceOf<VMPauseExitEvent>());
+    expect((await isolate.load()).pauseEvent, isA<VMPauseExitEvent>());
   });
 
   test("all pauses only on all exceptions", () async {
@@ -95,8 +93,7 @@ void main() {
     // Resume and expect termination.
     await isolate.resume();
     await isolate.waitUntilPaused();
-    expect((await isolate.load()).pauseEvent,
-        new isInstanceOf<VMPauseExitEvent>());
+    expect((await isolate.load()).pauseEvent, isA<VMPauseExitEvent>());
   });
 
   test("exception mode can be read and set", () async {

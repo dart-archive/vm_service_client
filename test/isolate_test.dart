@@ -172,6 +172,7 @@ void main() {
         }
 
         // Note: this produces a bogus dead code warning (sdk#30243).
+        // ignore: dead_code
         expect(other.onExit, completes);
       }, skip: "broken by sdk#28505");
     });
@@ -431,8 +432,7 @@ void main() {
   });
 
   group("resume(overAsyncSuspension)", () {
-    var isolate;
-    var stdout;
+    VMIsolateRef isolate;
     setUp(() async {
       client = await runAndConnect(topLevel: r"""
         inner() {
@@ -452,7 +452,6 @@ void main() {
 
       isolate = (await client.getVM()).isolates.first;
       await isolate.waitUntilPaused();
-      stdout = new StreamQueue(isolate.stdout.transform(lines));
     });
 
     test("steps over the async suspension with VMStep.overAsyncSuspension",
