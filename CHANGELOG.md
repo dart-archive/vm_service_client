@@ -1,3 +1,8 @@
+## 0.2.6+2
+
+* Do not override path during `VMServiceClient.connect`.
+  * Fixes issues with connecting to Dart `2.3` observatory URIs.
+
 ## 0.2.6+1
 
 * Allow `stream_channel` version 2.x

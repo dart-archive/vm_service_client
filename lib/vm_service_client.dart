@@ -109,7 +109,10 @@ class VMServiceClient {
     }
 
     var uri = url is String ? Uri.parse(url) : url;
-    if (uri.scheme == 'http') uri = uri.replace(scheme: 'ws', path: '/ws');
+    if (uri.scheme == 'http') {
+      var path = uri.path.endsWith('/') ? uri.path : uri.path + '/';
+      uri = uri.replace(scheme: 'ws', path: '${path}ws');
+    }
 
     // TODO(nweiz): Just use [WebSocketChannel.connect] when cross-platform
     // libraries work.
