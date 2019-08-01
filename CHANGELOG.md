@@ -1,3 +1,7 @@
+## 0.2.6+3
+
+* Mark this package as discontinued.
+
 ## 0.2.6+2
 
 * Do not override path during `VMServiceClient.connect`.
