@@ -2,6 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+@Deprecated('Use package:vm_service instead.')
+library vm_service_client;
+
 import 'dart:async';
 
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
